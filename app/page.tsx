@@ -2,13 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Check, Zap, FileText, Download, Star } from "lucide-react";
+import { Check, Zap, FileText, Download, Star } from "lucide-react";
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white text-gray-900 font-sans">
       {/* Header */}
-      <header className="fixed w-full bg-white/80 backdrop-blur-md z-50">
+      <header className="absolute w-full bg-white/80 backdrop-blur-md z-50">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <Link
             href="/"
@@ -60,7 +60,7 @@ export default function LandingPage() {
           </div>
           <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight tracking-tight text-slate-900">
             Crie Atividades Pedagógicas <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-indigo-600">
               em Segundos com IA
             </span>
           </h1>

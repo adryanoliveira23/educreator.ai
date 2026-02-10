@@ -2,6 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import {
+  Users,
+  FileText,
+  CreditCard,
+  MoreHorizontal,
+  Search,
+} from "lucide-react";
+import StatsCard from "@/components/admin/StatsCard";
 
 type User = {
   id: string;
@@ -11,11 +19,13 @@ type User = {
   plan?: string;
   banned?: boolean;
   pdfs_generated_count?: number;
+  createdAt?: any;
 };
 
 export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchUsers = async () => {
     try {
@@ -55,75 +65,176 @@ export default function AdminDashboard() {
     }
   };
 
-  if (loading) return <div className="p-8 text-white">Carregando...</div>;
+  // Derived metrics
+  const totalUsers = users.length;
+  const activeSubs = users.filter(
+    (u) => u.plan === "pro" || u.plan === "premium",
+  ).length;
+  const totalPDFs = users.reduce(
+    (acc, curr) => acc + (curr.pdfs_generated_count || 0),
+    0,
+  );
+
+  const filteredUsers = users.filter(
+    (user) =>
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.id.includes(searchTerm),
+  );
+
+  if (loading)
+    return (
+      <div className="flex h-full items-center justify-center p-8 text-white">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+      </div>
+    );
 
   return (
-    <div className="min-h-screen bg-gray-900 p-8 text-white">
-      <div className="mx-auto max-w-6xl">
-        <h1 className="mb-8 text-3xl font-bold">Admin Dashboard</h1>
+    <div className="space-y-8">
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <StatsCard
+          title="Total de Usuários"
+          value={totalUsers.toString()}
+          icon={Users}
+          trend="+12%"
+          trendUp={true}
+        />
+        <StatsCard
+          title="Assinaturas Ativas"
+          value={activeSubs.toString()}
+          icon={CreditCard}
+          trend="+5%"
+          trendUp={true}
+        />
+        <StatsCard
+          title="PDFs Gerados"
+          value={totalPDFs.toString()}
+          icon={FileText}
+          trend="+24%"
+          trendUp={true}
+        />
+      </div>
 
-        <div className="overflow-x-auto rounded-lg bg-gray-800 shadow">
-          <table className="w-full text-left">
-            <thead className="bg-gray-700 text-gray-300">
+      {/* Users Table Section */}
+      <div className="rounded-xl border border-gray-800 bg-gray-900 shadow-sm">
+        <div className="flex flex-col justify-between gap-4 border-b border-gray-800 p-6 sm:flex-row sm:items-center">
+          <h2 className="text-lg font-semibold text-white">
+            Usuários Recentes
+          </h2>
+          <div className="relative">
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+              size={18}
+            />
+            <input
+              type="text"
+              placeholder="Buscar usuários..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full rounded-lg border border-gray-700 bg-gray-800 py-2 pl-10 pr-4 text-sm text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none sm:w-64"
+            />
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-gray-800/50 text-gray-400">
               <tr>
-                <th className="p-4">Email</th>
-                <th className="p-4">Plano</th>
-                <th className="p-4">PDFs Gerados</th>
-                <th className="p-4">Status</th>
-                <th className="p-4">Ações</th>
+                <th className="p-6 font-medium">Usuário</th>
+                <th className="p-6 font-medium">Plano</th>
+                <th className="p-6 font-medium">Uso (PDFs)</th>
+                <th className="p-6 font-medium">Status</th>
+                <th className="p-6 font-medium text-right">Ações</th>
               </tr>
             </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr
-                  key={user.id}
-                  className="border-b border-gray-700 hover:bg-gray-750"
-                >
-                  <td className="p-4">
-                    <div>{user.email}</div>
-                    <div className="text-xs text-gray-400">{user.id}</div>
-                  </td>
-                  <td className="p-4">
-                    <span
-                      className={`rounded px-2 py-1 text-xs font-bold ${
-                        user.plan === "premium"
-                          ? "bg-purple-900 text-purple-200"
-                          : user.plan === "pro"
-                            ? "bg-blue-900 text-blue-200"
-                            : "bg-gray-600 text-gray-200"
-                      }`}
-                    >
-                      {user.plan || "Free"}
-                    </span>
-                  </td>
-                  <td className="p-4">{user.pdfs_generated_count || 0}</td>
-                  <td className="p-4">
-                    {user.banned ? (
-                      <span className="text-red-400 font-bold">Banido</span>
-                    ) : (
-                      <span className="text-green-400">Ativo</span>
-                    )}
-                  </td>
-                  <td className="p-4 flex gap-2">
-                    <button
-                      onClick={() => toggleBan(user.id, user.banned)}
-                      className={`rounded px-3 py-1 text-sm font-bold transition ${
-                        user.banned
-                          ? "bg-green-600 hover:bg-green-700"
-                          : "bg-red-600 hover:bg-red-700"
-                      }`}
-                    >
-                      {user.banned ? "Desbanir" : "Banir"}
-                    </button>
-                    <Link
-                      href={`/admin/dashboard/user/${user.id}`}
-                      className="rounded bg-gray-600 px-3 py-1 text-sm font-bold hover:bg-gray-500 transition"
-                    >
-                      Histórico
-                    </Link>
+            <tbody className="divide-y divide-gray-800">
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map((user) => (
+                  <tr
+                    key={user.id}
+                    className="group transition hover:bg-gray-800/50"
+                  >
+                    <td className="p-6">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-900/30 text-blue-500">
+                          <span className="font-bold">
+                            {user.email.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div>
+                          <div className="font-medium text-white">
+                            {user.email}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            ID: {user.id.substring(0, 8)}...
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="p-6">
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                          user.plan === "premium"
+                            ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
+                            : user.plan === "pro"
+                              ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                              : "bg-gray-500/10 text-gray-400 border border-gray-500/20"
+                        }`}
+                      >
+                        {user.plan
+                          ? user.plan.charAt(0).toUpperCase() +
+                            user.plan.slice(1)
+                          : "Free"}
+                      </span>
+                    </td>
+                    <td className="p-6 text-gray-300">
+                      {user.pdfs_generated_count || 0}
+                    </td>
+                    <td className="p-6">
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                          user.banned
+                            ? "bg-red-500/10 text-red-400"
+                            : "bg-green-500/10 text-green-400"
+                        }`}
+                      >
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full ${
+                            user.banned ? "bg-red-400" : "bg-green-400"
+                          }`}
+                        ></span>
+                        {user.banned ? "Banido" : "Ativo"}
+                      </span>
+                    </td>
+                    <td className="p-6 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => toggleBan(user.id, user.banned)}
+                          className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+                            user.banned
+                              ? "bg-green-600 text-white hover:bg-green-700"
+                              : "bg-red-600/10 text-red-400 hover:bg-red-600/20"
+                          }`}
+                        >
+                          {user.banned ? "Desbanir" : "Banir"}
+                        </button>
+                        <Link
+                          href={`/admin/dashboard/user/${user.id}`}
+                          className="rounded-lg bg-gray-800 px-3 py-1.5 text-xs font-medium text-gray-300 transition hover:bg-gray-700 hover:text-white"
+                        >
+                          Detalhes
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} className="p-8 text-center text-gray-500">
+                    Nenhum usuário encontrado.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
