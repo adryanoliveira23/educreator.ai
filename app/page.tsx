@@ -1,16 +1,20 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowRight, Check, Zap, FileText, Download, Star } from "lucide-react";
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white text-gray-900 font-sans">
       {/* Header */}
-      <header className="fixed w-full bg-white/80 backdrop-blur-md border-b z-50">
+      <header className="fixed w-full bg-white/80 backdrop-blur-md z-50">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="text-2xl font-bold text-blue-600 flex items-center gap-2">
-            <div className="relative h-10 w-10">
+          <Link
+            href="/"
+            className="text-xl font-bold text-blue-600 flex items-center gap-2 whitespace-nowrap"
+          >
+            <div className="relative h-8 w-8">
               <Image
                 src="/logo.png"
                 alt="EduCreator AI Logo"
@@ -19,7 +23,7 @@ export default function LandingPage() {
               />
             </div>
             EduCreator AI
-          </div>
+          </Link>
           <nav className="hidden md:flex gap-8 text-sm font-medium text-gray-600">
             <a href="#como-funciona" className="hover:text-blue-600 transition">
               Como Funciona
@@ -31,16 +35,16 @@ export default function LandingPage() {
               Exemplo
             </a>
           </nav>
-          <div className="flex gap-4">
+          <div className="flex gap-4 items-center">
             <Link
               href="/login"
-              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition"
+              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition hidden sm:block"
             >
               Login
             </Link>
             <Link
               href="/register"
-              className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-full hover:bg-blue-700 transition"
+              className="px-5 py-2.5 text-sm font-bold bg-blue-600 text-white rounded-full hover:bg-blue-700 transition shadow-md hover:shadow-lg"
             >
               Começar Agora
             </Link>
@@ -49,23 +53,27 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <main className="flex-grow pt-28">
+      <main className="flex-grow pt-32">
         <section className="container mx-auto px-6 text-center mb-24">
           <div className="inline-block px-4 py-1.5 mb-6 text-xs font-semibold tracking-wider text-blue-600 uppercase bg-blue-50 rounded-full">
             Inteligência Artificial para Professores
           </div>
-          <h1 className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight tracking-tight text-slate-900">
+          <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight tracking-tight text-slate-900">
             Crie Atividades Pedagógicas <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
               em Segundos com IA
             </span>
           </h1>
-          <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xl text-gray-600 mb-6 max-w-2xl mx-auto leading-relaxed">
             Deixe a IA criar exercícios, textos e avaliações completas para
             você. Baixe em PDF pronto para imprimir e use em sala de aula
             imediatamente.
           </p>
-          <div className="flex justify-center gap-4">
+          <p className="text-md text-blue-600 font-medium mb-10 max-w-2xl mx-auto bg-blue-50 py-2 px-4 rounded-lg inline-block">
+            ✨ Além de criar 10 questões, a IA cria qualquer quantidade de
+            questões!
+          </p>
+          <div className="flex justify-center gap-4 flex-col sm:flex-row">
             <Link
               href="/register"
               className="px-8 py-4 text-lg font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-1"
