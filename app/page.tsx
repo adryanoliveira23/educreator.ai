@@ -9,6 +9,11 @@ export default function LandingPage() {
       {/* Header */}
       <header className="absolute w-full bg-white/80 backdrop-blur-md z-50">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+          {/* Brand Name */}
+          <Link href="/" className="text-xl font-bold text-blue-600">
+            EduCreator AI
+          </Link>
+
           <nav className="hidden md:flex gap-8 text-sm font-medium text-gray-600">
             <a href="#como-funciona" className="hover:text-blue-600 transition">
               Como Funciona
