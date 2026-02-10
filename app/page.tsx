@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Check, Zap, FileText, Download, Star } from "lucide-react";
 
@@ -10,20 +9,6 @@ export default function LandingPage() {
       {/* Header */}
       <header className="absolute w-full bg-white/80 backdrop-blur-md z-50">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <Link
-            href="/"
-            className="text-xl font-bold text-blue-600 flex items-center gap-2 whitespace-nowrap"
-          >
-            <div className="relative h-8 w-8">
-              <Image
-                src="/logo.png"
-                alt="EduCreator AI Logo"
-                fill
-                className="object-contain"
-              />
-            </div>
-            EduCreator AI
-          </Link>
           <nav className="hidden md:flex gap-8 text-sm font-medium text-gray-600">
             <a href="#como-funciona" className="hover:text-blue-600 transition">
               Como Funciona
@@ -35,10 +20,10 @@ export default function LandingPage() {
               Exemplo
             </a>
           </nav>
-          <div className="flex gap-4 items-center">
+          <div className="flex gap-4 items-center ml-auto">
             <Link
               href="/login"
-              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition hidden sm:block"
+              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition"
             >
               Login
             </Link>
@@ -114,33 +99,32 @@ export default function LandingPage() {
                 <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white">
                   <Zap size={20} />
                 </div>
-                <div className="bg-white p-4 rounded-2xl rounded-tr-none shadow-md border border-indigo-100 max-w-xl text-left">
-                  <p className="text-indigo-600 font-semibold mb-2">
+                <div className="bg-white p-6 rounded-2xl rounded-tr-none shadow-md border border-indigo-100 max-w-xl text-left">
+                  <p className="text-indigo-600 font-semibold mb-4">
                     ✨ Atividade Gerada:
                   </p>
-                  <h3 className="font-bold text-gray-900 mb-1">
-                    Vamos Somar as Frutas!
-                  </h3>
-                  <p className="text-gray-600 text-sm mb-4">
-                    Resolva as continhas abaixo para descobrir quantas frutas
-                    temos no total.
-                  </p>
-                  <ul className="space-y-2 text-gray-700">
-                    <li className="flex items-center gap-2">
-                      <div className="w-1 h-1 bg-gray-400 rounded-full"></div>{" "}
-                      🍎 2 maçãs + 🍎 3 maçãs = _____
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <div className="w-1 h-1 bg-gray-400 rounded-full"></div>{" "}
-                      🍌 1 banana + 🍌 4 bananas = _____
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <div className="w-1 h-1 bg-gray-400 rounded-full"></div>{" "}
-                      🍊 3 laranjas + 🍊 3 laranjas = _____
-                    </li>
-                  </ul>
-                  <div className="mt-4 pt-4 border-t">
-                    <button className="flex items-center gap-2 text-sm font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded-lg hover:bg-red-100 transition">
+                  <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                    <h3 className="font-bold text-gray-900 mb-2 text-lg">
+                      Vamos Somar as Frutas!
+                    </h3>
+                    <p className="text-gray-600 text-sm mb-4">
+                      Resolva as continhas abaixo para descobrir quantas frutas
+                      temos no total.
+                    </p>
+                    <div className="grid grid-cols-2 gap-3 mb-4">
+                      <div className="text-5xl">🍎</div>
+                      <div className="text-5xl">🍎</div>
+                      <div className="text-5xl">🍎</div>
+                      <div className="text-5xl">🍎</div>
+                    </div>
+                    <div className="space-y-2 text-gray-700 text-sm">
+                      <div>A) 2</div>
+                      <div>B) 7</div>
+                      <div>C) 4</div>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <button className="flex items-center gap-2 text-sm font-bold text-red-600 bg-red-50 px-4 py-2 rounded-lg hover:bg-red-100 transition">
                       <FileText size={16} /> Baixar PDF
                     </button>
                   </div>

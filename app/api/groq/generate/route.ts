@@ -40,15 +40,15 @@ export async function POST(req: Request) {
 
     const plan = userData.plan || "normal";
     const usage = userData.pdfs_generated_count || 0;
+    const role = userData.role || "user";
     const limits: Record<string, number> = {
       normal: 10,
       pro: 30,
       premium: 999999,
     };
 
-    if (usage >= limits[plan]) {
-      // Allow generating but warn? Or block? Instructions say "impede gerar PDF acima do limite".
-      // This is generating the content. I'll block here too to save API costs.
+    // Admins have infinite access
+    if (role !== "admin" && usage >= limits[plan]) {
       return NextResponse.json(
         { error: "Limit reached. Upgrade your plan." },
         { status: 403 },

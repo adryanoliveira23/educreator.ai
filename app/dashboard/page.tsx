@@ -54,6 +54,10 @@ export default function Dashboard() {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [error, setError] = useState("");
+  const [generationMode, setGenerationMode] = useState<"text" | "image">(
+    "text",
+  );
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
 
   const [showPlans, setShowPlans] = useState(false);
 
@@ -140,26 +144,49 @@ export default function Dashboard() {
     setIsGenerating(true);
     setError("");
     setResult(null);
+    setGeneratedImage(null);
 
     try {
       const token = await user?.getIdToken();
-      const res = await fetch("/api/groq/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ prompt }),
-      });
 
-      if (!res.ok) {
+      if (generationMode === "image") {
+        // Generate image
+        const res = await fetch("/api/image/generate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ prompt }),
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || "Erro ao gerar imagem");
+        }
+
         const data = await res.json();
-        throw new Error(data.error || "Erro ao gerar atividade");
+        setGeneratedImage(data.image);
+      } else {
+        // Generate text activity
+        const res = await fetch("/api/groq/generate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ prompt }),
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || "Erro ao gerar atividade");
+        }
+
+        const data = (await res.json()) as ActivityContent;
+        setResult(data);
       }
 
-      const data = (await res.json()) as ActivityContent;
-
-      setResult(data);
       fetchUserData();
       fetchActivities();
     } catch (err: any) {
@@ -370,7 +397,35 @@ export default function Dashboard() {
 
         {/* Chat Area */}
         <div className="flex-1 overflow-y-auto p-6 md:p-12">
-          {result ? (
+          {generatedImage ? (
+            <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-sm border p-8 animate-fade-in">
+              <div className="flex justify-between items-start mb-6 border-b pb-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Imagem Gerada
+                  </h2>
+                  <p className="text-gray-500">
+                    Sua imagem foi criada com sucesso!
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-center">
+                <img
+                  src={generatedImage}
+                  alt="Imagem gerada"
+                  className="max-w-full h-auto rounded-lg shadow-md"
+                />
+              </div>
+
+              <button
+                onClick={() => setGeneratedImage(null)}
+                className="mt-8 text-blue-600 hover:underline text-sm"
+              >
+                ← Criar nova imagem
+              </button>
+            </div>
+          ) : result ? (
             <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-sm border p-8 animate-fade-in">
               <div className="flex justify-between items-start mb-6 border-b pb-4">
                 <div>
@@ -450,6 +505,30 @@ export default function Dashboard() {
         {/* Input Area */}
         <div className="bg-white border-t p-6">
           <div className="max-w-3xl mx-auto">
+            {/* Mode Selector */}
+            <div className="flex gap-2 mb-4 justify-center">
+              <button
+                onClick={() => setGenerationMode("text")}
+                className={`px-4 py-2 rounded-lg font-medium transition ${
+                  generationMode === "text"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                📝 Texto
+              </button>
+              <button
+                onClick={() => setGenerationMode("image")}
+                className={`px-4 py-2 rounded-lg font-medium transition ${
+                  generationMode === "image"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                🎨 Imagem
+              </button>
+            </div>
+
             {error && (
               <p className="text-red-500 text-sm mb-2 text-center">{error}</p>
             )}
@@ -461,9 +540,16 @@ export default function Dashboard() {
                 type="text"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Ex: Atividade de história sobre o descobrimento do Brasil para 4º ano..."
+                placeholder={
+                  generationMode === "image"
+                    ? "Ex: Uma ilustração de uma maçã vermelha para atividade escolar..."
+                    : "Ex: Atividade de história sobre o descobrimento do Brasil para 4º ano..."
+                }
                 className="w-full p-4 pr-12 outline-none text-gray-900 placeholder-gray-400"
-                disabled={isGenerating || (percentage >= 100 && !result)}
+                disabled={
+                  isGenerating ||
+                  (percentage >= 100 && !result && !generatedImage)
+                }
               />
               <button
                 type="submit"

@@ -65,6 +65,29 @@ export default function AdminDashboard() {
     }
   };
 
+  const toggleRole = async (id: string, currentRole?: string) => {
+    const newRole = currentRole === "admin" ? "user" : "admin";
+    if (
+      !confirm(
+        `Tem certeza que deseja mudar este usuário para ${newRole === "admin" ? "Administrador" : "Usuário"}?`,
+      )
+    )
+      return;
+
+    try {
+      const res = await fetch(`/api/admin/users/${id}/role`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: newRole }),
+      });
+      if (res.ok) {
+        fetchUsers(); // Refresh list
+      }
+    } catch (error) {
+      alert("Erro ao atualizar role");
+    }
+  };
+
   // Derived metrics
   const totalUsers = users.length;
   const activeSubs = users.filter(
@@ -142,6 +165,7 @@ export default function AdminDashboard() {
               <tr>
                 <th className="p-6 font-medium">Usuário</th>
                 <th className="p-6 font-medium">Plano</th>
+                <th className="p-6 font-medium">Role</th>
                 <th className="p-6 font-medium">Uso (PDFs)</th>
                 <th className="p-6 font-medium">Status</th>
                 <th className="p-6 font-medium text-right">Ações</th>
@@ -187,6 +211,17 @@ export default function AdminDashboard() {
                           : "Free"}
                       </span>
                     </td>
+                    <td className="p-6">
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                          user.role === "admin"
+                            ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
+                            : "bg-gray-500/10 text-gray-400 border border-gray-500/20"
+                        }`}
+                      >
+                        {user.role === "admin" ? "Admin" : "Usuário"}
+                      </span>
+                    </td>
                     <td className="p-6 text-gray-300">
                       {user.pdfs_generated_count || 0}
                     </td>
@@ -209,6 +244,12 @@ export default function AdminDashboard() {
                     <td className="p-6 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button
+                          onClick={() => toggleRole(user.id, user.role)}
+                          className="rounded-lg bg-purple-600/10 px-3 py-1.5 text-xs font-medium text-purple-400 transition hover:bg-purple-600/20"
+                        >
+                          {user.role === "admin" ? "→ Usuário" : "→ Admin"}
+                        </button>
+                        <button
                           onClick={() => toggleBan(user.id, user.banned)}
                           className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
                             user.banned
@@ -230,7 +271,7 @@ export default function AdminDashboard() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-gray-500">
+                  <td colSpan={6} className="p-8 text-center text-gray-500">
                     Nenhum usuário encontrado.
                   </td>
                 </tr>
