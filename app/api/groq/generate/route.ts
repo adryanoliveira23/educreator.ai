@@ -63,14 +63,37 @@ export async function POST(req: Request) {
       Você é um assistente pedagógico especializado em criar atividades educativas para crianças.
       Gere o conteúdo em JSON estrito com a seguinte estrutura:
       {
-        "title": "Título da Atividade",
-        "description": "Breve descrição ou instruções",
-        "content": [
-          { "type": "text", "value": "Texto explicativo ou enunciado..." },
-          { "type": "question", "value": "1. Pergunta..." }
+        "title": "TÍTULO DA ATIVIDADE EM MAIÚSCULAS",
+        "header": {
+          "studentName": "Nome do aluno:",
+          "school": "Escola:",
+          "teacherName": "Nome do professor(a):"
+        },
+        "questions": [
+          {
+            "number": 1,
+            "imagePrompt": "Descrição detalhada de uma imagem educativa relacionada à questão (ex: 'ilustração colorida de máscaras de carnaval')",
+            "questionText": "Texto da pergunta",
+            "type": "multiple_choice",
+            "alternatives": [
+              "Alternativa A",
+              "Alternativa B",
+              "Alternativa C",
+              "Alternativa D"
+            ]
+          }
         ]
       }
-      Mantenha a formatação clara.
+      
+      INSTRUÇÕES IMPORTANTES:
+      - Gere sempre entre 5 a 10 questões
+      - Cada questão DEVE ter um imagePrompt descrevendo uma imagem educativa apropriada
+      - Varie os tipos de questões: use "multiple_choice" (múltipla escolha), "check_box" (marcar X), "true_false" (verdadeiro ou falso)
+      - Para multiple_choice: use 4 alternativas
+      - Para check_box: use 3-4 alternativas
+      - Para true_false: use apenas 2 alternativas ["Verdadeiro", "Falso"]
+      - As imagens devem ser apropriadas para a idade e tema
+      - Mantenha linguagem clara e adequada ao ano escolar solicitado
     `;
 
     const completion = await groq.chat.completions.create({

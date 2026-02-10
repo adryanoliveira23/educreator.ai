@@ -20,15 +20,22 @@ import { auth } from "@/lib/firebase";
 
 import { signOut } from "firebase/auth";
 
-interface ActivityItem {
-  type: "text" | "question";
-  value: string;
+interface Question {
+  number: number;
+  imagePrompt: string;
+  questionText: string;
+  type: "multiple_choice" | "check_box" | "true_false";
+  alternatives: string[];
 }
 
 interface ActivityContent {
   title: string;
-  description: string;
-  content: ActivityItem[];
+  header: {
+    studentName: string;
+    school: string;
+    teacherName: string;
+  };
+  questions: Question[];
 }
 
 interface Activity {
@@ -54,10 +61,6 @@ export default function Dashboard() {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [error, setError] = useState("");
-  const [generationMode, setGenerationMode] = useState<"text" | "image">(
-    "text",
-  );
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
 
   const [showPlans, setShowPlans] = useState(false);
 
@@ -144,48 +147,27 @@ export default function Dashboard() {
     setIsGenerating(true);
     setError("");
     setResult(null);
-    setGeneratedImage(null);
 
     try {
       const token = await user?.getIdToken();
 
-      if (generationMode === "image") {
-        // Generate image
-        const res = await fetch("/api/image/generate", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ prompt }),
-        });
+      // Generate activity
+      const res = await fetch("/api/groq/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ prompt }),
+      });
 
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error || "Erro ao gerar imagem");
-        }
-
+      if (!res.ok) {
         const data = await res.json();
-        setGeneratedImage(data.image);
-      } else {
-        // Generate text activity
-        const res = await fetch("/api/groq/generate", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ prompt }),
-        });
-
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error || "Erro ao gerar atividade");
-        }
-
-        const data = (await res.json()) as ActivityContent;
-        setResult(data);
+        throw new Error(data.error || "Erro ao gerar atividade");
       }
+
+      const data = (await res.json()) as ActivityContent;
+      setResult(data);
 
       fetchUserData();
       fetchActivities();
@@ -397,42 +379,13 @@ export default function Dashboard() {
 
         {/* Chat Area */}
         <div className="flex-1 overflow-y-auto p-6 md:p-12">
-          {generatedImage ? (
-            <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-sm border p-8 animate-fade-in">
-              <div className="flex justify-between items-start mb-6 border-b pb-4">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
-                    Imagem Gerada
-                  </h2>
-                  <p className="text-gray-500">
-                    Sua imagem foi criada com sucesso!
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex justify-center">
-                <img
-                  src={generatedImage}
-                  alt="Imagem gerada"
-                  className="max-w-full h-auto rounded-lg shadow-md"
-                />
-              </div>
-
-              <button
-                onClick={() => setGeneratedImage(null)}
-                className="mt-8 text-blue-600 hover:underline text-sm"
-              >
-                ← Criar nova imagem
-              </button>
-            </div>
-          ) : result ? (
+          {result ? (
             <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-sm border p-8 animate-fade-in">
               <div className="flex justify-between items-start mb-6 border-b pb-4">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">
                     {result.title}
                   </h2>
-                  <p className="text-gray-500">{result.description}</p>
                 </div>
                 <button
                   onClick={() => handleDownloadPDF(result)}
@@ -442,17 +395,35 @@ export default function Dashboard() {
                 </button>
               </div>
 
-              <div className="space-y-4 text-gray-700">
-                {result.content?.map((item, i) => (
-                  <div
-                    key={i}
-                    className={
-                      item.type === "question"
-                        ? "font-semibold text-gray-900 mt-4"
-                        : ""
-                    }
-                  >
-                    {item.value}
+              {/* Header Fields */}
+              <div className="mb-6 space-y-2 text-gray-700">
+                <p>{result.header.studentName} _______________________</p>
+                <p>{result.header.school} _______________________</p>
+                <p>{result.header.teacherName} _______________________</p>
+              </div>
+
+              {/* Questions */}
+              <div className="space-y-6">
+                {result.questions?.map((question, i) => (
+                  <div key={i} className="border-b pb-4 last:border-b-0">
+                    <p className="font-bold text-gray-900 mb-2">
+                      Questão {question.number}
+                    </p>
+                    {question.imagePrompt && (
+                      <p className="text-sm text-gray-500 italic mb-2">
+                        [Imagem: {question.imagePrompt}]
+                      </p>
+                    )}
+                    <p className="mb-3">{question.questionText}</p>
+                    <div className="space-y-1 ml-4">
+                      {question.alternatives.map((alt, j) => (
+                        <div key={j}>
+                          {question.type === "multiple_choice" && `( ) ${alt}`}
+                          {question.type === "check_box" && `[ ] ${alt}`}
+                          {question.type === "true_false" && `( ) ${alt}`}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -505,30 +476,6 @@ export default function Dashboard() {
         {/* Input Area */}
         <div className="bg-white border-t p-6">
           <div className="max-w-3xl mx-auto">
-            {/* Mode Selector */}
-            <div className="flex gap-2 mb-4 justify-center">
-              <button
-                onClick={() => setGenerationMode("text")}
-                className={`px-4 py-2 rounded-lg font-medium transition ${
-                  generationMode === "text"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                📝 Texto
-              </button>
-              <button
-                onClick={() => setGenerationMode("image")}
-                className={`px-4 py-2 rounded-lg font-medium transition ${
-                  generationMode === "image"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                🎨 Imagem
-              </button>
-            </div>
-
             {error && (
               <p className="text-red-500 text-sm mb-2 text-center">{error}</p>
             )}
@@ -540,16 +487,9 @@ export default function Dashboard() {
                 type="text"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                placeholder={
-                  generationMode === "image"
-                    ? "Ex: Uma ilustração de uma maçã vermelha para atividade escolar..."
-                    : "Ex: Atividade de história sobre o descobrimento do Brasil para 4º ano..."
-                }
+                placeholder="Ex: Quero uma atividade do 5º ano sobre Carnaval"
                 className="w-full p-4 pr-12 outline-none text-gray-900 placeholder-gray-400"
-                disabled={
-                  isGenerating ||
-                  (percentage >= 100 && !result && !generatedImage)
-                }
+                disabled={isGenerating || (percentage >= 100 && !result)}
               />
               <button
                 type="submit"
