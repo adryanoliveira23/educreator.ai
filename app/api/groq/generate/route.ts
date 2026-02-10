@@ -3,7 +3,8 @@ import { adminAuth, adminDb } from "@/lib/firebase-admin";
 import Groq from "groq-sdk";
 import * as admin from "firebase-admin";
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+// Initialize Groq client lazily or inside the handler to prevent build-time errors
+// if the API key is missing in the build environment.
 
 export async function POST(req: Request) {
   if (!adminAuth || !adminDb) {
@@ -55,6 +56,8 @@ export async function POST(req: Request) {
     }
 
     const { prompt } = await req.json();
+
+    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
     const systemPrompt = `
       Você é um assistente pedagógico especializado em criar atividades educativas para crianças.
