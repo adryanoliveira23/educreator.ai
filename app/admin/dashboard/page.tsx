@@ -27,6 +27,26 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Modal states
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+  // Form states
+  const [createForm, setCreateForm] = useState({
+    email: "",
+    password: "",
+    plan: "normal",
+    role: "user",
+  });
+  const [editForm, setEditForm] = useState({
+    email: "",
+    plan: "normal",
+    role: "user",
+  });
+  const [newPassword, setNewPassword] = useState("");
+
   const fetchUsers = async () => {
     try {
       const res = await fetch("/api/admin/users");
@@ -88,6 +108,95 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleCreateUser = async () => {
+    try {
+      const res = await fetch("/api/admin/users/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(createForm),
+      });
+
+      if (res.ok) {
+        alert("Usuário criado com sucesso!");
+        setShowCreateModal(false);
+        setCreateForm({
+          email: "",
+          password: "",
+          plan: "normal",
+          role: "user",
+        });
+        fetchUsers();
+      } else {
+        const data = await res.json();
+        alert(data.error || "Erro ao criar usuário");
+      }
+    } catch (error) {
+      alert("Erro ao criar usuário");
+    }
+  };
+
+  const handleEditUser = async () => {
+    if (!selectedUser) return;
+
+    try {
+      const res = await fetch(`/api/admin/users/${selectedUser.id}/edit`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editForm),
+      });
+
+      if (res.ok) {
+        alert("Usuário atualizado com sucesso!");
+        setShowEditModal(false);
+        setSelectedUser(null);
+        fetchUsers();
+      } else {
+        alert("Erro ao atualizar usuário");
+      }
+    } catch (error) {
+      alert("Erro ao atualizar usuário");
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!selectedUser) return;
+
+    try {
+      const res = await fetch(`/api/admin/users/${selectedUser.id}/password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ newPassword }),
+      });
+
+      if (res.ok) {
+        alert("Senha alterada com sucesso!");
+        setShowPasswordModal(false);
+        setSelectedUser(null);
+        setNewPassword("");
+      } else {
+        const data = await res.json();
+        alert(data.error || "Erro ao alterar senha");
+      }
+    } catch (error) {
+      alert("Erro ao alterar senha");
+    }
+  };
+
+  const openEditModal = (user: User) => {
+    setSelectedUser(user);
+    setEditForm({
+      email: user.email,
+      plan: user.plan || "normal",
+      role: user.role || "user",
+    });
+    setShowEditModal(true);
+  };
+
+  const openPasswordModal = (user: User) => {
+    setSelectedUser(user);
+    setShowPasswordModal(true);
+  };
+
   // Derived metrics
   const totalUsers = users.length;
   const activeSubs = users.filter(
@@ -144,18 +253,26 @@ export default function AdminDashboard() {
           <h2 className="text-lg font-semibold text-white">
             Usuários Recentes
           </h2>
-          <div className="relative">
-            <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
-              size={18}
-            />
-            <input
-              type="text"
-              placeholder="Buscar usuários..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-lg border border-gray-700 bg-gray-800 py-2 pl-10 pr-4 text-sm text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none sm:w-64"
-            />
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+            >
+              + Criar Usuário
+            </button>
+            <div className="relative">
+              <Search
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+                size={18}
+              />
+              <input
+                type="text"
+                placeholder="Buscar usuários..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full rounded-lg border border-gray-700 bg-gray-800 py-2 pl-10 pr-4 text-sm text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none sm:w-64"
+              />
+            </div>
           </div>
         </div>
 
@@ -244,6 +361,18 @@ export default function AdminDashboard() {
                     <td className="p-6 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button
+                          onClick={() => openEditModal(user)}
+                          className="rounded-lg bg-blue-600/10 px-3 py-1.5 text-xs font-medium text-blue-400 transition hover:bg-blue-600/20"
+                        >
+                          Editar
+                        </button>
+                        <button
+                          onClick={() => openPasswordModal(user)}
+                          className="rounded-lg bg-yellow-600/10 px-3 py-1.5 text-xs font-medium text-yellow-400 transition hover:bg-yellow-600/20"
+                        >
+                          Senha
+                        </button>
+                        <button
                           onClick={() => toggleRole(user.id, user.role)}
                           className="rounded-lg bg-purple-600/10 px-3 py-1.5 text-xs font-medium text-purple-400 transition hover:bg-purple-600/20"
                         >
@@ -280,6 +409,204 @@ export default function AdminDashboard() {
           </table>
         </div>
       </div>
+
+      {/* Create User Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-xl bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-4 text-xl font-bold text-white">
+              Criar Novo Usuário
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className="mb-1 block text-sm text-gray-400">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={createForm.email}
+                  onChange={(e) =>
+                    setCreateForm({ ...createForm, email: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                  placeholder="usuario@exemplo.com"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm text-gray-400">
+                  Senha
+                </label>
+                <input
+                  type="password"
+                  value={createForm.password}
+                  onChange={(e) =>
+                    setCreateForm({ ...createForm, password: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                  placeholder="Mínimo 6 caracteres"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm text-gray-400">
+                  Plano
+                </label>
+                <select
+                  value={createForm.plan}
+                  onChange={(e) =>
+                    setCreateForm({ ...createForm, plan: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                >
+                  <option value="normal">Normal</option>
+                  <option value="pro">Pro</option>
+                  <option value="premium">Premium</option>
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-sm text-gray-400">Role</label>
+                <select
+                  value={createForm.role}
+                  onChange={(e) =>
+                    setCreateForm({ ...createForm, role: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                >
+                  <option value="user">Usuário</option>
+                  <option value="admin">Administrador</option>
+                </select>
+              </div>
+            </div>
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={handleCreateUser}
+                className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+              >
+                Criar
+              </button>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="flex-1 rounded-lg bg-gray-800 px-4 py-2 text-sm font-medium text-gray-300 transition hover:bg-gray-700"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit User Modal */}
+      {showEditModal && selectedUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-xl bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-4 text-xl font-bold text-white">
+              Editar Usuário
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className="mb-1 block text-sm text-gray-400">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={editForm.email}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, email: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm text-gray-400">
+                  Plano
+                </label>
+                <select
+                  value={editForm.plan}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, plan: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                >
+                  <option value="normal">Normal</option>
+                  <option value="pro">Pro</option>
+                  <option value="premium">Premium</option>
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-sm text-gray-400">Role</label>
+                <select
+                  value={editForm.role}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, role: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                >
+                  <option value="user">Usuário</option>
+                  <option value="admin">Administrador</option>
+                </select>
+              </div>
+            </div>
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={handleEditUser}
+                className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+              >
+                Salvar
+              </button>
+              <button
+                onClick={() => {
+                  setShowEditModal(false);
+                  setSelectedUser(null);
+                }}
+                className="flex-1 rounded-lg bg-gray-800 px-4 py-2 text-sm font-medium text-gray-300 transition hover:bg-gray-700"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Change Password Modal */}
+      {showPasswordModal && selectedUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-xl bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-4 text-xl font-bold text-white">Alterar Senha</h3>
+            <p className="mb-4 text-sm text-gray-400">
+              Usuário: {selectedUser.email}
+            </p>
+            <div>
+              <label className="mb-1 block text-sm text-gray-400">
+                Nova Senha
+              </label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                placeholder="Mínimo 6 caracteres"
+              />
+            </div>
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={handleChangePassword}
+                className="flex-1 rounded-lg bg-yellow-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-yellow-700"
+              >
+                Alterar
+              </button>
+              <button
+                onClick={() => {
+                  setShowPasswordModal(false);
+                  setSelectedUser(null);
+                  setNewPassword("");
+                }}
+                className="flex-1 rounded-lg bg-gray-800 px-4 py-2 text-sm font-medium text-gray-300 transition hover:bg-gray-700"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
