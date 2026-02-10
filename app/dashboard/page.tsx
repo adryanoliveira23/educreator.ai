@@ -186,7 +186,17 @@ export default function Dashboard() {
         body: JSON.stringify(activityContent),
       });
 
-      if (!res.ok) throw new Error("Erro ao gerar PDF");
+      if (!res.ok) {
+        let errorMessage = "Erro ao gerar PDF";
+        try {
+          const errorData = await res.json();
+          console.error("PDF Gen Error Details:", errorData);
+          errorMessage = errorData.details || errorData.error || errorMessage;
+        } catch (e) {
+          console.error("Failed to parse error response", e);
+        }
+        throw new Error(errorMessage);
+      }
 
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
@@ -196,9 +206,9 @@ export default function Dashboard() {
       document.body.appendChild(a);
       a.click();
       a.remove();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("Erro ao baixar PDF");
+      alert(`Erro ao baixar PDF: ${err.message}`);
     }
   };
 
@@ -254,6 +264,15 @@ export default function Dashboard() {
           <h1 className="text-xl font-bold text-blue-600 flex items-center gap-2">
             <span className="bg-blue-100 p-1 rounded">⚡</span> EduCreator
           </h1>
+          <button
+            onClick={() => {
+              setResult(null);
+              setPrompt("");
+            }}
+            className="mt-4 w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 font-medium"
+          >
+            + Nova Atividade
+          </button>
         </div>
 
         <div className="p-4 flex-grow overflow-y-auto">
@@ -387,12 +406,23 @@ export default function Dashboard() {
                     {result.title}
                   </h2>
                 </div>
-                <button
-                  onClick={() => handleDownloadPDF(result)}
-                  className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow-sm"
-                >
-                  <FileText size={18} /> Baixar PDF
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setResult(null);
+                      setPrompt("");
+                    }}
+                    className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition shadow-sm"
+                  >
+                    ← Voltar
+                  </button>
+                  <button
+                    onClick={() => handleDownloadPDF(result)}
+                    className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow-sm"
+                  >
+                    <FileText size={18} /> Baixar PDF
+                  </button>
+                </div>
               </div>
 
               {/* Header Fields */}

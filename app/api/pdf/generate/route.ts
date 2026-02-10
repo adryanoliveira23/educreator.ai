@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import PDFDocument from "pdfkit";
+// @ts-ignore
+import PDFDocument from "pdfkit/js/pdfkit.standalone";
 
 export async function POST(req: Request) {
   try {
@@ -8,7 +9,11 @@ export async function POST(req: Request) {
     const doc = new PDFDocument();
     const chunks: Buffer[] = [];
 
-    doc.on("data", (chunk) => chunks.push(chunk));
+    const pdfBufferPromise = new Promise<Buffer>((resolve, reject) => {
+      doc.on("data", (chunk) => chunks.push(chunk));
+      doc.on("end", () => resolve(Buffer.concat(chunks)));
+      doc.on("error", reject);
+    });
 
     // Calculate width for centering
     const pageWidth = doc.page.width;
@@ -116,9 +121,7 @@ export async function POST(req: Request) {
 
     doc.end();
 
-    const pdfBuffer = await new Promise<Buffer>((resolve) => {
-      doc.on("end", () => resolve(Buffer.concat(chunks)));
-    });
+    const pdfBuffer = await pdfBufferPromise;
 
     return new NextResponse(pdfBuffer as any, {
       headers: {
@@ -129,7 +132,10 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: "Failed to generate PDF" },
+      {
+        error: "Failed to generate PDF",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 },
     );
   }
