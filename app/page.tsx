@@ -79,6 +79,76 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Pain Point Section */}
+        <section className="container mx-auto px-6 mb-24">
+          <div className="max-w-4xl mx-auto bg-gradient-to-br from-red-50 to-pink-50 rounded-3xl p-12 shadow-xl border border-red-100">
+            <h2 className="text-3xl md:text-5xl font-extrabold text-center mb-8 leading-tight">
+              Você está <span className="text-red-600">sem tempo</span> pra
+              criar atividades <br className="hidden md:block" />
+              pra sua criança?
+            </h2>
+            <p className="text-lg md:text-xl text-gray-700 text-center max-w-2xl mx-auto leading-relaxed mb-8">
+              A verdade dói: você passa horas procurando atividades na internet,
+              mas nunca encontra exatamente o que precisa. Não é falta de
+              dedicação — é falta de tempo e ferramentas certas.
+            </p>
+
+            <div className="grid md:grid-cols-3 gap-6 mt-12">
+              <div className="bg-white rounded-2xl p-6 shadow-md">
+                <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mb-4">
+                  <span className="text-2xl">⏰</span>
+                </div>
+                <h3 className="font-bold text-lg text-gray-900 mb-2">
+                  Horas perdidas pesquisando
+                </h3>
+                <p className="text-gray-600 text-sm">
+                  Você passa horas procurando, mas nunca acha o conteúdo ideal
+                  para o nível da sua criança.
+                </p>
+              </div>
+
+              <div className="bg-white rounded-2xl p-6 shadow-md">
+                <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mb-4">
+                  <span className="text-2xl">📄</span>
+                </div>
+                <h3 className="font-bold text-lg text-gray-900 mb-2">
+                  Atividades genéricas
+                </h3>
+                <p className="text-gray-600 text-sm">
+                  As atividades prontas não se encaixam com o que você está
+                  ensinando agora.
+                </p>
+              </div>
+
+              <div className="bg-white rounded-2xl p-6 shadow-md">
+                <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mb-4">
+                  <span className="text-2xl">😓</span>
+                </div>
+                <h3 className="font-bold text-lg text-gray-900 mb-2">
+                  Frustração constante
+                </h3>
+                <p className="text-gray-600 text-sm">
+                  Você quer o melhor para seu filho, mas criar do zero é
+                  trabalhoso demais.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-10 text-center">
+              <p className="text-xl font-bold text-gray-900 mb-4">
+                ✨ E se você pudesse criar atividades personalizadas em
+                segundos?
+              </p>
+              <Link
+                href="/register"
+                className="inline-block px-8 py-4 text-lg font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                Começar Agora Gratuitamente
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* Fake Chat Demo */}
         <section id="demo" className="container mx-auto px-6 mb-32">
           <div className="max-w-4xl mx-auto bg-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-800">
