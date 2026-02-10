@@ -79,78 +79,8 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Pain Point Section */}
-        <section className="container mx-auto px-6 mb-24">
-          <div className="max-w-4xl mx-auto bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-12 shadow-xl border border-blue-100">
-            <h2 className="text-3xl md:text-5xl font-extrabold text-center mb-8 leading-tight">
-              Você está <span className="text-red-600">sem tempo</span> pra
-              criar atividades <br className="hidden md:block" />
-              pra sua criança?
-            </h2>
-            <p className="text-lg md:text-xl text-gray-700 text-center max-w-2xl mx-auto leading-relaxed mb-8">
-              A verdade dói: você passa horas procurando atividades na internet,
-              mas nunca encontra exatamente o que precisa. Não é falta de
-              dedicação — é falta de tempo e ferramentas certas.
-            </p>
-
-            <div className="grid md:grid-cols-3 gap-6 mt-12">
-              <div className="bg-white rounded-2xl p-6 shadow-md">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
-                  <span className="text-2xl">⏰</span>
-                </div>
-                <h3 className="font-bold text-lg text-gray-900 mb-2">
-                  Horas perdidas pesquisando
-                </h3>
-                <p className="text-gray-600 text-sm">
-                  Você passa horas procurando, mas nunca acha o conteúdo ideal
-                  para o nível da sua criança.
-                </p>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-md">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
-                  <span className="text-2xl">📄</span>
-                </div>
-                <h3 className="font-bold text-lg text-gray-900 mb-2">
-                  Atividades genéricas
-                </h3>
-                <p className="text-gray-600 text-sm">
-                  As atividades prontas não se encaixam com o que você está
-                  ensinando agora.
-                </p>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-md">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
-                  <span className="text-2xl">😓</span>
-                </div>
-                <h3 className="font-bold text-lg text-gray-900 mb-2">
-                  Frustração constante
-                </h3>
-                <p className="text-gray-600 text-sm">
-                  Você quer o melhor para seu filho, mas criar do zero é
-                  trabalhoso demais.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-10 text-center">
-              <p className="text-xl font-bold text-gray-900 mb-4">
-                ✨ E se você pudesse criar atividades personalizadas em
-                segundos?
-              </p>
-              <Link
-                href="#precos"
-                className="inline-block px-8 py-4 text-lg font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-              >
-                Gerar Atividades Agora
-              </Link>
-            </div>
-          </div>
-        </section>
-
         {/* Fake Chat Demo */}
-        <section id="demo" className="container mx-auto px-6 mb-32">
+        <section id="demo" className="container mx-auto px-6 mb-24">
           <div className="max-w-4xl mx-auto bg-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-800">
             <div className="bg-gray-800 px-4 py-3 flex gap-2 border-b border-gray-700">
               <div className="w-3 h-3 rounded-full bg-red-500"></div>
@@ -213,20 +143,72 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Time Wasting Pain Point Section */}
-        <section className="container mx-auto px-6 mb-24">
-          <div className="max-w-3xl mx-auto bg-gradient-to-br from-gray-50 to-slate-50 rounded-3xl p-10 md:p-16 shadow-xl border border-gray-200">
-            <div className="text-center">
-              <div className="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-4xl">⏰</span>
+        {/* Pain Point Section - Moved below demo */}
+        <section className="container mx-auto px-4 sm:px-6 mb-24">
+          <div className="max-w-4xl mx-auto bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 shadow-xl border border-blue-100">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-center mb-6 sm:mb-8 leading-tight">
+              Você está <span className="text-blue-600">sem tempo</span> pra
+              criar atividades <br className="hidden sm:block" />
+              pra sua criança?
+            </h2>
+            <p className="text-base sm:text-lg md:text-xl text-gray-700 text-center max-w-2xl mx-auto leading-relaxed mb-6 sm:mb-8">
+              A verdade dói: você passa horas procurando atividades na internet,
+              mas nunca encontra exatamente o que precisa. Não é falta de
+              dedicação — é falta de tempo e ferramentas certas.
+            </p>
+
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mt-8 sm:mt-12">
+              <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-md">
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                  <span className="text-2xl">⏰</span>
+                </div>
+                <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-2">
+                  Horas perdidas pesquisando
+                </h3>
+                <p className="text-gray-600 text-sm">
+                  Você passa horas procurando, mas nunca acha o conteúdo ideal
+                  para o nível da sua criança.
+                </p>
               </div>
-              <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-6 leading-tight">
-                Horas perdidas pesquisando
-              </h2>
-              <p className="text-lg md:text-xl text-gray-700 leading-relaxed max-w-2xl mx-auto">
-                Você passa horas procurando, mas nunca acha o conteúdo ideal
-                para o nível da sua criança.
+
+              <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-md">
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                  <span className="text-2xl">📄</span>
+                </div>
+                <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-2">
+                  Atividades genéricas
+                </h3>
+                <p className="text-gray-600 text-sm">
+                  As atividades prontas não se encaixam com o que você está
+                  ensinando agora.
+                </p>
+              </div>
+
+              <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-md sm:col-span-2 md:col-span-1">
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                  <span className="text-2xl">😓</span>
+                </div>
+                <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-2">
+                  Frustração constante
+                </h3>
+                <p className="text-gray-600 text-sm">
+                  Você quer o melhor para seu filho, mas criar do zero é
+                  trabalhoso demais.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-8 sm:mt-10 text-center">
+              <p className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
+                ✨ E se você pudesse criar atividades personalizadas em
+                segundos?
               </p>
+              <Link
+                href="#precos"
+                className="inline-block px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                Gerar Atividades Agora
+              </Link>
             </div>
           </div>
         </section>
