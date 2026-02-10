@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Check, Zap, FileText, Download, Star } from "lucide-react";
 
 export default function LandingPage() {
@@ -10,7 +10,15 @@ export default function LandingPage() {
       <header className="fixed w-full bg-white/80 backdrop-blur-md border-b z-50">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <div className="text-2xl font-bold text-blue-600 flex items-center gap-2">
-            <Zap className="fill-blue-600" /> EduCreator AI
+            <div className="relative h-10 w-10">
+              <Image
+                src="/logo.png"
+                alt="EduCreator AI Logo"
+                fill
+                className="object-contain"
+              />
+            </div>
+            EduCreator AI
           </div>
           <nav className="hidden md:flex gap-8 text-sm font-medium text-gray-600">
             <a href="#como-funciona" className="hover:text-blue-600 transition">
