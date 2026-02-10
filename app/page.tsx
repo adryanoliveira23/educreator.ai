@@ -270,17 +270,24 @@ export default function LandingPage() {
                 <span className="text-lg text-gray-500 font-normal">/mês</span>
               </div>
               <p className="text-gray-500 mb-6">Para professores ocasionais.</p>
-              <ul className="space-y-4 mb-8">
+              <ul className="space-y-3 mb-8 text-sm">
                 <li className="flex items-center gap-2 text-gray-700">
-                  <Check size={18} className="text-green-500" /> 10 PDFs por mês
+                  <Check size={18} className="text-green-500" /> 30 PDFs por mês
                 </li>
                 <li className="flex items-center gap-2 text-gray-700">
                   <Check size={18} className="text-green-500" /> Geração com IA
-                  LLaMA
                 </li>
                 <li className="flex items-center gap-2 text-gray-700">
-                  <Check size={18} className="text-green-500" /> Histórico de 30
-                  dias
+                  <Check size={18} className="text-green-500" /> Histórico por
+                  30 dias
+                </li>
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Check size={18} className="text-green-500" /> Ideal pra quem
+                  usa 2–3x por semana
+                </li>
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Check size={18} className="text-green-500" /> PDF pronto pra
+                  imprimir em 1 clique
                 </li>
               </ul>
               <Link
@@ -302,16 +309,25 @@ export default function LandingPage() {
                 <span className="text-lg text-gray-500 font-normal">/mês</span>
               </div>
               <p className="text-gray-500 mb-6">Para professores ativos.</p>
-              <ul className="space-y-4 mb-8">
+              <ul className="space-y-3 mb-8 text-sm">
                 <li className="flex items-center gap-2 text-gray-700">
-                  <Check size={18} className="text-green-500" /> 30 PDFs por mês
+                  <Check size={18} className="text-green-500" /> 60 PDFs por mês
                 </li>
                 <li className="flex items-center gap-2 text-gray-700">
-                  <Check size={18} className="text-green-500" /> Geração Rápida
+                  <Check size={18} className="text-green-500" /> Geração mais
+                  rápida
                 </li>
                 <li className="flex items-center gap-2 text-gray-700">
                   <Check size={18} className="text-green-500" /> Suporte
-                  Prioritário
+                  prioritário
+                </li>
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Check size={18} className="text-green-500" /> Ideal pra quem
+                  prepara atividades toda semana
+                </li>
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Check size={18} className="text-green-500" /> Mais agilidade
+                  pra planejar aulas e avaliações
                 </li>
               </ul>
               <Link
@@ -329,10 +345,10 @@ export default function LandingPage() {
                 R$ 89,90
                 <span className="text-lg text-gray-500 font-normal">/mês</span>
               </div>
-              <p className="text-gray-500 mb-6">Uso ilimitado e livre.</p>
-              <ul className="space-y-4 mb-8">
+              <p className="text-gray-500 mb-6">Uso intenso.</p>
+              <ul className="space-y-3 mb-8 text-sm">
                 <li className="flex items-center gap-2 text-gray-700">
-                  <Check size={18} className="text-green-500" /> PDFs Ilimitados
+                  <Check size={18} className="text-green-500" /> PDFs ilimitados
                 </li>
                 <li className="flex items-center gap-2 text-gray-700">
                   <Check size={18} className="text-green-500" /> Acesso a novos
@@ -340,7 +356,11 @@ export default function LandingPage() {
                 </li>
                 <li className="flex items-center gap-2 text-gray-700">
                   <Check size={18} className="text-green-500" /> Histórico
-                  Vitalício
+                  vitalício
+                </li>
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Check size={18} className="text-green-500" /> Crie e
+                  reutilize atividades o ano inteiro
                 </li>
               </ul>
               <Link
