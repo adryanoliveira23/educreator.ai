@@ -27,6 +27,11 @@ export default function RegisterPage() {
           "Configuração do Firebase ausente. Verifique as variáveis de ambiente.",
         );
       }
+
+      // Get plan from URL
+      const searchParams = new URLSearchParams(window.location.search);
+      const plan = searchParams.get("plan") || "normal";
+
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -34,16 +39,36 @@ export default function RegisterPage() {
       );
       const user = userCredential.user;
 
-      // Create user document in Firestore
+      // Create user document in Firestore with pending_payment status
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
-        plan: "normal",
+        plan: plan,
         pdfs_generated_count: 0,
         createdAt: serverTimestamp(),
-        subscription_status: "active", // Or 'trial'
+        subscription_status: "pending_payment",
       });
 
-      router.push("/dashboard");
+      // Get payment link
+      const token = await user.getIdToken();
+      const res = await fetch("/api/payments/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ plan }),
+      });
+
+      const data = await res.json();
+
+      if (data.init_point) {
+        // Redirect to payment
+        window.location.href = data.init_point;
+      } else {
+        // Fallback if payment link generation fails - maybe go to dashboard but it will be locked
+        console.error("Failed to get payment link", data);
+        router.push("/dashboard");
+      }
     } catch (err: unknown) {
       let errorMessage = "Erro ao registrar. Tente novamente.";
       if (err instanceof Error) {
@@ -60,8 +85,7 @@ export default function RegisterPage() {
 
       setError(errorMessage);
       console.error(err);
-    } finally {
-      setLoading(false);
+      setLoading(false); // Only stop loading on error, otherwise keep loading while redirecting
     }
   };
 

@@ -88,7 +88,28 @@ export default function Dashboard() {
       const docRef = doc(db, "users", user.uid);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        setUserData(docSnap.data() as UserData);
+        const data = docSnap.data() as UserData & {
+          subscription_status?: string;
+        };
+        setUserData(data);
+
+        // Check subscription status
+        if (
+          data.subscription_status &&
+          data.subscription_status !== "active" &&
+          data.subscription_status !== "trial"
+        ) {
+          // If pending payment, verify if we need to redirect or show modal
+          // For now, let's just alert and redirect to home or offer to pay again
+          // Ideally we should show a modal. Let's set a flag.
+          // But for this task "going straight to dashboard", we want to block it.
+          // Let's redirect to a payment retry if possible, or just open the payment link if we can.
+          // Simplest: Show the "Choose Plan" modal (showPlans=true) and make it non-closable?
+          // Or just trigger handleUpgrade(data.plan) automatically?
+          // Let's set showPlans(true) and maybe add a message.
+          setShowPlans(true);
+          alert("Por favor, finalize o pagamento para acessar o painel.");
+        }
       } else {
         // Self-healing: Create default user doc if missing
         const defaultData: any = {
@@ -96,10 +117,12 @@ export default function Dashboard() {
           plan: "normal",
           pdfs_generated_count: 0,
           createdAt: serverTimestamp(),
-          subscription_status: "active",
+          subscription_status: "pending_payment", // Default to pending for new/healing users too? Or 'trial'? Let's stick to strict.
         };
         await setDoc(docRef, defaultData);
         setUserData(defaultData as UserData);
+        // Force payment for these users too
+        setShowPlans(true);
       }
     } catch (err) {
       console.error("Error fetching user data:", err);

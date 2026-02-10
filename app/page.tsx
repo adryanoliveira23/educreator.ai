@@ -291,7 +291,7 @@ export default function LandingPage() {
                 </li>
               </ul>
               <Link
-                href="/register"
+                href="/register?plan=normal"
                 className="block text-center w-full py-3 border border-blue-600 text-blue-600 font-bold rounded-xl hover:bg-blue-50 transition"
               >
                 Escolher Normal
@@ -331,7 +331,7 @@ export default function LandingPage() {
                 </li>
               </ul>
               <Link
-                href="/register"
+                href="/register?plan=pro"
                 className="block text-center w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg"
               >
                 Escolher Pro
@@ -364,7 +364,7 @@ export default function LandingPage() {
                 </li>
               </ul>
               <Link
-                href="/register"
+                href="/register?plan=premium"
                 className="block text-center w-full py-3 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition"
               >
                 Escolher Premium
