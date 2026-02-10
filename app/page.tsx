@@ -65,10 +65,10 @@ export default function LandingPage() {
           </p>
           <div className="flex justify-center gap-4 flex-col sm:flex-row">
             <Link
-              href="/register"
+              href="#precos"
               className="px-8 py-4 text-lg font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             >
-              Testar Gratuitamente
+              Gerar Atividades
             </Link>
             <Link
               href="#demo"
@@ -81,7 +81,7 @@ export default function LandingPage() {
 
         {/* Pain Point Section */}
         <section className="container mx-auto px-6 mb-24">
-          <div className="max-w-4xl mx-auto bg-gradient-to-br from-red-50 to-pink-50 rounded-3xl p-12 shadow-xl border border-red-100">
+          <div className="max-w-4xl mx-auto bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-12 shadow-xl border border-blue-100">
             <h2 className="text-3xl md:text-5xl font-extrabold text-center mb-8 leading-tight">
               Você está <span className="text-red-600">sem tempo</span> pra
               criar atividades <br className="hidden md:block" />
@@ -95,7 +95,7 @@ export default function LandingPage() {
 
             <div className="grid md:grid-cols-3 gap-6 mt-12">
               <div className="bg-white rounded-2xl p-6 shadow-md">
-                <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
                   <span className="text-2xl">⏰</span>
                 </div>
                 <h3 className="font-bold text-lg text-gray-900 mb-2">
@@ -108,7 +108,7 @@ export default function LandingPage() {
               </div>
 
               <div className="bg-white rounded-2xl p-6 shadow-md">
-                <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
                   <span className="text-2xl">📄</span>
                 </div>
                 <h3 className="font-bold text-lg text-gray-900 mb-2">
@@ -121,7 +121,7 @@ export default function LandingPage() {
               </div>
 
               <div className="bg-white rounded-2xl p-6 shadow-md">
-                <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
                   <span className="text-2xl">😓</span>
                 </div>
                 <h3 className="font-bold text-lg text-gray-900 mb-2">
@@ -140,10 +140,10 @@ export default function LandingPage() {
                 segundos?
               </p>
               <Link
-                href="/register"
+                href="#precos"
                 className="inline-block px-8 py-4 text-lg font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-1"
               >
-                Começar Agora Gratuitamente
+                Gerar Atividades Agora
               </Link>
             </div>
           </div>
@@ -209,6 +209,24 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Time Wasting Pain Point Section */}
+        <section className="container mx-auto px-6 mb-24">
+          <div className="max-w-3xl mx-auto bg-gradient-to-br from-gray-50 to-slate-50 rounded-3xl p-10 md:p-16 shadow-xl border border-gray-200">
+            <div className="text-center">
+              <div className="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <span className="text-4xl">⏰</span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-6 leading-tight">
+                Horas perdidas pesquisando
+              </h2>
+              <p className="text-lg md:text-xl text-gray-700 leading-relaxed max-w-2xl mx-auto">
+                Você passa horas procurando, mas nunca acha o conteúdo ideal
+                para o nível da sua criança.
+              </p>
             </div>
           </div>
         </section>

@@ -1,10 +1,5 @@
 import { NextResponse } from "next/server";
-import { MercadoPagoConfig, Preference } from "mercadopago";
 import { adminAuth } from "@/lib/firebase-admin";
-
-const client = new MercadoPagoConfig({
-  accessToken: process.env.MP_ACCESS_TOKEN!,
-});
 
 export async function POST(req: Request) {
   try {
@@ -27,42 +22,29 @@ export async function POST(req: Request) {
 
     const { plan } = await req.json();
 
-    const planDetails: Record<string, { title: string; price: number }> = {
-      normal: { title: "Plano Normal", price: 21.9 },
-      pro: { title: "Plano Pro", price: 45.9 },
-      premium: { title: "Plano Premium", price: 89.9 },
+    // Cackto payment links mapping
+    const cacktoLinks: Record<string, string> = {
+      normal:
+        process.env.CACKTO_NORMAL_URL ||
+        "https://pay.cakto.com.br/9m78gio_761861",
+      pro:
+        process.env.CACKTO_PRO_URL || "https://pay.cakto.com.br/3ey44xv_761899",
+      premium:
+        process.env.CACKTO_PREMIUM_URL ||
+        "https://pay.cakto.com.br/ecbriic_761903",
     };
 
-    const selectedPlan = planDetails[plan as string];
-    if (!selectedPlan)
+    const basePaymentLink = cacktoLinks[plan as string];
+    if (!basePaymentLink) {
       return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
+    }
 
-    const preference = new Preference(client);
-    const result = await preference.create({
-      body: {
-        items: [
-          {
-            id: plan,
-            title: selectedPlan.title,
-            quantity: 1,
-            unit_price: selectedPlan.price,
-          },
-        ],
-        payer: {
-          email: email,
-        },
-        external_reference: uid,
-        back_urls: {
-          success: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?status=success`,
-          failure: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?status=failure`,
-          pending: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?status=pending`,
-        },
-        auto_return: "approved",
-        notification_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/payments/webhook`,
-      },
-    });
+    // Append user metadata to payment link as query parameters
+    // Cackto will pass these back in the webhook
+    const paymentLink = `${basePaymentLink}?userId=${uid}&email=${encodeURIComponent(email || "")}&plan=${plan}`;
 
-    return NextResponse.json({ init_point: result.init_point });
+    // Return the Cackto payment link with metadata
+    return NextResponse.json({ init_point: paymentLink });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
