@@ -46,7 +46,7 @@ export async function POST(req: Request) {
       doc.on("end", () => resolve(Buffer.concat(chunks)));
     });
 
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(pdfBuffer as any, {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": 'attachment; filename="atividade.pdf"',

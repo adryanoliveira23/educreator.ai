@@ -13,6 +13,13 @@ export async function POST(req: Request) {
     const topic = url.searchParams.get("topic") || url.searchParams.get("type");
     const id = url.searchParams.get("id") || url.searchParams.get("data.id");
 
+    if (!adminDb) {
+      return NextResponse.json(
+        { error: "Server Configuration Error: Firebase Admin not initialized" },
+        { status: 500 },
+      );
+    }
+
     if (topic === "payment" && id) {
       const payment = new Payment(client);
       const paymentData = await payment.get({ id });

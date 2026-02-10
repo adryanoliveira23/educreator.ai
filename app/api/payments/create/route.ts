@@ -12,6 +12,13 @@ export async function POST(req: Request) {
     if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    if (!adminAuth) {
+      return NextResponse.json(
+        { error: "Server Configuration Error: Firebase Admin not initialized" },
+        { status: 500 },
+      );
+    }
     const token = authHeader.split("Bearer ")[1];
     // Verify token
     const decodedToken = await adminAuth.verifyIdToken(token);
