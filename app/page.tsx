@@ -14,7 +14,7 @@ export default function LandingPage() {
             EduCreator AI
           </Link>
 
-          <nav className="hidden md:flex gap-8 text-sm font-medium text-gray-600">
+          <nav className="hidden md:flex gap-8 text-sm font-medium text-gray-600 ml-12">
             <a href="#como-funciona" className="hover:text-blue-600 transition">
               Como Funciona
             </a>
