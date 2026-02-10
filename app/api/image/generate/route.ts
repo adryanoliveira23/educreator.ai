@@ -54,7 +54,7 @@ export async function POST(req: Request) {
 
     // Use Hugging Face public API
     const API_URL =
-      "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell";
+      "https://router.huggingface.co/models/black-forest-labs/FLUX.1-schnell";
 
     const response = await fetch(API_URL, {
       method: "POST",
