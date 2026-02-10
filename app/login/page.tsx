@@ -21,15 +21,21 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     try {
+      if (!auth) {
+        throw new Error(
+          "Configuração do Firebase ausente. Verifique as variáveis de ambiente.",
+        );
+      }
       await signInWithEmailAndPassword(auth, email, password);
       router.push("/dashboard");
-    } catch (err: any) {
+    } catch (err: unknown) {
       let msg = "Falha no login.";
-      if (err.code === "auth/invalid-credential") {
+      const firebaseError = err as { code: string };
+      if (firebaseError.code === "auth/invalid-credential") {
         msg = "Email ou senha incorretos.";
-      } else if (err.code === "auth/user-not-found") {
+      } else if (firebaseError.code === "auth/user-not-found") {
         msg = "Usuário não encontrado.";
-      } else if (err.code === "auth/wrong-password") {
+      } else if (firebaseError.code === "auth/wrong-password") {
         msg = "Senha incorreta.";
       }
       setError(msg);
@@ -42,7 +48,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex bg-gray-50">
       {/* Left Panel - Branding */}
-      <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-green-600 to-green-800 text-white p-12 flex-col justify-between relative overflow-hidden">
+      <div className="hidden lg:flex w-1/2 bg-linear-to-br from-green-600 to-green-800 text-white p-12 flex-col justify-between relative overflow-hidden">
         <div className="z-10">
           <div className="flex items-center gap-2 mb-8">
             <Image

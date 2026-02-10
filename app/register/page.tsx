@@ -6,7 +6,7 @@ import { auth, db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Lock, Mail, User, ArrowRight, Loader2 } from "lucide-react";
+import { Lock, Mail, ArrowRight, Loader2 } from "lucide-react";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 export default function RegisterPage() {
@@ -22,6 +22,11 @@ export default function RegisterPage() {
     setLoading(true);
     setError("");
     try {
+      if (!auth || !db) {
+        throw new Error(
+          "Configuração do Firebase ausente. Verifique as variáveis de ambiente.",
+        );
+      }
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -45,8 +50,8 @@ export default function RegisterPage() {
         // Firebase specific error codes mapping could be added here
         errorMessage = err.message;
       }
-      // Basic mapping for common codes if available on the error object (casted to any for checking property)
-      const firebaseError = err as any;
+      // Basic mapping for common codes if available on the error object
+      const firebaseError = err as { code: string };
       if (firebaseError.code === "auth/email-already-in-use") {
         errorMessage = "Este email já está em uso.";
       } else if (firebaseError.code === "auth/weak-password") {
@@ -63,7 +68,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex bg-gray-50">
       {/* Left Panel - Branding */}
-      <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-blue-600 to-indigo-900 text-white p-12 flex-col justify-between relative overflow-hidden">
+      <div className="hidden lg:flex w-1/2 bg-linear-to-br from-blue-600 to-indigo-900 text-white p-12 flex-col justify-between relative overflow-hidden">
         <div className="z-10">
           <div className="flex items-center gap-2 mb-8">
             <Image
