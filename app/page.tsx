@@ -144,6 +144,10 @@ export default function LandingPage() {
                       <FileText size={16} /> Baixar PDF
                     </button>
                   </div>
+                  <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-700 font-semibold text-center shadow-sm">
+                    ✨ Além de matemática, a IA cria provas, textos e qualquer
+                    tipo de atividade.
+                  </div>
                 </div>
               </div>
             </div>
