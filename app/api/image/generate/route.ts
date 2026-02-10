@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { adminAuth, adminDb } from "@/lib/firebase-admin";
-import { HfInference } from "huggingface";
 
 export async function POST(req: Request) {
   if (!adminAuth || !adminDb) {
@@ -21,7 +20,7 @@ export async function POST(req: Request) {
     let decodedToken;
     try {
       decodedToken = await adminAuth.verifyIdToken(token);
-    } catch (e) {
+    } catch {
       return NextResponse.json({ error: "Invalid Token" }, { status: 401 });
     }
     const uid = decodedToken.uid;
@@ -53,25 +52,28 @@ export async function POST(req: Request) {
 
     const { prompt } = await req.json();
 
-    if (!process.env.HF_TOKEN) {
-      return NextResponse.json(
-        { error: "Hugging Face token not configured" },
-        { status: 500 },
-      );
-    }
+    // Use Hugging Face public API
+    const API_URL =
+      "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell";
 
-    const hf = new HfInference(process.env.HF_TOKEN);
-
-    // Generate image using FLUX.1-schnell
-    const imageBlob = await hf.textToImage({
-      model: "black-forest-labs/FLUX.1-schnell",
-      inputs: prompt,
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        inputs: prompt,
+      }),
     });
 
-    // Convert blob to base64
-    const arrayBuffer = await imageBlob.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    const base64Image = buffer.toString("base64");
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Hugging Face API error: ${errorText}`);
+    }
+
+    // Convert response to base64
+    const imageBuffer = await response.arrayBuffer();
+    const base64Image = Buffer.from(imageBuffer).toString("base64");
 
     return NextResponse.json({
       image: `data:image/png;base64,${base64Image}`,
