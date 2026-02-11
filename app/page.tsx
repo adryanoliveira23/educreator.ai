@@ -272,9 +272,6 @@ export default function LandingPage() {
               <p className="text-gray-500 mb-6">Para professores ocasionais.</p>
               <ul className="space-y-3 mb-8 text-sm">
                 <li className="flex items-center gap-2 text-gray-700">
-                  <Check size={18} className="text-green-500" /> 30 PDFs por mês
-                </li>
-                <li className="flex items-center gap-2 text-gray-700">
                   <Check size={18} className="text-green-500" /> Geração com IA
                 </li>
                 <li className="flex items-center gap-2 text-gray-700">
@@ -311,9 +308,6 @@ export default function LandingPage() {
               <p className="text-gray-500 mb-6">Para professores ativos.</p>
               <ul className="space-y-3 mb-8 text-sm">
                 <li className="flex items-center gap-2 text-gray-700">
-                  <Check size={18} className="text-green-500" /> 60 PDFs por mês
-                </li>
-                <li className="flex items-center gap-2 text-gray-700">
                   <Check size={18} className="text-green-500" /> Geração mais
                   rápida
                 </li>
@@ -347,9 +341,6 @@ export default function LandingPage() {
               </div>
               <p className="text-gray-500 mb-6">Uso intenso.</p>
               <ul className="space-y-3 mb-8 text-sm">
-                <li className="flex items-center gap-2 text-gray-700">
-                  <Check size={18} className="text-green-500" /> PDFs ilimitados
-                </li>
                 <li className="flex items-center gap-2 text-gray-700">
                   <Check size={18} className="text-green-500" /> Acesso a novos
                   modelos
