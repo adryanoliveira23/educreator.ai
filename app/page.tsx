@@ -68,7 +68,7 @@ export default function LandingPage() {
               href="#precos"
               className="px-8 py-4 text-lg font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             >
-              Gerar Atividades
+              Gerar Atividades Gratuitamente
             </Link>
             <Link
               href="#demo"
