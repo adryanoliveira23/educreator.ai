@@ -33,10 +33,10 @@ export default function LandingPage() {
               Login
             </Link>
             <Link
-              href="#precos"
+              href="/register?plan=trial"
               className="px-5 py-2.5 text-sm font-bold bg-blue-600 text-white rounded-full hover:bg-blue-700 transition shadow-md hover:shadow-lg"
             >
-              Começar Agora
+              Começar gratuitamente
             </Link>
           </div>
         </div>
