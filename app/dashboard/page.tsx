@@ -47,7 +47,7 @@ interface Activity {
 }
 
 interface UserData {
-  plan: "normal" | "pro" | "premium";
+  plan: "normal" | "pro" | "premium" | "trial";
   pdfs_generated_count: number;
 }
 
@@ -274,6 +274,7 @@ export default function Dashboard() {
     normal: 10,
     pro: 30,
     premium: 999999,
+    trial: 999999,
   };
   const limit = limits[userData.plan || "normal"];
   const usage = userData.pdfs_generated_count || 0;
@@ -306,18 +307,20 @@ export default function Dashboard() {
             <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
               <div className="flex justify-between items-center mb-2">
                 <span className="font-bold text-blue-900 capitalize">
-                  {userData.plan}
+                  {userData.plan === "trial" ? "Teste Grátis" : userData.plan}
                 </span>
-                <span className="text-xs text-blue-600 font-medium">
+                {/* Limits hidden as per request */}
+                {/* <span className="text-xs text-blue-600 font-medium">
                   {usage}/{limit}
-                </span>
+                </span> */}
               </div>
-              <div className="w-full bg-blue-200 rounded-full h-2 mb-2">
+              {/* Progress bar hidden */}
+              {/* <div className="w-full bg-blue-200 rounded-full h-2 mb-2">
                 <div
                   className="bg-blue-600 h-2 rounded-full transition-all duration-500"
                   style={{ width: `${percentage}%` }}
                 ></div>
-              </div>
+              </div> */}
               <button
                 onClick={() => setShowPlans(true)}
                 className="text-xs text-blue-600 font-medium hover:underline flex items-center gap-1 w-full justify-center mt-2"
@@ -388,10 +391,10 @@ export default function Dashboard() {
                     <h3 className="font-bold text-xl capitalize mb-2">{p}</h3>
                     <p className="text-sm text-gray-500 mb-4">
                       {p === "normal"
-                        ? "10 PDFs/mês"
+                        ? "Para professores ocasionais."
                         : p === "pro"
-                          ? "30 PDFs/mês"
-                          : "Ilimitado"}
+                          ? "Para professores ativos."
+                          : "Uso intenso."}
                     </p>
                     <p className="text-2xl font-bold mb-6 text-gray-800">
                       {p === "normal"

@@ -135,6 +135,24 @@ export default function RegisterPage() {
           </div>
 
           <form className="mt-8 space-y-6" onSubmit={handleRegister}>
+            {/* Trial Disclaimer */}
+            {typeof window !== "undefined" &&
+              new URLSearchParams(window.location.search).get("plan") ===
+                "trial" && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800 flex items-start gap-3">
+                  <div className="mt-0.5">ℹ️</div>
+                  <div>
+                    <p className="font-bold mb-1">Por que pedimos o cartão?</p>
+                    <p>
+                      Para evitar fraudes e garantir que cada pessoa use o teste
+                      grátis apenas uma vez.{" "}
+                      <strong>Nenhuma cobrança será feita agora.</strong> Você
+                      só será cobrado após 7 dias se decidir continuar.
+                    </p>
+                  </div>
+                </div>
+              )}
+
             {error && (
               <div className="bg-red-50 text-red-500 p-3 rounded-lg text-sm text-center border border-red-100">
                 {error}
