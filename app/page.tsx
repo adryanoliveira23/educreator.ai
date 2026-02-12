@@ -74,7 +74,7 @@ export default function LandingPage() {
               href="#demo"
               className="px-8 py-4 text-lg font-bold text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition"
             >
-              Ver Exemplo
+              Ver Demonstração
             </Link>
           </div>
         </section>
