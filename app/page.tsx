@@ -261,9 +261,49 @@ export default function LandingPage() {
             Escolha o plano ideal para a sua necessidade. Cancele quando quiser.
           </p>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-6 max-w-7xl mx-auto">
+            {/* Trial */}
+            <div className="bg-white p-6 rounded-2xl shadow-xl border-2 border-green-500 relative transform md:-translate-y-2">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-4 py-1 rounded-full text-sm font-bold tracking-wide shadow-sm">
+                TESTE GRÁTIS
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                7 Dias Grátis
+              </h3>
+              <div className="text-3xl font-extrabold text-gray-900 mb-2">
+                R$ 0,00
+              </div>
+              <p className="text-green-600 font-medium mb-4 text-sm">
+                Depois R$ 21,90/mês
+              </p>
+              <ul className="space-y-3 mb-6 text-sm">
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Check size={18} className="text-green-500" /> Acesso total à
+                  ferramenta
+                </li>
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Check size={18} className="text-green-500" /> Crie qualquer
+                  atividade
+                </li>
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Check size={18} className="text-green-500" /> Cancele quando
+                  quiser
+                </li>
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Check size={18} className="text-green-500" /> Sem cobrança
+                  hoje
+                </li>
+              </ul>
+              <Link
+                href="/register?plan=trial"
+                className="block text-center w-full py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition shadow-md hover:shadow-lg"
+              >
+                Testar Agora
+              </Link>
+            </div>
+
             {/* Normal */}
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 hover:border-blue-300 transition relative">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:border-blue-300 transition relative">
               <h3 className="text-xl font-bold text-gray-900 mb-2">Normal</h3>
               <div className="text-4xl font-extrabold text-gray-900 mb-2">
                 R$ 21,90
