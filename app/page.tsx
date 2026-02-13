@@ -407,7 +407,7 @@ export default function LandingPage() {
 
       <footer className="bg-gray-100 py-12 border-t">
         <div className="container mx-auto px-6 text-center text-gray-500">
-          <p>© 2024 EduCreator AI. Todos os direitos reservados.</p>
+          <p>© 2026 EduCreator AI. Todos os direitos reservados.</p>
         </div>
       </footer>
     </div>
