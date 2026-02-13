@@ -41,6 +41,19 @@ export async function POST(req: Request) {
 
         const preapproval = new PreApproval(mpClient);
 
+        const rawBaseUrl =
+          process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+        // Ensure valid protocol and no double slashes
+        let baseUrl = rawBaseUrl;
+        if (!baseUrl.startsWith("http")) {
+          baseUrl = `https://${baseUrl}`;
+        }
+        const urlObj = new URL("/dashboard", baseUrl);
+        urlObj.searchParams.set("payment", "success");
+        const backUrl = urlObj.toString();
+
+        console.log("Creating preference with back_url:", backUrl);
+
         const response = await preapproval.create({
           body: {
             reason: "EduCreator AI - Plano Mensal (Teste Grátis 7 dias)",
@@ -54,7 +67,7 @@ export async function POST(req: Request) {
                 frequency_type: "days",
               },
             } as any,
-            back_url: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/dashboard?payment=success`,
+            back_url: backUrl,
             payer_email: email || "test_user_123@testuser.com",
             status: "pending",
             external_reference: uid, // Store user ID here
@@ -68,8 +81,12 @@ export async function POST(req: Request) {
         }
       } catch (mpError) {
         console.error("Mercado Pago Error:", mpError);
+        const errorMessage =
+          mpError instanceof Error
+            ? mpError.message
+            : JSON.stringify(mpError, null, 2);
         return NextResponse.json(
-          { error: "Failed to create subscription" },
+          { error: `Erro Mercado Pago: ${errorMessage}`, details: mpError },
           { status: 500 },
         );
       }

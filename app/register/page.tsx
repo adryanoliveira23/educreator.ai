@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -48,44 +51,40 @@ export default function RegisterPage() {
         subscription_status: "pending_payment",
       });
 
-      // Get payment link
-      const token = await user.getIdToken();
-      const res = await fetch("/api/payments/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ plan }),
-      });
-
-      const data = await res.json();
-
-      if (data.init_point) {
-        // Redirect to payment
-        window.location.href = data.init_point;
-      } else {
-        // Fallback if payment link generation fails - maybe go to dashboard but it will be locked
-        console.error("Failed to get payment link", data);
-        router.push("/dashboard");
-      }
+      router.push(`/checkout?plan=${plan}`);
     } catch (err: unknown) {
-      let errorMessage = "Erro ao registrar. Tente novamente.";
-      if (err instanceof Error) {
-        // Firebase specific error codes mapping could be added here
-        errorMessage = err.message;
-      }
       // Basic mapping for common codes if available on the error object
-      const firebaseError = err as { code: string };
+      const firebaseError = err as { code: string; message: string };
+
       if (firebaseError.code === "auth/email-already-in-use") {
-        errorMessage = "Este email já está em uso.";
+        try {
+          // Try to login and continue
+          const userCredential = await signInWithEmailAndPassword(
+            auth,
+            email,
+            password,
+          );
+          const user = userCredential.user;
+          const searchParams = new URLSearchParams(window.location.search);
+          const plan = searchParams.get("plan") || "normal";
+
+          router.push(`/checkout?plan=${plan}`);
+          return; // Success, don't show error
+        } catch (loginErr) {
+          console.error("Auto-login failed:", loginErr);
+          // If login fails, default to showing the original error or a generic one
+          setError("Este email já está em uso. Tente fazer login.");
+        }
       } else if (firebaseError.code === "auth/weak-password") {
-        errorMessage = "A senha é muito fraca.";
+        setError("A senha é muito fraca.");
+      } else {
+        setError(
+          firebaseError.message || "Erro ao registrar. Tente novamente.",
+        );
       }
 
-      setError(errorMessage);
       console.error(err);
-      setLoading(false); // Only stop loading on error, otherwise keep loading while redirecting
+      setLoading(false);
     }
   };
 
@@ -135,24 +134,6 @@ export default function RegisterPage() {
           </div>
 
           <form className="mt-8 space-y-6" onSubmit={handleRegister}>
-            {/* Trial Disclaimer */}
-            {typeof window !== "undefined" &&
-              new URLSearchParams(window.location.search).get("plan") ===
-                "trial" && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800 flex items-start gap-3">
-                  <div className="mt-0.5">ℹ️</div>
-                  <div>
-                    <p className="font-bold mb-1">Por que pedimos o cartão?</p>
-                    <p>
-                      Para evitar fraudes e garantir que cada pessoa use o teste
-                      grátis apenas uma vez.{" "}
-                      <strong>Nenhuma cobrança será feita agora.</strong> Você
-                      só será cobrado após 7 dias se decidir continuar.
-                    </p>
-                  </div>
-                </div>
-              )}
-
             {error && (
               <div className="bg-red-50 text-red-500 p-3 rounded-lg text-sm text-center border border-red-100">
                 {error}

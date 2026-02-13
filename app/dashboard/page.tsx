@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
@@ -15,7 +15,16 @@ import {
   setDoc,
   serverTimestamp,
 } from "firebase/firestore";
-import { Send, FileText, Loader2, Lock, History, Zap } from "lucide-react";
+import {
+  Send,
+  FileText,
+  Loader2,
+  Lock,
+  History,
+  Zap,
+  Check,
+  X,
+} from "lucide-react";
 import { auth } from "@/lib/firebase";
 
 import { signOut } from "firebase/auth";
@@ -43,7 +52,7 @@ interface Activity {
   userId: string;
   prompt: string;
   result: ActivityContent;
-  createdAt: any;
+  createdAt: unknown;
 }
 
 interface UserData {
@@ -63,6 +72,7 @@ export default function Dashboard() {
   const [error, setError] = useState("");
 
   const [showPlans, setShowPlans] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
 
   useEffect(() => {
     // Check for payment status in URL
@@ -73,16 +83,7 @@ export default function Dashboard() {
     if (status === "failure") alert("Pagamento falhou. Tente novamente.");
   }, []);
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push("/login");
-    } else if (user) {
-      fetchUserData();
-      fetchActivities();
-    }
-  }, [user, loading, router]);
-
-  const fetchUserData = async () => {
+  const fetchUserData = useCallback(async () => {
     if (!user) return;
     try {
       const docRef = doc(db, "users", user.uid);
@@ -99,39 +100,30 @@ export default function Dashboard() {
           data.subscription_status !== "active" &&
           data.subscription_status !== "trial"
         ) {
-          // If pending payment, verify if we need to redirect or show modal
-          // For now, let's just alert and redirect to home or offer to pay again
-          // Ideally we should show a modal. Let's set a flag.
-          // But for this task "going straight to dashboard", we want to block it.
-          // Let's redirect to a payment retry if possible, or just open the payment link if we can.
-          // Simplest: Show the "Choose Plan" modal (showPlans=true) and make it non-closable?
-          // Or just trigger handleUpgrade(data.plan) automatically?
-          // Let's set showPlans(true) and maybe add a message.
-          setShowPlans(true);
-          alert("Por favor, finalize o pagamento para acessar o painel.");
+          setShowWarning(true);
         }
       } else {
         // Self-healing: Create default user doc if missing
-        const defaultData: any = {
+        const defaultData = {
           email: user.email,
           plan: "normal",
           pdfs_generated_count: 0,
           createdAt: serverTimestamp(),
-          subscription_status: "pending_payment", // Default to pending for new/healing users too? Or 'trial'? Let's stick to strict.
+          subscription_status: "pending_payment",
         };
         await setDoc(docRef, defaultData);
         setUserData(defaultData as UserData);
         // Force payment for these users too
-        setShowPlans(true);
+        setShowWarning(true);
       }
     } catch (err) {
       console.error("Error fetching user data:", err);
       // Set default data to prevent infinite loading even on error
       setUserData({ plan: "normal", pdfs_generated_count: 0 });
     }
-  };
+  }, [user]);
 
-  const fetchActivities = async () => {
+  const fetchActivities = useCallback(async () => {
     if (!user) return;
     try {
       const q = query(
@@ -163,7 +155,16 @@ export default function Dashboard() {
 
       setActivities(acts);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/login");
+    } else if (user) {
+      fetchUserData();
+      fetchActivities();
+    }
+  }, [user, loading, router, fetchUserData, fetchActivities]);
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -194,8 +195,12 @@ export default function Dashboard() {
 
       fetchUserData();
       fetchActivities();
-    } catch (err: any) {
-      setError(err.message || "Erro desconhecido");
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Erro desconhecido");
+      }
     } finally {
       setIsGenerating(false);
     }
@@ -229,9 +234,10 @@ export default function Dashboard() {
       document.body.appendChild(a);
       a.click();
       a.remove();
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      alert(`Erro ao baixar PDF: ${err.message}`);
+      const message = err instanceof Error ? err.message : "Erro desconhecido";
+      alert(`Erro ao baixar PDF: ${message}`);
     }
   };
 
@@ -366,57 +372,238 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col relative">
+        {showWarning && (
+          <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center animate-in fade-in zoom-in duration-300">
+              <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Lock size={32} />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Acesso Bloqueado
+              </h2>
+              <p className="text-gray-600 mb-8">
+                Para continuar usando o EduCreator e gerar suas atividades, por
+                favor finalize a escolha do seu plano.
+              </p>
+              <button
+                onClick={() => {
+                  setShowWarning(false);
+                  setShowPlans(true);
+                }}
+                className="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                Escolher Plano Agora
+              </button>
+            </div>
+          </div>
+        )}
+
         {showPlans && (
-          <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur flex items-center justify-center p-8">
-            <div className="max-w-4xl w-full bg-white p-8 rounded-2xl shadow-2xl border">
+          <div className="fixed inset-0 z-50 bg-white/95 backdrop-blur flex items-center justify-center p-4 md:p-8 overflow-y-auto">
+            <div className="max-w-7xl w-full bg-white p-4 md:p-8 rounded-2xl shadow-2xl border my-auto">
               <div className="flex justify-between items-center mb-8">
-                <h2 className="text-3xl font-bold text-center">
+                <h2 className="text-2xl md:text-3xl font-bold text-center">
                   Escolha seu Plano
                 </h2>
                 <button
                   onClick={() => setShowPlans(false)}
-                  className="text-gray-500 hover:text-gray-900 font-bold text-xl"
+                  className="p-2 hover:bg-gray-100 rounded-full transition"
                 >
-                  ✕
+                  <X size={24} className="text-gray-500" />
                 </button>
               </div>
 
-              <div className="grid md:grid-cols-3 gap-6">
-                {/* Plans */}
-                {["normal", "pro", "premium"].map((p) => (
-                  <div
-                    key={p}
-                    className={`border p-6 rounded-xl text-center transition-all ${userData.plan === p ? "border-blue-500 ring-2 ring-blue-500 bg-blue-50" : "hover:border-blue-300 hover:shadow-lg"}`}
-                  >
-                    <h3 className="font-bold text-xl capitalize mb-2">{p}</h3>
-                    <p className="text-sm text-gray-500 mb-4">
-                      {p === "normal"
-                        ? "Para professores ocasionais."
-                        : p === "pro"
-                          ? "Para professores ativos."
-                          : "Uso intenso."}
-                    </p>
-                    <p className="text-2xl font-bold mb-6 text-gray-800">
-                      {p === "normal"
-                        ? "R$ 21,90"
-                        : p === "pro"
-                          ? "R$ 45,90"
-                          : "R$ 89,90"}
-                    </p>
-                    {userData.plan === p ? (
-                      <span className="block w-full py-2 bg-gray-200 text-gray-600 rounded-lg font-bold cursor-default">
-                        Plano Atual
-                      </span>
-                    ) : (
-                      <button
-                        onClick={() => handleUpgrade(p)}
-                        className="block w-full py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition"
-                      >
-                        Escolher
-                      </button>
-                    )}
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Trial */}
+                <div className="bg-white p-6 rounded-2xl shadow-xl border-2 border-green-500 relative transform md:-translate-y-2 flex flex-col">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-4 py-1 rounded-full text-xs font-bold tracking-wide shadow-sm whitespace-nowrap">
+                    TESTE GRÁTIS
                   </div>
-                ))}
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    7 Dias Grátis
+                  </h3>
+                  <div className="text-3xl font-extrabold text-gray-900 mb-2">
+                    R$ 0,00
+                  </div>
+                  <p className="text-green-600 font-medium mb-4 text-sm">
+                    Depois R$ 21,90/mês
+                  </p>
+                  <ul className="space-y-3 mb-6 text-sm flex-grow">
+                    <li className="flex items-center gap-2 text-gray-700">
+                      <Check
+                        size={18}
+                        className="text-green-500 flex-shrink-0"
+                      />{" "}
+                      Acesso total à ferramenta
+                    </li>
+                    <li className="flex items-center gap-2 text-gray-700">
+                      <Check
+                        size={18}
+                        className="text-green-500 flex-shrink-0"
+                      />{" "}
+                      Crie qualquer atividade
+                    </li>
+                    <li className="flex items-center gap-2 text-gray-700">
+                      <Check
+                        size={18}
+                        className="text-green-500 flex-shrink-0"
+                      />{" "}
+                      Cancele quando quiser
+                    </li>
+                    <li className="flex items-center gap-2 text-gray-700">
+                      <Check
+                        size={18}
+                        className="text-green-500 flex-shrink-0"
+                      />{" "}
+                      Sem cobrança hoje
+                    </li>
+                  </ul>
+                  <button
+                    onClick={() => handleUpgrade("trial")}
+                    className="block text-center w-full py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition shadow-md hover:shadow-lg"
+                  >
+                    Testar Agora
+                  </button>
+                </div>
+
+                {/* Normal */}
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:border-blue-300 transition relative flex flex-col">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    Normal
+                  </h3>
+                  <div className="text-3xl font-extrabold text-gray-900 mb-2">
+                    R$ 21,90
+                  </div>
+                  <p className="text-gray-500 mb-6 text-sm">
+                    Para professores ocasionais.
+                  </p>
+                  <ul className="space-y-3 mb-8 text-sm flex-grow">
+                    <li className="flex items-center gap-2 text-gray-700">
+                      <Check
+                        size={18}
+                        className="text-green-500 flex-shrink-0"
+                      />{" "}
+                      Geração com IA
+                    </li>
+                    <li className="flex items-center gap-2 text-gray-700">
+                      <Check
+                        size={18}
+                        className="text-green-500 flex-shrink-0"
+                      />{" "}
+                      Histórico por 30 dias
+                    </li>
+                    <li className="flex items-center gap-2 text-gray-700">
+                      <Check
+                        size={18}
+                        className="text-green-500 flex-shrink-0"
+                      />{" "}
+                      Ideal pra quem usa 2–3x por semana
+                    </li>
+                    <li className="flex items-center gap-2 text-gray-700">
+                      <Check
+                        size={18}
+                        className="text-green-500 flex-shrink-0"
+                      />{" "}
+                      PDF pronto pra imprimir em 1 clique
+                    </li>
+                  </ul>
+                  <button
+                    onClick={() => handleUpgrade("normal")}
+                    className="block text-center w-full py-3 border border-blue-600 text-blue-600 font-bold rounded-xl hover:bg-blue-50 transition"
+                  >
+                    Escolher Normal
+                  </button>
+                </div>
+
+                {/* Pro */}
+                <div className="bg-white p-6 rounded-2xl shadow-xl border-2 border-blue-600 relative transform md:-translate-y-4 flex flex-col">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-xs font-bold tracking-wide whitespace-nowrap">
+                    MAIS POPULAR
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Pro</h3>
+                  <div className="text-3xl font-extrabold text-gray-900 mb-2">
+                    R$ 45,90
+                  </div>
+                  <p className="text-gray-500 mb-6 text-sm">
+                    Para professores ativos.
+                  </p>
+                  <ul className="space-y-3 mb-8 text-sm flex-grow">
+                    <li className="flex items-center gap-2 text-gray-700">
+                      <Check
+                        size={18}
+                        className="text-green-500 flex-shrink-0"
+                      />{" "}
+                      Geração mais rápida
+                    </li>
+                    <li className="flex items-center gap-2 text-gray-700">
+                      <Check
+                        size={18}
+                        className="text-green-500 flex-shrink-0"
+                      />{" "}
+                      Suporte prioritário
+                    </li>
+                    <li className="flex items-center gap-2 text-gray-700">
+                      <Check
+                        size={18}
+                        className="text-green-500 flex-shrink-0"
+                      />{" "}
+                      Ideal pra quem prepara atividades toda semana
+                    </li>
+                    <li className="flex items-center gap-2 text-gray-700">
+                      <Check
+                        size={18}
+                        className="text-green-500 flex-shrink-0"
+                      />{" "}
+                      Mais agilidade pra planejar aulas e avaliações
+                    </li>
+                  </ul>
+                  <button
+                    onClick={() => handleUpgrade("pro")}
+                    className="block text-center w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg"
+                  >
+                    Escolher Pro
+                  </button>
+                </div>
+
+                {/* Premium */}
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:border-purple-300 transition flex flex-col">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    Premium
+                  </h3>
+                  <div className="text-3xl font-extrabold text-gray-900 mb-2">
+                    R$ 89,90
+                  </div>
+                  <p className="text-gray-500 mb-6 text-sm">Uso intenso.</p>
+                  <ul className="space-y-3 mb-8 text-sm flex-grow">
+                    <li className="flex items-center gap-2 text-gray-700">
+                      <Check
+                        size={18}
+                        className="text-green-500 flex-shrink-0"
+                      />{" "}
+                      Acesso a novos modelos
+                    </li>
+                    <li className="flex items-center gap-2 text-gray-700">
+                      <Check
+                        size={18}
+                        className="text-green-500 flex-shrink-0"
+                      />{" "}
+                      Histórico vitalício
+                    </li>
+                    <li className="flex items-center gap-2 text-gray-700">
+                      <Check
+                        size={18}
+                        className="text-green-500 flex-shrink-0"
+                      />{" "}
+                      Crie e reutilize atividades o ano inteiro
+                    </li>
+                  </ul>
+                  <button
+                    onClick={() => handleUpgrade("premium")}
+                    className="block text-center w-full py-3 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition"
+                  >
+                    Escolher Premium
+                  </button>
+                </div>
               </div>
             </div>
           </div>
