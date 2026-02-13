@@ -5,14 +5,12 @@ import {
   Loader2,
   Check,
   Lock,
-  ArrowRight,
-  Star,
   ShieldCheck,
   CreditCard,
   HelpCircle,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { initMercadoPago, Payment } from "@mercadopago/sdk-react";
 
 // Initialize Mercado Pago with Public Key
@@ -21,7 +19,7 @@ if (MP_PUBLIC_KEY) {
   initMercadoPago(MP_PUBLIC_KEY);
 }
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -74,14 +72,6 @@ export default function CheckoutPage() {
           setIsProcessing(false);
         });
     });
-  };
-
-  const initialization = {
-    amount: plan === "trial" ? 21.9 : 21.9, // Need an amount even for auth
-    preferenceId: undefined, // handling purely client-side tokenization?
-    // Actually Payment Brick usually needs preferenceId or just amount for simple payments.
-    // For subscription tokenization, we treat it as a payment of a small amount or just card tokenization.
-    // Let's use simple configuration.
   };
 
   const customization = {
@@ -209,8 +199,8 @@ export default function CheckoutPage() {
               {MP_PUBLIC_KEY ? (
                 <Payment
                   initialization={{ amount: 21.9 }}
-                  customization={customization as any}
-                  onSubmit={handlePaymentSubmit as any}
+                  customization={customization as object as any} // Keeping as any for now to avoid build break on type mismatch, but will try to fix if specific error
+                  onSubmit={handlePaymentSubmit as any} // This often needs 'any' because of strict library types vs our implementation
                   onError={(error) => console.error("Brick Error:", error)}
                   onReady={() => console.log("Brick Ready")}
                   locale="pt-BR"
@@ -314,5 +304,19 @@ export default function CheckoutPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <Loader2 className="animate-spin text-blue-600" size={32} />
+        </div>
+      }
+    >
+      <CheckoutContent />
+    </Suspense>
   );
 }

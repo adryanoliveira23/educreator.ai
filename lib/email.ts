@@ -12,19 +12,36 @@ const transporter = nodemailer.createTransport({
 export async function sendWelcomeEmail(
   to: string,
   plan: string,
+  isTrial: boolean = false,
 ): Promise<void> {
   const planNames: Record<string, string> = {
     normal: "Normal (R$ 21,90/mês)",
     pro: "Pro (R$ 45,90/mês)",
     premium: "Premium (R$ 89,90/mês)",
+    trial: "Teste Grátis (7 Dias)",
   };
 
   const planName = planNames[plan] || plan;
 
+  const trialWarning = isTrial
+    ? `
+    <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; color: #92400e;">
+      <p style="margin: 0; font-weight: bold;">⚠️ Informação Importante sobre o Teste Grátis</p>
+      <p style="margin: 5px 0 0;">
+        Você <strong>não foi cobrado hoje</strong>. Este é um período de teste de 7 dias.
+        Se você gostar (e temos certeza que vai!), sua assinatura iniciará automaticamente após esse período.
+        Você pode cancelar a qualquer momento antes do fim dos 7 dias para evitar cobranças.
+      </p>
+    </div>
+    `
+    : "";
+
   const mailOptions = {
     from: `"EduCreator AI" <${process.env.GMAIL_USER}>`,
     to,
-    subject: "🎉 Bem-vindo ao EduCreator AI!",
+    subject: isTrial
+      ? "🚀 Seu Teste Grátis Começou! - EduCreator AI"
+      : "🎉 Bem-vindo ao EduCreator AI!",
     html: `
       <!DOCTYPE html>
       <html>
@@ -42,14 +59,16 @@ export async function sendWelcomeEmail(
         <body>
           <div class="container">
             <div class="header">
-              <h1>🎉 Bem-vindo ao EduCreator AI!</h1>
+              <h1>${isTrial ? "🚀 Teste Grátis Ativado!" : "🎉 Bem-vindo ao EduCreator AI!"}</h1>
             </div>
             <div class="content">
               <p>Olá!</p>
               
-              <p>Estamos muito felizes em tê-lo(a) conosco! Seu pagamento foi confirmado com sucesso.</p>
+              <p>Estamos muito felizes em tê-lo(a) conosco! ${isTrial ? "Seu período de teste foi iniciado." : "Seu pagamento foi confirmado com sucesso."}</p>
               
-              <p><strong>Plano ativado:</strong> ${planName}</p>
+              <p><strong>Plano atual:</strong> ${planName}</p>
+              
+              ${trialWarning}
               
               <p>Agora você pode começar a criar conteúdo educacional de alta qualidade com a ajuda da nossa IA:</p>
               

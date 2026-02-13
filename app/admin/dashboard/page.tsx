@@ -20,6 +20,25 @@ type User = {
   banned?: boolean;
   pdfs_generated_count?: number;
   createdAt?: any;
+  renovacao_em?: { _seconds: number; _nanoseconds: number } | string; // Timestamp from Firestore
+};
+
+const getDaysRemaining = (renovacao_em: any) => {
+  if (!renovacao_em) return null;
+
+  let expirationDate;
+  // Handle Firestore Timestamp
+  if (renovacao_em._seconds) {
+    expirationDate = new Date(renovacao_em._seconds * 1000);
+  } else {
+    expirationDate = new Date(renovacao_em);
+  }
+
+  const now = new Date();
+  const timeDiff = expirationDate.getTime() - now.getTime();
+  const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+  return daysDiff > 0 ? daysDiff : 0;
 };
 
 export default function AdminDashboard() {
@@ -313,20 +332,31 @@ export default function AdminDashboard() {
                       </div>
                     </td>
                     <td className="p-6">
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          user.plan === "premium"
-                            ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
-                            : user.plan === "pro"
-                              ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                              : "bg-gray-500/10 text-gray-400 border border-gray-500/20"
-                        }`}
-                      >
-                        {user.plan
-                          ? user.plan.charAt(0).toUpperCase() +
-                            user.plan.slice(1)
-                          : "Free"}
-                      </span>
+                      <div className="flex flex-col gap-1">
+                        <span
+                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium w-fit ${
+                            user.plan === "trial"
+                              ? "bg-green-500/10 text-green-400 border border-green-500/20"
+                              : user.plan === "premium"
+                                ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
+                                : user.plan === "pro"
+                                  ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                                  : "bg-gray-500/10 text-gray-400 border border-gray-500/20"
+                          }`}
+                        >
+                          {user.plan === "trial"
+                            ? "Testando"
+                            : user.plan
+                              ? user.plan.charAt(0).toUpperCase() +
+                                user.plan.slice(1)
+                              : "Free"}
+                        </span>
+                        {user.plan === "trial" && user.renovacao_em && (
+                          <span className="text-xs text-green-400 font-medium ml-1">
+                            {getDaysRemaining(user.renovacao_em)} dias restantes
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="p-6">
                       <span

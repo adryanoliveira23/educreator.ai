@@ -53,13 +53,16 @@ export async function POST(req: Request) {
               )
             : null;
 
+          // Check if it's a trial (amount 0 or specifically flagged)
+          const isTrial =
+            subscriptionParams.auto_recurring?.transaction_amount === 0 ||
+            (subscriptionParams.auto_recurring as any)?.free_trial;
+
           await adminDb
             .collection("users")
             .doc(userId)
             .update({
-              plan: "pro", // Default to Pro or store plan in external_reference?
-              // Let's assume 'pro' for now as it's the probable 'trial' target, or 'trial' plan
-              // If we want to keep 'trial' as a plan name:
+              plan: isTrial ? "trial" : "pro",
               subscription_status: subStatus,
               mercadopago_subscription_id: preApprovalId,
               last_updated: admin.firestore.FieldValue.serverTimestamp(),
