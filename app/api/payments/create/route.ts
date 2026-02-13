@@ -48,7 +48,14 @@ export async function POST(req: Request) {
         if (!baseUrl.startsWith("http")) {
           baseUrl = `https://${baseUrl}`;
         }
-        const urlObj = new URL("/dashboard", baseUrl);
+
+        // Mercado Pago API rejects "localhost" for back_urls.
+        const isLocalhost = baseUrl.includes("localhost");
+        const validBackUrlBase = isLocalhost
+          ? "https://educreator.ai"
+          : baseUrl;
+
+        const urlObj = new URL("/dashboard", validBackUrlBase);
         urlObj.searchParams.set("payment", "success");
         const backUrl = urlObj.toString();
 

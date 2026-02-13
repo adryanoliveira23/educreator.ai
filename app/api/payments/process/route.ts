@@ -45,7 +45,14 @@ export async function POST(req: NextRequest) {
     if (!safeBaseUrl.startsWith("http")) {
       safeBaseUrl = `https://${safeBaseUrl}`;
     }
-    const backUrl = new URL("/dashboard", safeBaseUrl);
+
+    // Mercado Pago API rejects "localhost" for back_urls.
+    const isLocalhost = safeBaseUrl.includes("localhost");
+    const validBackUrlBase = isLocalhost
+      ? "https://educreator.ai"
+      : safeBaseUrl;
+
+    const backUrl = new URL("/dashboard", validBackUrlBase);
     backUrl.searchParams.set("payment", "success");
 
     const subscriptionData = {

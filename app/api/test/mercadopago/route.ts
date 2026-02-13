@@ -52,7 +52,7 @@ export async function GET(req: Request) {
             frequency: 7,
             frequency_type: "days",
           },
-        } as any,
+        } as any, // eslint-disable-line @typescript-eslint/no-explicit-any
         back_url: backUrl,
         payer_email: email,
         status: "pending",
@@ -64,7 +64,8 @@ export async function GET(req: Request) {
       return NextResponse.json({
         success: true,
         init_point: response.init_point,
-        sandbox_init_point: response.sandbox_init_point, // Useful if available
+        sandbox_init_point: (response as { sandbox_init_point?: string })
+          .sandbox_init_point, // Useful if available
         id: response.id,
         plan,
         email,
