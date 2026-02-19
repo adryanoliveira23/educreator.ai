@@ -80,31 +80,34 @@ export async function POST(req: Request) {
             if (imageRes.ok) {
               const arrayBuffer = await imageRes.arrayBuffer();
               const imageBuffer = Buffer.from(arrayBuffer);
-              console.log(
-                `[PDF] Image fetched successfully. Size: ${imageBuffer.length} bytes. Type: ${imageRes.headers.get("content-type")}`,
-              );
 
-              // Define standard image width (e.g., 400 points)
               const imgWidth = 400;
               const imgHeight = 300;
-
               const xPos = (pageWidth - imgWidth) / 2;
 
-              // Use Data URI approach as a fallback/alternative for standalone version
+              // --- Page Break Logic ---
+              // If the image won't fit on the current page, add a new one
+              const bottomMargin = doc.page.margins.bottom;
+              const availableHeight = doc.page.height - bottomMargin;
+
+              if (doc.y + imgHeight > availableHeight) {
+                doc.addPage();
+                // When adding a page, doc.y is reset to the top margin.
+                // We might want to re-draw the question number/text?
+                // Or just the image starts the new page. Let's just start the new page.
+              }
+
               const base64Image = imageBuffer.toString("base64");
               const contentType =
                 imageRes.headers.get("content-type") || "image/png";
               const dataUri = `data:${contentType};base64,${base64Image}`;
 
-              // Draw the image at the current y position, centered horizontally
               doc.image(dataUri, xPos, doc.y, {
                 width: imgWidth,
               });
 
-              // ADVANCE THE CURSOR manually because doc.image with coordinates doesn't do it
-              // Leonardo Phoenix is 1024x768 (4:3), so at 400px width, height is 300px
               doc.y += imgHeight;
-              doc.moveDown(1.5); // Add spacing before alternatives
+              doc.moveDown(1.5);
               console.log(`[PDF] Image embedded for Q${q.number}`);
             } else {
               console.error(
@@ -130,14 +133,40 @@ export async function POST(req: Request) {
             if (q.type === "multiple_choice") {
               doc.text(`(   ) ${decodeHtmlEntities(alt)}`);
             } else if (q.type === "check_box") {
-              doc.text(`[   ] ${decodeHtmlEntities(alt)}`);
+              doc.text(`(   ) ${decodeHtmlEntities(alt)}`);
             } else if (q.type === "true_false") {
+              doc.text(`(   ) ${decodeHtmlEntities(alt)}`);
+            } else if (q.type === "counting" || q.type === "image_selection") {
               doc.text(`(   ) ${decodeHtmlEntities(alt)}`);
             } else {
               doc.text(`- ${decodeHtmlEntities(alt)}`);
             }
             doc.moveDown(0.3);
           });
+        }
+
+        // Writing Lines / Box
+        if (q.answerLines && q.answerLines > 0) {
+          for (let l = 0; l < q.answerLines; l++) {
+            if (q.answerLines === 1) {
+              // Draw a box or a single thick line for names
+              doc.rect(doc.x + 40, doc.y, 200, 25).stroke();
+              doc.y += 30;
+              break;
+            } else {
+              doc
+                .moveTo(doc.x + 40, doc.y + 20)
+                .lineTo(doc.page.width - 50, doc.y + 20)
+                .dash(2, {})
+                .stroke();
+              doc.y += 25;
+            }
+          }
+        }
+
+        // Counting specific box
+        if (q.type === "counting") {
+          doc.circle(doc.page.width - 100, doc.y - 20, 15).stroke();
         }
 
         doc.moveDown(1);

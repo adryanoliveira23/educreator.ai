@@ -56,12 +56,14 @@ export async function POST(req: Request) {
       );
     }
 
-    const { prompt } = await req.json();
+    const { prompt, activityType } = await req.json();
 
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
     const systemPrompt = `
       Você é um assistente pedagógico especializado em criar atividades educativas para crianças.
+      O usuário escolheu o tipo de atividade: ${activityType || "multiple_choice"}.
+      
       Gere o conteúdo em JSON estrito com a seguinte estrutura:
       {
         "title": "TÍTULO DA ATIVIDADE EM MAIÚSCULAS",
@@ -73,27 +75,33 @@ export async function POST(req: Request) {
         "questions": [
           {
             "number": 1,
-            "imagePrompt": "Detailed description in ENGLISH for image generation. Focus on the core concept of the question. Style: 'High-quality pedagogical clipart, clean lines, bright colors, white background, school textbook illustration'. Ex: 'A cheerful cartoon bear counting three red apples on a wooden table, educational style'.",
-            "questionText": "Texto da pergunta",
-            "type": "multiple_choice",
-            "alternatives": [
-              "Alternativa A",
-              "Alternativa B",
-              "Alternativa C",
-              "Alternativa D"
-            ]
+            "imagePrompt": "Detailed description in ENGLISH for image generation. Style: 'High-quality pedagogical clipart, clean lines, bright colors, white background, school textbook illustration'.",
+            "questionText": "Texto da pergunta ou comando",
+            "type": "${activityType || "multiple_choice"}",
+            "alternatives": ["Opção 1", "Opção 2", "Opção 3", "Opção 4"],
+            "answerLines": 0,
+            "matchingPairs": []
           }
         ]
       }
       
-      INSTRUÇÕES IMPORTANTES:
-      - Gere sempre entre 5 a 10 questões
-      - Cada questão DEVE ter um 'imagePrompt' extremamente descritivo EM INGLÊS.
-      - O 'imagePrompt' deve ilustrar o conceito exato da pergunta para ajudar no entendimento.
-      - Use o estilo: 'Pedagogical illustration, clipart style, bright colors, white background, clean and simple for children'.
-      - Varie os tipos de questões: use "multiple_choice", "check_box", "true_false"
-      - As imagens devem ser apropriadas para a idade e tema
-      - Mantenha linguagem clara e adequada ao ano escolar solicitado
+      INSTRUÇÕES POR TIPO DE ATIVIDADE:
+      - multiple_choice: Questões de marcar. Use ( ) para todas.
+      - writing: Pedir para escrever nome de figuras ou frases. "answerLines" entre 1-3. Se for só uma palavra, use 1 linha grossa (caixa).
+      - matching: Relacionar figuras com letras ou palavras.
+      - image_selection: Pedir para circular/marcar figuras específicas (ex: 'Circule quem voa').
+      - counting: Mostrar conjunto de objetos e pedir para contar e escrever o número em um ( ).
+      - completion: Completar palavras ou seqüências (ex: A _ E _ I _ O _ U).
+      - pintar: Atividade de colorir. O comando deve ser para pintar algo.
+
+      INSTRUÇÕES GERAIS:
+      - Gere sempre entre 5 a 10 questões.
+      - CRITICAL STYLE FOR 'imagePrompt': 
+        - If type is 'pintar': Use 'Black and white line art, coloring page style, clean thick lines, NO COLORS, white background, simple for children'.
+        - For other types: Use 'Pedagogical clipart, white background, high contrast, clean lines, bright colors'.
+      - Se a questão for 'Escreva o nome das figuras', cada questão deve ser uma figura diferente com um 'imagePrompt' específico.
+      - Se a questão for de contar (counting), a imagem DEVE mostrar a quantidade exata citada no texto.
+      - Para questões de marcar, SEMPRE use ( ) no texto ou alternativas.
       - IMPORTANTE: NÃO use entidades HTML (como &quot;, &apos;, etc). Use caracteres normais.
     `;
 

@@ -29,13 +29,24 @@ import { auth } from "@/lib/firebase";
 
 import { signOut } from "firebase/auth";
 import { decodeHtmlEntities } from "@/lib/utils";
+import { activityTemplates, type ActivityTemplate } from "@/lib/templates";
 
 interface Question {
   number: number;
   questionText: string;
-  type: "multiple_choice" | "check_box" | "true_false";
+  type:
+    | "multiple_choice"
+    | "check_box"
+    | "true_false"
+    | "writing"
+    | "matching"
+    | "image_selection"
+    | "counting"
+    | "completion"
+    | "pintar";
   alternatives: string[];
   imageUrl?: string;
+  answerLines?: number;
 }
 
 interface ActivityContent {
@@ -75,6 +86,8 @@ export default function Dashboard() {
 
   const [showPlans, setShowPlans] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activityType, setActivityType] = useState("multiple_choice");
 
   useEffect(() => {
     // Check for payment status in URL
@@ -205,7 +218,10 @@ export default function Dashboard() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ prompt: currentPrompt || prompt }),
+        body: JSON.stringify({
+          prompt: currentPrompt || prompt,
+          activityType,
+        }),
       });
 
       if (!res.ok) {
@@ -238,6 +254,13 @@ export default function Dashboard() {
     setCurrentPrompt("");
     setIsGenerating(false);
     setError("");
+    setActivityType("multiple_choice");
+  };
+
+  const applyTemplate = (template: ActivityTemplate) => {
+    setPrompt(template.prompt);
+    setActivityType(template.type);
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
   };
 
   const [isDownloading, setIsDownloading] = useState(false);
@@ -316,9 +339,38 @@ export default function Dashboard() {
   const percentage = Math.min((usage / limit) * 100, 100);
 
   return (
-    <div className="flex h-screen bg-gray-100 font-sans">
+    <div className="flex h-screen bg-gray-100 font-sans relative">
+      {/* Mobile Header */}
+      <div className="md:hidden flex items-center justify-between p-4 bg-white border-b absolute top-0 left-0 right-0 z-40">
+        <h1 className="text-xl font-bold text-blue-600 flex items-center gap-2">
+          <span className="bg-blue-100 p-1 rounded">⚡</span> EduCreator
+        </h1>
+        <button
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+        >
+          {isSidebarOpen ? (
+            <X size={24} />
+          ) : (
+            <Send size={24} className="rotate-90" />
+          )}
+        </button>
+      </div>
+
+      {/* Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r hidden md:flex flex-col">
+      <aside
+        className={`w-64 bg-white border-r flex flex-col fixed md:relative h-full z-50 transition-transform duration-300 ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        }`}
+      >
         <div className="p-6 border-b">
           <h1 className="text-xl font-bold text-blue-600 flex items-center gap-2">
             <span className="bg-blue-100 p-1 rounded">⚡</span> EduCreator
@@ -404,7 +456,7 @@ export default function Dashboard() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col relative">
+      <main className="flex-1 flex flex-col relative pt-16 md:pt-0">
         {showWarning && !showPlans && (
           <div className="fixed inset-0 z-[60] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-10 text-center animate-in fade-in zoom-in duration-500 border border-white/20">
@@ -751,21 +803,62 @@ export default function Dashboard() {
                           </div>
                         )}
 
-                        <div className="space-y-2 ml-10">
-                          {question.alternatives.map((alt, j) => (
-                            <div
-                              key={j}
-                              className="flex items-start gap-3 text-gray-700 text-sm py-1 hover:bg-gray-50 rounded-lg px-2 -ml-2 transition-colors"
-                            >
-                              <span className="shrink-0 mt-0.5 font-mono text-gray-400">
-                                {question.type === "multiple_choice" && "( )"}
-                                {question.type === "check_box" && "[ ]"}
-                                {question.type === "true_false" && "( )"}
-                              </span>
-                              <span>{alt}</span>
+                        {/* Alternatives (Multiple choice / Selection) */}
+                        {question.alternatives &&
+                          question.alternatives.length > 0 && (
+                            <div className="space-y-2 ml-10">
+                              {question.alternatives.map((alt, j) => (
+                                <div
+                                  key={j}
+                                  className="flex items-start gap-3 text-gray-700 text-sm py-1 hover:bg-gray-50 rounded-lg px-2 -ml-2 transition-colors"
+                                >
+                                  <span className="shrink-0 mt-0.5 font-mono text-gray-400">
+                                    ( )
+                                  </span>
+                                  <span>{alt}</span>
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
+                          )}
+
+                        {/* Answer Lines (Writing) */}
+                        {question.answerLines !== undefined &&
+                          question.answerLines > 0 && (
+                            <div className="ml-10 space-y-4">
+                              {Array.from({ length: question.answerLines }).map(
+                                (_, j) => (
+                                  <div
+                                    key={j}
+                                    className={`border-b border-gray-300 w-full h-8 border-dotted ${
+                                      question.answerLines === 1
+                                        ? "max-w-[150px]"
+                                        : ""
+                                    }`}
+                                  ></div>
+                                ),
+                              )}
+                            </div>
+                          )}
+
+                        {/* Counting / Identification (Small circle/box) */}
+                        {(question.type === "counting" ||
+                          question.type === "image_selection") && (
+                          <div className="ml-10 mt-2">
+                            <div className="w-12 h-12 border-2 border-gray-300 rounded-xl flex items-center justify-center text-gray-400 font-mono">
+                              ( )
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Matching Pairs Support could go here - simple version for now */}
+                        {question.type === "matching" && (
+                          <div className="ml-10 grid grid-cols-2 gap-8 py-4">
+                            <div className="space-y-4 font-bold">Colunm A</div>
+                            <div className="space-y-4 font-bold text-right">
+                              Colunm B
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -790,10 +883,49 @@ export default function Dashboard() {
                 <h2 className="text-3xl font-extrabold text-gray-900 mb-3 tracking-tight">
                   O que vamos criar hoje?
                 </h2>
-                <p className="text-gray-500 mb-10 max-w-sm mx-auto leading-relaxed">
-                  Descreva o assunto e o ano escolar. Nossa IA cuida do resto em
-                  segundos.
+                <p className="text-gray-500 mb-8 max-w-sm mx-auto leading-relaxed">
+                  Escolha um template abaixo ou descreva sua ideia.
                 </p>
+
+                {/* Template Gallery */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl mb-12">
+                  {activityTemplates.map((template) => (
+                    <button
+                      key={template.id}
+                      onClick={() => applyTemplate(template)}
+                      className="group relative p-6 bg-white border border-gray-100 rounded-3xl hover:border-blue-500 hover:shadow-xl transition-all duration-300 text-left flex flex-col h-full"
+                    >
+                      <div
+                        className={`w-12 h-12 ${template.color} text-white rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
+                      >
+                        {template.icon}
+                      </div>
+                      <h4 className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {template.title}
+                      </h4>
+                      <p className="text-xs text-gray-400 mt-2 leading-relaxed">
+                        {template.description}
+                      </p>
+                      <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-300 group-hover:text-blue-200">
+                          {template.category}
+                        </span>
+                        <Zap
+                          size={14}
+                          className="text-gray-200 group-hover:text-blue-400 group-hover:translate-x-1 transition-all"
+                        />
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-4 w-full max-w-xl mb-6">
+                  <div className="h-px bg-gray-200 flex-1"></div>
+                  <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                    Exemplos Rápidos
+                  </span>
+                  <div className="h-px bg-gray-200 flex-1"></div>
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-xl text-left">
                   <button
@@ -838,6 +970,38 @@ export default function Dashboard() {
             {error && (
               <p className="text-red-500 text-sm mb-2 text-center">{error}</p>
             )}
+            {/* Activity Type Selector */}
+            {!result && !isGenerating && (
+              <div className="mb-6 flex flex-wrap justify-center gap-2">
+                {[
+                  {
+                    id: "multiple_choice",
+                    label: "Múltipla Escolha",
+                    icon: "✔️",
+                  },
+                  { id: "writing", label: "Escrita / Nomes", icon: "✏️" },
+                  { id: "counting", label: "Contagem", icon: "🔢" },
+                  { id: "matching", label: "Relacionar", icon: "🔗" },
+                  { id: "image_selection", label: "Identificar", icon: "🖼️" },
+                  { id: "completion", label: "Completar", icon: "🔤" },
+                  { id: "pintar", label: "Pintar", icon: "🎨" },
+                ].map((type) => (
+                  <button
+                    key={type.id}
+                    onClick={() => setActivityType(type.id)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-sm border ${
+                      activityType === type.id
+                        ? "bg-blue-600 text-white border-blue-600 shadow-blue-100"
+                        : "bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600"
+                    }`}
+                  >
+                    <span className="mr-1.5">{type.icon}</span>
+                    {type.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
             <form
               onSubmit={handleGenerate}
               className="relative flex items-center shadow-sm border rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-100 transition"
