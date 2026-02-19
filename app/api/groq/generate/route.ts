@@ -75,7 +75,7 @@ export async function POST(req: Request) {
         "questions": [
           {
             "number": 1,
-            "imagePrompt": "Detailed description in ENGLISH for image generation. Style: 'High-quality pedagogical clipart, clean lines, bright colors, white background, school textbook illustration'.",
+            "imagePrompt": "Detailed description in ENGLISH for image generation. Style guidelines: Follow the 'CRITICAL STYLE FOR imagePrompt' section below.",
             "questionText": "Texto da pergunta ou comando",
             "type": "${activityType || "multiple_choice"}",
             "alternatives": ["Opção 1", "Opção 2", "Opção 3", "Opção 4"],
@@ -97,7 +97,7 @@ export async function POST(req: Request) {
       INSTRUÇÕES GERAIS:
       - Gere sempre entre 5 a 10 questões.
       - CRITICAL STYLE FOR 'imagePrompt': 
-        - If type is 'pintar': Use 'Black and white line art, coloring page style, clean thick lines, NO COLORS, white background, simple for children'.
+        - If type is 'pintar': MANDATORY: Use 'Black and white line art, coloring page style, clean thick black outlines, NO COLORS, NO SHADING, pure white background, simple for children'. NEVER use words like 'color', 'colored', 'bright', 'vibrant'.
         - For other types: Use 'Pedagogical clipart, white background, high contrast, clean lines, bright colors'.
       - Se a questão for 'Escreva o nome das figuras', cada questão deve ser uma figura diferente com um 'imagePrompt' específico.
       - Se a questão for de contar (counting), a imagem DEVE mostrar a quantidade exata citada no texto.
