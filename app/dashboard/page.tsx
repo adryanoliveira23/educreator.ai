@@ -59,6 +59,7 @@ interface Activity {
 interface UserData {
   plan: "normal" | "pro" | "premium" | "trial";
   pdfs_generated_count: number;
+  subscription_status?: string;
 }
 
 export default function Dashboard() {
@@ -120,7 +121,12 @@ export default function Dashboard() {
     } catch (err) {
       console.error("Error fetching user data:", err);
       // Set default data to prevent infinite loading even on error
-      setUserData({ plan: "normal", pdfs_generated_count: 0 });
+      setUserData({
+        plan: "normal",
+        pdfs_generated_count: 0,
+        subscription_status: "error",
+      });
+      setShowWarning(true);
     }
   }, [user]);
 
@@ -334,6 +340,13 @@ export default function Dashboard() {
               <div className="flex justify-between items-center mb-2">
                 <span className="font-bold text-blue-900 capitalize">
                   {userData.plan === "trial" ? "Teste Grátis" : userData.plan}
+                  {userData.subscription_status &&
+                    userData.subscription_status !== "active" &&
+                    userData.subscription_status !== "trial" && (
+                      <span className="text-[10px] ml-1 text-red-500 font-normal">
+                        (Pendente)
+                      </span>
+                    )}
                 </span>
                 {/* Limits hidden as per request */}
                 {/* <span className="text-xs text-blue-600 font-medium">
@@ -392,28 +405,35 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col relative">
-        {showWarning && (
-          <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center animate-in fade-in zoom-in duration-300">
-              <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Lock size={32} />
+        {showWarning && !showPlans && (
+          <div className="fixed inset-0 z-[60] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-10 text-center animate-in fade-in zoom-in duration-500 border border-white/20">
+              <div className="w-20 h-20 bg-linear-to-tr from-red-500 to-pink-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-xl rotate-3">
+                <Lock size={40} />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Acesso Bloqueado
+              <h2 className="text-3xl font-black text-slate-900 mb-3 tracking-tight">
+                Acesso Restrito
               </h2>
-              <p className="text-gray-600 mb-8">
-                Para continuar usando o EduCreator e gerar suas atividades, por
-                favor finalize a escolha do seu plano.
+              <p className="text-slate-600 mb-10 leading-relaxed">
+                Para desbloquear o poder total do <strong>EduCreator</strong> e
+                começar a gerar atividades incríveis, por favor ative seu plano.
               </p>
-              <button
-                onClick={() => {
-                  setShowWarning(false);
-                  setShowPlans(true);
-                }}
-                className="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                Escolher Plano Agora
-              </button>
+              <div className="space-y-4">
+                <button
+                  onClick={() => {
+                    setShowPlans(true);
+                  }}
+                  className="w-full py-4 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-200 hover:shadow-blue-300 transform hover:-translate-y-1 active:scale-95 duration-200 flex items-center justify-center gap-2"
+                >
+                  <Zap size={18} /> Escolher Plano Agora
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="w-full py-4 text-slate-500 font-semibold rounded-2xl hover:bg-slate-100 transition duration-200"
+                >
+                  Sair da Conta
+                </button>
+              </div>
             </div>
           </div>
         )}
