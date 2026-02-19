@@ -4,7 +4,7 @@ import { decodeHtmlEntities } from "@/lib/utils";
 
 export async function POST(req: Request) {
   try {
-    const { title, description, content, header, questions } = await req.json();
+    const { title, description, content, header, questions, layout = "standard", includeImages = true } = await req.json();
 
     const doc = new PDFDocument({ size: "A4" });
     const chunks: Buffer[] = [];
@@ -15,39 +15,39 @@ export async function POST(req: Request) {
       doc.on("error", reject);
     });
 
-    // Calculate width for centering
     const pageWidth = doc.page.width;
     const pageMargins = doc.page.margins;
 
-    // --- Header Generation ---
-    if (header) {
-      doc.fontSize(12).font("Helvetica");
+    const drawHeader = () => {
+      if (header) {
+        doc.fontSize(12).font("Helvetica");
 
-      const drawField = (label: string, value: string = "") => {
-        doc.text(`${label} ${value}_`.padEnd(80, "_"));
-        doc.moveDown(0.5);
-      };
+        const drawField = (label: string, value: string = "") => {
+          doc.text(`${label} ${value}_`.padEnd(80, "_"));
+          doc.moveDown(0.5);
+        };
 
-      drawField("Nome do aluno:", header.studentName);
-      drawField("Escola:", header.school);
-      drawField("Nome do professor(a):", header.teacherName);
+        drawField("Nome do aluno:", header.studentName);
+        drawField("Escola:", header.school);
+        drawField("Nome do professor(a):", header.teacherName);
 
-      doc.moveDown(1);
+        doc.moveDown(1);
+        doc
+          .moveTo(doc.x, doc.y)
+          .lineTo(pageWidth - pageMargins.right, doc.y)
+          .stroke();
+        doc.moveDown(1.5);
+      }
+
       doc
-        .moveTo(doc.x, doc.y)
-        .lineTo(pageWidth - pageMargins.right, doc.y)
-        .stroke();
+        .fontSize(18)
+        .font("Helvetica-Bold")
+        .text(decodeHtmlEntities(title), { align: "center" });
       doc.moveDown(1.5);
-    }
+    };
 
-    // --- Title ---
-    doc
-      .fontSize(18)
-      .font("Helvetica-Bold")
-      .text(decodeHtmlEntities(title), { align: "center" });
-    doc.moveDown(1.5);
+    drawHeader();
 
-    // --- Description (Legacy or Optional) ---
     if (description) {
       doc
         .fontSize(12)
@@ -56,87 +56,64 @@ export async function POST(req: Request) {
       doc.moveDown();
     }
 
-    // --- New Questions Structure ---
     if (Array.isArray(questions)) {
-      for (const q of questions) {
-        // Question Number
+      let questionCountOnPage = 0;
+
+      for (let i = 0; i < questions.length; i++) {
+        const q = questions[i];
+
+        if (layout === "one_per_page" && i > 0) {
+          doc.addPage();
+          drawHeader();
+        } else if (layout === "two_per_page") {
+          if (questionCountOnPage >= 2) {
+            doc.addPage();
+            drawHeader();
+            questionCountOnPage = 0;
+          }
+        }
+
         doc.font("Helvetica-Bold").fontSize(12).text(`Questão ${q.number}`);
         doc.moveDown(0.3);
 
-        // Question Text
         doc
           .font("Helvetica")
           .fontSize(12)
           .text(decodeHtmlEntities(q.questionText), { align: "justify" });
         doc.moveDown(0.5);
 
-        // --- Question Image ---
-        if (q.imageUrl) {
-          console.log(
-            `[PDF] Attempting to embed image for Q${q.number}: ${q.imageUrl}`,
-          );
+        if (includeImages && q.imageUrl) {
           try {
             const imageRes = await fetch(q.imageUrl);
             if (imageRes.ok) {
               const arrayBuffer = await imageRes.arrayBuffer();
               const imageBuffer = Buffer.from(arrayBuffer);
 
-              const imgWidth = 400;
-              const imgHeight = 300;
+              const imgWidth = layout === "two_per_page" ? 300 : 400;
+              const imgHeight = layout === "two_per_page" ? 200 : 300;
               const xPos = (pageWidth - imgWidth) / 2;
 
-              // --- Page Break Logic ---
-              // If the image won't fit on the current page, add a new one
-              const bottomMargin = doc.page.margins.bottom;
-              const availableHeight = doc.page.height - bottomMargin;
-
-              if (doc.y + imgHeight > availableHeight) {
+              if (doc.y + imgHeight > doc.page.height - doc.page.margins.bottom) {
                 doc.addPage();
-                // When adding a page, doc.y is reset to the top margin.
-                // We might want to re-draw the question number/text?
-                // Or just the image starts the new page. Let's just start the new page.
+                drawHeader();
               }
 
               const base64Image = imageBuffer.toString("base64");
-              const contentType =
-                imageRes.headers.get("content-type") || "image/png";
+              const contentType = imageRes.headers.get("content-type") || "image/png";
               const dataUri = `data:${contentType};base64,${base64Image}`;
 
-              doc.image(dataUri, xPos, doc.y, {
-                width: imgWidth,
-              });
-
+              doc.image(dataUri, xPos, doc.y, { width: imgWidth });
               doc.y += imgHeight;
               doc.moveDown(1.5);
-              console.log(`[PDF] Image embedded for Q${q.number}`);
-            } else {
-              console.error(
-                `[PDF] Failed to fetch image. Status: ${imageRes.status}`,
-              );
             }
           } catch (err) {
-            console.error(
-              `[PDF] Error embedding image for question ${q.number}:`,
-              err,
-            );
-            doc
-              .fontSize(10)
-              .font("Helvetica-Oblique")
-              .text("[Imagem não disponível]");
-            doc.moveDown(1);
+            console.error(err);
           }
         }
 
-        // Alternatives
         if (Array.isArray(q.alternatives)) {
           q.alternatives.forEach((alt: string) => {
-            if (q.type === "multiple_choice") {
-              doc.text(`(   ) ${decodeHtmlEntities(alt)}`);
-            } else if (q.type === "check_box") {
-              doc.text(`(   ) ${decodeHtmlEntities(alt)}`);
-            } else if (q.type === "true_false") {
-              doc.text(`(   ) ${decodeHtmlEntities(alt)}`);
-            } else if (q.type === "counting" || q.type === "image_selection") {
+            if (["multiple_choice", "check_box", "true_false", "counting", "image_selection"].includes(q.type)) {
               doc.text(`(   ) ${decodeHtmlEntities(alt)}`);
             } else {
               doc.text(`- ${decodeHtmlEntities(alt)}`);
@@ -145,35 +122,28 @@ export async function POST(req: Request) {
           });
         }
 
-        // Writing Lines / Box
         if (q.answerLines && q.answerLines > 0) {
           for (let l = 0; l < q.answerLines; l++) {
             if (q.answerLines === 1) {
-              // Draw a box or a single thick line for names
               doc.rect(doc.x + 40, doc.y, 200, 25).stroke();
               doc.y += 30;
               break;
             } else {
-              doc
-                .moveTo(doc.x + 40, doc.y + 20)
-                .lineTo(doc.page.width - 50, doc.y + 20)
-                .dash(2, {})
-                .stroke();
+              doc.moveTo(doc.x + 40, doc.y + 20).lineTo(doc.page.width - 50, doc.y + 20).dash(2, {}).stroke();
               doc.y += 25;
             }
           }
         }
 
-        // Counting specific box
         if (q.type === "counting") {
           doc.circle(doc.page.width - 100, doc.y - 20, 15).stroke();
         }
 
         doc.moveDown(1);
+        questionCountOnPage++;
       }
     }
 
-    // --- Legacy Content Support ---
     if (Array.isArray(content) && !questions) {
       content.forEach((item: { type: string; value: string }) => {
         if (item.type === "text") {
@@ -182,12 +152,7 @@ export async function POST(req: Request) {
         } else if (item.type === "question") {
           doc.moveDown(0.5);
           doc.fontSize(12).font("Helvetica-Bold").text(item.value);
-          doc.font("Helvetica"); // Reset font
-          doc.moveDown();
-          doc.text(
-            "__________________________________________________________",
-          );
-          doc.moveDown();
+          doc.font("Helvetica").moveDown().text("__________________________________________________________").moveDown();
         }
       });
     }
@@ -205,11 +170,9 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      {
-        error: "Failed to generate PDF",
-        details: error instanceof Error ? error.message : String(error),
-      },
+      { error: "Failed to generate PDF", details: error instanceof Error ? error.message : String(error) },
       { status: 500 },
     );
+  }
   }
 }

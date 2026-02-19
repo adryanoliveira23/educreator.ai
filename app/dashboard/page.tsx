@@ -24,6 +24,8 @@ import {
   Zap,
   Check,
   X,
+  Layout,
+  Image as ImageIcon,
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 
@@ -57,6 +59,8 @@ interface ActivityContent {
     teacherName: string;
   };
   questions: Question[];
+  layout?: "standard" | "one_per_page" | "two_per_page";
+  includeImages?: boolean;
 }
 
 interface Activity {
@@ -88,6 +92,10 @@ export default function Dashboard() {
   const [showWarning, setShowWarning] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activityType, setActivityType] = useState("multiple_choice");
+  const [layout, setLayout] = useState<
+    "standard" | "one_per_page" | "two_per_page"
+  >("standard");
+  const [includeImages, setIncludeImages] = useState(true);
 
   useEffect(() => {
     // Check for payment status in URL
@@ -729,7 +737,9 @@ export default function Dashboard() {
                   </h2>
                   <div className="flex gap-2 shrink-0">
                     <button
-                      onClick={() => handleDownloadPDF(result)}
+                      onClick={() =>
+                        handleDownloadPDF({ ...result, layout, includeImages })
+                      }
                       disabled={isDownloading}
                       className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-xs font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
@@ -750,6 +760,125 @@ export default function Dashboard() {
                       title="Nova Atividade"
                     >
                       <X size={20} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Layout and Image Options */}
+                <div className="px-8 py-6 bg-gray-50 border-b space-y-6">
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                      <Layout size={16} /> Configurações do PDF
+                    </h3>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {/* Standard Layout */}
+                      <button
+                        onClick={() => setLayout("standard")}
+                        className={`p-4 rounded-xl border-2 transition-all text-left flex flex-col gap-3 group ${
+                          layout === "standard"
+                            ? "border-blue-600 bg-blue-50/50 ring-2 ring-blue-100"
+                            : "border-gray-200 bg-white hover:border-blue-300"
+                        }`}
+                      >
+                        <div className="w-full aspect-video bg-gray-100 rounded-lg overflow-hidden relative flex flex-col p-2 gap-1 border border-gray-100">
+                          <div className="h-2 w-3/4 bg-gray-300 rounded-full" />
+                          <div className="h-2 w-full bg-gray-200 rounded-full" />
+                          <div className="h-6 w-full bg-gray-200 rounded-md" />
+                          <div className="h-2 w-1/2 bg-gray-300 rounded-full mt-1" />
+                          <div className="h-4 w-full bg-gray-200 rounded-md" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-sm text-gray-900">
+                            Fluxo Contínuo
+                          </p>
+                          <p className="text-[10px] text-gray-500">
+                            Formato padrão longo
+                          </p>
+                        </div>
+                      </button>
+
+                      {/* 1 Per Page */}
+                      <button
+                        onClick={() => setLayout("one_per_page")}
+                        className={`p-4 rounded-xl border-2 transition-all text-left flex flex-col gap-3 group ${
+                          layout === "one_per_page"
+                            ? "border-blue-600 bg-blue-50/50 ring-2 ring-blue-100"
+                            : "border-gray-200 bg-white hover:border-blue-300"
+                        }`}
+                      >
+                        <div className="w-full aspect-video bg-gray-100 rounded-lg overflow-hidden relative flex flex-col p-2 gap-1 border border-gray-100 items-center justify-center">
+                          <div className="w-[45%] h-[85%] bg-white rounded border border-gray-200 p-1 flex flex-col gap-1 shadow-xs">
+                            <div className="h-1 w-3/4 bg-gray-300 rounded-full" />
+                            <div className="h-4 w-full bg-gray-200 rounded-sm" />
+                          </div>
+                          <div className="w-[45%] h-[85%] bg-white rounded border border-gray-200 p-1 absolute right-[-10px] scale-90 translate-y-1 opacity-60"></div>
+                        </div>
+                        <div>
+                          <p className="font-bold text-sm text-gray-900">
+                            1 por Página
+                          </p>
+                          <p className="text-[10px] text-gray-500">
+                            Questão isolada
+                          </p>
+                        </div>
+                      </button>
+
+                      {/* 2 Per Page */}
+                      <button
+                        onClick={() => setLayout("two_per_page")}
+                        className={`p-4 rounded-xl border-2 transition-all text-left flex flex-col gap-3 group ${
+                          layout === "two_per_page"
+                            ? "border-blue-600 bg-blue-50/50 ring-2 ring-blue-100"
+                            : "border-gray-200 bg-white hover:border-blue-300"
+                        }`}
+                      >
+                        <div className="w-full aspect-video bg-gray-100 rounded-lg overflow-hidden relative border border-gray-100 flex items-center justify-center p-2">
+                          <div className="w-[50%] h-[90%] bg-white rounded border border-gray-200 p-1 flex flex-col gap-1">
+                            <div className="h-1 w-2/3 bg-gray-300 rounded-full" />
+                            <div className="h-2 w-full bg-gray-200 rounded-sm" />
+                            <div className="h-0.5 w-full bg-gray-100 rounded-full mt-1" />
+                            <div className="h-1 w-2/3 bg-gray-300 rounded-full" />
+                            <div className="h-2 w-full bg-gray-200 rounded-sm" />
+                          </div>
+                        </div>
+                        <div>
+                          <p className="font-bold text-sm text-gray-900">
+                            2 por Página
+                          </p>
+                          <p className="text-[10px] text-gray-500">
+                            Economia de papel
+                          </p>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
+                        <ImageIcon size={20} />
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm text-gray-900">
+                          Incluir Ilustrações
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Gerar imagens para as questões
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setIncludeImages(!includeImages)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ring-2 ring-offset-2 ring-transparent ${
+                        includeImages ? "bg-blue-600" : "bg-gray-200"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          includeImages ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
                     </button>
                   </div>
                 </div>
