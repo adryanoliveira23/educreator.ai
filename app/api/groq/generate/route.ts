@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { adminAuth, adminDb } from "@/lib/firebase-admin";
 import Groq from "groq-sdk";
 import * as admin from "firebase-admin";
+import { generateImage } from "@/lib/leonardo";
 
 // Initialize Groq client lazily or inside the handler to prevent build-time errors
 // if the API key is missing in the build environment.
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
     let decodedToken;
     try {
       decodedToken = await adminAuth.verifyIdToken(token);
-    } catch (e) {
+    } catch {
       return NextResponse.json({ error: "Invalid Token" }, { status: 401 });
     }
     const uid = decodedToken.uid;
@@ -72,7 +73,7 @@ export async function POST(req: Request) {
         "questions": [
           {
             "number": 1,
-            "imagePrompt": "Descrição detalhada de uma imagem educativa relacionada à questão (ex: 'ilustração colorida de máscaras de carnaval')",
+            "imagePrompt": "Detailed description in ENGLISH for image generation. Focus on the core concept of the question. Style: 'High-quality pedagogical clipart, clean lines, bright colors, white background, school textbook illustration'. Ex: 'A cheerful cartoon bear counting three red apples on a wooden table, educational style'.",
             "questionText": "Texto da pergunta",
             "type": "multiple_choice",
             "alternatives": [
@@ -87,13 +88,13 @@ export async function POST(req: Request) {
       
       INSTRUÇÕES IMPORTANTES:
       - Gere sempre entre 5 a 10 questões
-      - Cada questão DEVE ter um imagePrompt descrevendo uma imagem educativa apropriada
-      - Varie os tipos de questões: use "multiple_choice" (múltipla escolha), "check_box" (marcar X), "true_false" (verdadeiro ou falso)
-      - Para multiple_choice: use 4 alternativas
-      - Para check_box: use 3-4 alternativas
-      - Para true_false: use apenas 2 alternativas ["Verdadeiro", "Falso"]
+      - Cada questão DEVE ter um 'imagePrompt' extremamente descritivo EM INGLÊS.
+      - O 'imagePrompt' deve ilustrar o conceito exato da pergunta para ajudar no entendimento.
+      - Use o estilo: 'Pedagogical illustration, clipart style, bright colors, white background, clean and simple for children'.
+      - Varie os tipos de questões: use "multiple_choice", "check_box", "true_false"
       - As imagens devem ser apropriadas para a idade e tema
       - Mantenha linguagem clara e adequada ao ano escolar solicitado
+      - IMPORTANTE: NÃO use entidades HTML (como &quot;, &apos;, etc). Use caracteres normais.
     `;
 
     const completion = await groq.chat.completions.create({
@@ -112,20 +113,28 @@ export async function POST(req: Request) {
     const result = completion.choices[0]?.message?.content;
     const parsedResult = JSON.parse(result || "{}");
 
-    // Increment usage
-    // Wait, increment only on PDF generation?
-    // User requested "middleware: impede gerar PDF acima do limite".
-    // And "Dashboard input... retorno gerado pela IA... botão Gerar PDF".
-    // So generating the AI content might be free or counted?
-    // "Planos e limites... Normal -> 10 PDFs/mês".
-    // It specifically says PDFs. So maybe I shouldn't increment here.
-    // BUT, "Salvar no banco: atividades... resultado".
-    // If I save here, I should probably count it or just verify limit here but increment on PDF.
-    // However, usually generating the content is the main value.
-    // I will increment here for simplicity as "Generating Activity" usually equals "1 usage".
-    // If the user downloads PDF multiple times for the same activity, that shouldn't count multiple times.
-    // So creating the activity counts.
+    // Automatic Image Generation for each question
+    if (parsedResult.questions && Array.isArray(parsedResult.questions)) {
+      const imagePromises = parsedResult.questions.map(
+        async (q: {
+          imagePrompt?: string;
+          questionText?: string;
+          number?: number;
+          alternatives?: string[];
+          [key: string]: unknown;
+        }) => {
+          if (q.imagePrompt) {
+            const imageUrl = await generateImage(q.imagePrompt);
+            return { ...q, imageUrl };
+          }
+          return q;
+        },
+      );
 
+      parsedResult.questions = await Promise.all(imagePromises);
+    }
+
+    // Increment usage
     await adminDb
       .collection("users")
       .doc(uid)

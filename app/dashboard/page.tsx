@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
@@ -20,7 +20,7 @@ import {
   FileText,
   Loader2,
   Lock,
-  History,
+  Clock,
   Zap,
   Check,
   X,
@@ -28,13 +28,14 @@ import {
 import { auth } from "@/lib/firebase";
 
 import { signOut } from "firebase/auth";
+import { decodeHtmlEntities } from "@/lib/utils";
 
 interface Question {
   number: number;
-  imagePrompt: string;
   questionText: string;
   type: "multiple_choice" | "check_box" | "true_false";
   alternatives: string[];
+  imageUrl?: string;
 }
 
 interface ActivityContent {
@@ -166,23 +167,32 @@ export default function Dashboard() {
     }
   }, [user, loading, router, fetchUserData, fetchActivities]);
 
+  const [currentPrompt, setCurrentPrompt] = useState("");
+  const generationRef = useRef(0);
+
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!prompt.trim()) return;
+
+    const generationId = ++generationRef.current;
     setIsGenerating(true);
     setError("");
     setResult(null);
+    setCurrentPrompt(prompt);
 
     try {
       const token = await user?.getIdToken();
 
-      // Generate activity
+      // Clear input so user knows it's sent
+      setPrompt("");
+
       const res = await fetch("/api/groq/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ prompt: currentPrompt || prompt }),
       });
 
       if (!res.ok) {
@@ -190,23 +200,37 @@ export default function Dashboard() {
         throw new Error(data.error || "Erro ao gerar atividade");
       }
 
+      if (generationId !== generationRef.current) return;
+
       const data = (await res.json()) as ActivityContent;
       setResult(data);
 
       fetchUserData();
       fetchActivities();
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Erro desconhecido");
+      if (generationId === generationRef.current) {
+        setError(err instanceof Error ? err.message : "Erro desconhecido");
       }
     } finally {
-      setIsGenerating(false);
+      if (generationId === generationRef.current) {
+        setIsGenerating(false);
+      }
     }
   };
 
+  const startNewActivity = () => {
+    generationRef.current++;
+    setResult(null);
+    setPrompt("");
+    setCurrentPrompt("");
+    setIsGenerating(false);
+    setError("");
+  };
+
+  const [isDownloading, setIsDownloading] = useState(false);
+
   const handleDownloadPDF = async (activityContent: ActivityContent) => {
+    setIsDownloading(true);
     try {
       const res = await fetch("/api/pdf/generate", {
         method: "POST",
@@ -214,17 +238,7 @@ export default function Dashboard() {
         body: JSON.stringify(activityContent),
       });
 
-      if (!res.ok) {
-        let errorMessage = "Erro ao gerar PDF";
-        try {
-          const errorData = await res.json();
-          console.error("PDF Gen Error Details:", errorData);
-          errorMessage = errorData.details || errorData.error || errorMessage;
-        } catch (e) {
-          console.error("Failed to parse error response", e);
-        }
-        throw new Error(errorMessage);
-      }
+      if (!res.ok) throw new Error("Falha ao gerar PDF");
 
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
@@ -238,6 +252,8 @@ export default function Dashboard() {
       console.error(err);
       const message = err instanceof Error ? err.message : "Erro desconhecido";
       alert(`Erro ao baixar PDF: ${message}`);
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -295,10 +311,7 @@ export default function Dashboard() {
             <span className="bg-blue-100 p-1 rounded">⚡</span> EduCreator
           </h1>
           <button
-            onClick={() => {
-              setResult(null);
-              setPrompt("");
-            }}
+            onClick={startNewActivity}
             className="mt-4 w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 font-medium"
           >
             + Nova Atividade
@@ -338,7 +351,7 @@ export default function Dashboard() {
 
           <div>
             <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-              <History size={14} /> Histórico Recente
+              <Clock size={14} /> Histórico Recente
             </h3>
             <ul className="space-y-2">
               {activities.length === 0 && (
@@ -610,110 +623,186 @@ export default function Dashboard() {
         )}
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-12">
-          {result ? (
-            <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-sm border p-8 animate-fade-in">
-              <div className="flex justify-between items-start mb-6 border-b pb-4">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
+        <div className="flex-1 overflow-y-auto p-6 md:p-12 bg-gray-50/50">
+          <div className="max-w-3xl mx-auto space-y-6">
+            {currentPrompt && (
+              <div className="flex justify-end animate-in slide-in-from-right-4 duration-300">
+                <div className="bg-blue-600 text-white p-4 rounded-2xl rounded-tr-none shadow-sm max-w-[80%]">
+                  <p className="text-sm font-medium">{currentPrompt}</p>
+                </div>
+              </div>
+            )}
+
+            {isGenerating && !result && (
+              <div className="flex justify-start animate-pulse">
+                <div className="bg-white border p-4 rounded-2xl rounded-tl-none shadow-sm space-y-2">
+                  <div className="h-4 w-48 bg-gray-200 rounded"></div>
+                  <div className="h-4 w-32 bg-gray-100 rounded"></div>
+                </div>
+              </div>
+            )}
+
+            {result && (
+              <div className="bg-white rounded-2xl shadow-md border overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="p-6 border-b bg-white flex justify-between items-center sticky top-0 z-10">
+                  <h2 className="text-xl font-bold text-gray-900 truncate mr-4">
                     {result.title}
                   </h2>
+                  <div className="flex gap-2 shrink-0">
+                    <button
+                      onClick={() => handleDownloadPDF(result)}
+                      disabled={isDownloading}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-xs font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isDownloading ? (
+                        <>
+                          <Loader2 className="animate-spin" size={14} />{" "}
+                          Gerando...
+                        </>
+                      ) : (
+                        <>
+                          <FileText size={14} /> Baixar PDF
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={startNewActivity}
+                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"
+                      title="Nova Atividade"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => {
-                      setResult(null);
-                      setPrompt("");
-                    }}
-                    className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition shadow-sm"
-                  >
-                    ← Voltar
-                  </button>
-                  <button
-                    onClick={() => handleDownloadPDF(result)}
-                    className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow-sm"
-                  >
-                    <FileText size={18} /> Baixar PDF
-                  </button>
-                </div>
-              </div>
 
-              {/* Header Fields */}
-              <div className="mb-6 space-y-2 text-gray-700">
-                <p>{result.header.studentName} _______________________</p>
-                <p>{result.header.school} _______________________</p>
-                <p>{result.header.teacherName} _______________________</p>
-              </div>
-
-              {/* Questions */}
-              <div className="space-y-6">
-                {result.questions?.map((question, i) => (
-                  <div key={i} className="border-b pb-4 last:border-b-0">
-                    <p className="font-bold text-gray-900 mb-2">
-                      Questão {question.number}
-                    </p>
-                    {question.imagePrompt && (
-                      <p className="text-sm text-gray-500 italic mb-2">
-                        [Imagem: {question.imagePrompt}]
-                      </p>
-                    )}
-                    <p className="mb-3">{question.questionText}</p>
-                    <div className="space-y-1 ml-4">
-                      {question.alternatives.map((alt, j) => (
-                        <div key={j}>
-                          {question.type === "multiple_choice" && `( ) ${alt}`}
-                          {question.type === "check_box" && `[ ] ${alt}`}
-                          {question.type === "true_false" && `( ) ${alt}`}
-                        </div>
-                      ))}
+                <div className="p-8">
+                  {/* Activity Placeholder Header */}
+                  <div className="mb-8 space-y-3 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                    <div className="flex items-center gap-2 text-sm text-gray-500 italic">
+                      <span>
+                        {result.header.studentName || "Nome do Aluno"}:
+                        _______________________
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-500 italic">
+                      <span>
+                        {result.header.school || "Escola"}:
+                        _______________________
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-500 italic">
+                      <span>
+                        {result.header.teacherName || "Professor(a)"}:
+                        _______________________
+                      </span>
                     </div>
                   </div>
-                ))}
-              </div>
 
-              <button
-                onClick={() => setResult(null)}
-                className="mt-8 text-blue-600 hover:underline text-sm"
-              >
-                ← Criar nova atividade
-              </button>
-            </div>
-          ) : (
-            <div className="max-w-2xl mx-auto flex flex-col items-center justify-center h-full text-center text-gray-500">
-              <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-6">
-                <Zap size={32} />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                O que vamos criar hoje?
-              </h2>
-              <p className="mb-8">
-                Peça uma atividade completa e baixe o PDF em segundos.
-              </p>
+                  {/* Questions */}
+                  <div className="space-y-8">
+                    {result.questions?.map((question, i) => (
+                      <div key={i} className="group relative">
+                        <div className="flex items-start gap-4 mb-4">
+                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600 text-xs font-bold">
+                            {question.number}
+                          </span>
+                          <div className="flex-1">
+                            <p className="text-gray-900 font-medium leading-relaxed">
+                              {decodeHtmlEntities(question.questionText)}
+                            </p>
+                          </div>
+                        </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full text-left text-sm">
-                <button
-                  onClick={() =>
-                    setPrompt(
-                      "Atividade de matemática para 1º ano sobre adição simples",
-                    )
-                  }
-                  className="p-4 bg-white border border-gray-200 rounded-xl hover:border-blue-300 hover:shadow-sm transition"
-                >
-                  "Atividade de matemática para 1º ano sobre adição simples"
-                </button>
-                <button
-                  onClick={() =>
-                    setPrompt(
-                      "Texto e interpretação sobre o Ciclo da Água para 3º ano",
-                    )
-                  }
-                  className="p-4 bg-white border border-gray-200 rounded-xl hover:border-blue-300 hover:shadow-sm transition"
-                >
-                  "Texto e interpretação sobre o Ciclo da Água para 3º ano"
-                </button>
+                        {question.imageUrl && (
+                          <div className="ml-10 mb-6 rounded-xl overflow-hidden border border-gray-100 shadow-sm transition-transform hover:scale-[1.01] duration-300">
+                            <img
+                              src={question.imageUrl}
+                              alt={`Ilustração para questão ${question.number}`}
+                              className="w-full max-h-[400px] object-cover"
+                              loading="lazy"
+                            />
+                          </div>
+                        )}
+
+                        <div className="space-y-2 ml-10">
+                          {question.alternatives.map((alt, j) => (
+                            <div
+                              key={j}
+                              className="flex items-start gap-3 text-gray-700 text-sm py-1 hover:bg-gray-50 rounded-lg px-2 -ml-2 transition-colors"
+                            >
+                              <span className="shrink-0 mt-0.5 font-mono text-gray-400">
+                                {question.type === "multiple_choice" && "( )"}
+                                {question.type === "check_box" && "[ ]"}
+                                {question.type === "true_false" && "( )"}
+                              </span>
+                              <span>{alt}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-12 pt-8 border-t flex justify-center">
+                    <button
+                      onClick={startNewActivity}
+                      className="text-gray-400 hover:text-blue-600 transition flex items-center gap-2 text-sm font-medium"
+                    >
+                      <Zap size={14} /> Começar uma nova atividade do zero
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+
+            {!result && !isGenerating && (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-8 shadow-inner">
+                  <Zap size={40} />
+                </div>
+                <h2 className="text-3xl font-extrabold text-gray-900 mb-3 tracking-tight">
+                  O que vamos criar hoje?
+                </h2>
+                <p className="text-gray-500 mb-10 max-w-sm mx-auto leading-relaxed">
+                  Descreva o assunto e o ano escolar. Nossa IA cuida do resto em
+                  segundos.
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-xl text-left">
+                  <button
+                    onClick={() =>
+                      setPrompt(
+                        "Atividade de matemática para 1º ano sobre adição simples",
+                      )
+                    }
+                    className="group p-5 bg-white border border-gray-200 rounded-2xl hover:border-blue-500 hover:shadow-md transition-all duration-300"
+                  >
+                    <p className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                      &quot;Matemática 1º ano: Adição simples&quot;
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Exemplo de comando rápido
+                    </p>
+                  </button>
+                  <button
+                    onClick={() =>
+                      setPrompt(
+                        "Texto e interpretação sobre o Ciclo da Água para 3º ano",
+                      )
+                    }
+                    className="group p-5 bg-white border border-gray-200 rounded-2xl hover:border-blue-500 hover:shadow-md transition-all duration-300"
+                  >
+                    <p className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                      &quot;Português 3º ano: Ciclo da Água&quot;
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Exemplo de comando rápido
+                    </p>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Input Area */}

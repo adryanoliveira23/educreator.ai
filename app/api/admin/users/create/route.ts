@@ -27,6 +27,23 @@ export async function POST(req: Request) {
       );
     }
 
+    // Check if user already exists in Firestore
+    const existingUser = await adminDb
+      .collection("users")
+      .where("email", "==", email)
+      .limit(1)
+      .get();
+
+    if (!existingUser.empty) {
+      return NextResponse.json(
+        {
+          error:
+            "E-mail já está sendo usado por outro usuário no banco de dados.",
+        },
+        { status: 400 },
+      );
+    }
+
     // Create user in Firebase Auth
     const userRecord = await adminAuth.createUser({
       email,

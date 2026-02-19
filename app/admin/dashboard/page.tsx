@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import {
   Users,
   FileText,
@@ -45,6 +44,8 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -104,28 +105,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const toggleRole = async (id: string, currentRole?: string) => {
-    const newRole = currentRole === "admin" ? "user" : "admin";
-    if (
-      !confirm(
-        `Tem certeza que deseja mudar este usuário para ${newRole === "admin" ? "Administrador" : "Usuário"}?`,
-      )
-    )
-      return;
-
-    try {
-      const res = await fetch(`/api/admin/users/${id}/role`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role: newRole }),
-      });
-      if (res.ok) {
-        fetchUsers(); // Refresh list
-      }
-    } catch (error) {
-      alert("Erro ao atualizar role");
-    }
-  };
+  // toggleRole removed as requested by cleanup of unused features
 
   const handleCreateUser = async () => {
     try {
@@ -232,6 +212,45 @@ export default function AdminDashboard() {
       user.id.includes(searchTerm),
   );
 
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const paginatedUsers = filteredUsers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
+
+  // Detect duplicate emails
+  const emailCounts = users.reduce(
+    (acc, user) => {
+      acc[user.email] = (acc[user.email] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+
+  const handleDeleteUser = async (id: string, email: string) => {
+    if (
+      !confirm(
+        `TEM CERTEZA que deseja excluir permanentemente o usuário ${email}? Esta ação não pode ser desfeita.`,
+      )
+    )
+      return;
+
+    try {
+      const res = await fetch(`/api/admin/users/${id}/delete`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        alert("Usuário excluído com sucesso");
+        fetchUsers();
+      } else {
+        const data = await res.json();
+        alert(data.error || "Erro ao excluir usuário");
+      }
+    } catch (error) {
+      alert("Erro ao conectar ao servidor");
+    }
+  };
+
   if (loading)
     return (
       <div className="flex h-full items-center justify-center p-8 text-white">
@@ -240,9 +259,9 @@ export default function AdminDashboard() {
     );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <StatsCard
           title="Total de Usuários"
           value={totalUsers.toString()}
@@ -267,74 +286,93 @@ export default function AdminDashboard() {
       </div>
 
       {/* Users Table Section */}
-      <div className="rounded-xl border border-gray-800 bg-gray-900 shadow-sm">
-        <div className="flex flex-col justify-between gap-4 border-b border-gray-800 p-6 sm:flex-row sm:items-center">
-          <h2 className="text-lg font-semibold text-white">
-            Usuários Recentes
-          </h2>
-          <div className="flex gap-3">
+      <div className="rounded-xl border border-gray-800 bg-gray-900 shadow-sm overflow-hidden">
+        <div className="flex flex-col justify-between gap-4 border-b border-gray-800 p-4 sm:flex-row sm:items-center">
+          <h2 className="text-lg font-semibold text-white">Usuários</h2>
+          <div className="flex gap-2">
             <button
               onClick={() => setShowCreateModal(true)}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+              className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700"
             >
-              + Criar Usuário
+              + Criar
             </button>
             <div className="relative">
               <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
-                size={18}
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500"
+                size={14}
               />
               <input
                 type="text"
-                placeholder="Buscar usuários..."
+                placeholder="Buscar..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full rounded-lg border border-gray-700 bg-gray-800 py-2 pl-10 pr-4 text-sm text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none sm:w-64"
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full rounded-lg border border-gray-700 bg-gray-800 py-1.5 pl-8 pr-3 text-xs text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none sm:w-48"
               />
             </div>
           </div>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+          <table className="w-full text-left text-xs border-collapse">
             <thead className="bg-gray-800/50 text-gray-400">
               <tr>
-                <th className="p-6 font-medium">Usuário</th>
-                <th className="p-6 font-medium">Plano</th>
-                <th className="p-6 font-medium">Role</th>
-                <th className="p-6 font-medium">Uso (PDFs)</th>
-                <th className="p-6 font-medium">Status</th>
-                <th className="p-6 font-medium text-right">Ações</th>
+                <th className="p-3 font-medium border-b border-gray-800">
+                  Usuário
+                </th>
+                <th className="p-3 font-medium border-b border-gray-800">
+                  Plano
+                </th>
+                <th className="p-3 font-medium border-b border-gray-800">
+                  Role
+                </th>
+                <th className="p-3 font-medium border-b border-gray-800">
+                  Uso
+                </th>
+                <th className="p-3 font-medium border-b border-gray-800">
+                  Status
+                </th>
+                <th className="p-3 font-medium border-b border-gray-800 text-right">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
-              {filteredUsers.length > 0 ? (
-                filteredUsers.map((user) => (
+              {paginatedUsers.length > 0 ? (
+                paginatedUsers.map((user) => (
                   <tr
                     key={user.id}
                     className="group transition hover:bg-gray-800/50"
                   >
-                    <td className="p-6">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-900/30 text-blue-500">
-                          <span className="font-bold">
-                            {user.email.charAt(0).toUpperCase()}
-                          </span>
+                    <td className="p-3">
+                      <div className="flex items-center gap-2">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-900/30 text-blue-500 text-xs font-bold">
+                          {user.email.charAt(0).toUpperCase()}
                         </div>
-                        <div>
-                          <div className="font-medium text-white">
+                        <div className="min-w-0">
+                          <div className="font-medium text-white truncate flex items-center gap-1">
                             {user.email}
+                            {emailCounts[user.email] > 1 && (
+                              <span
+                                className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-red-500/10 text-red-500 border border-red-500/20 font-bold"
+                                title="E-mail duplicado"
+                              >
+                                DUPLICADO
+                              </span>
+                            )}
                           </div>
-                          <div className="text-xs text-gray-500">
-                            ID: {user.id.substring(0, 8)}...
+                          <div className="text-[10px] text-gray-500 truncate">
+                            ID: {user.id}
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="p-6">
-                      <div className="flex flex-col gap-1">
+                    <td className="p-3">
+                      <div className="flex flex-col items-start">
                         <span
-                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium w-fit ${
+                          className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${
                             user.plan === "trial"
                               ? "bg-green-500/10 text-green-400 border border-green-500/20"
                               : user.plan === "premium"
@@ -345,36 +383,33 @@ export default function AdminDashboard() {
                           }`}
                         >
                           {user.plan === "trial"
-                            ? "Testando"
-                            : user.plan
-                              ? user.plan.charAt(0).toUpperCase() +
-                                user.plan.slice(1)
-                              : "Free"}
+                            ? "Teste"
+                            : user.plan || "Free"}
                         </span>
                         {user.plan === "trial" && user.renovacao_em && (
-                          <span className="text-xs text-green-400 font-medium ml-1">
-                            {getDaysRemaining(user.renovacao_em)} dias restantes
+                          <span className="text-[10px] text-green-400/80 mt-0.5">
+                            {getDaysRemaining(user.renovacao_em)}d
                           </span>
                         )}
                       </div>
                     </td>
-                    <td className="p-6">
+                    <td className="p-3">
                       <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
                           user.role === "admin"
-                            ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
-                            : "bg-gray-500/10 text-gray-400 border border-gray-500/20"
+                            ? "bg-yellow-500/10 text-yellow-500 border border-yellow-500/20"
+                            : "bg-gray-500/10 text-gray-400"
                         }`}
                       >
-                        {user.role === "admin" ? "Admin" : "Usuário"}
+                        {user.role === "admin" ? "Admin" : "User"}
                       </span>
                     </td>
-                    <td className="p-6 text-gray-300">
+                    <td className="p-3 text-gray-300">
                       {user.pdfs_generated_count || 0}
                     </td>
-                    <td className="p-6">
+                    <td className="p-3">
                       <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${
                           user.banned
                             ? "bg-red-500/10 text-red-400"
                             : "bg-green-500/10 text-green-400"
@@ -385,45 +420,43 @@ export default function AdminDashboard() {
                             user.banned ? "bg-red-400" : "bg-green-400"
                           }`}
                         ></span>
-                        {user.banned ? "Banido" : "Ativo"}
+                        {user.banned ? "Ban" : "Ok"}
                       </span>
                     </td>
-                    <td className="p-6 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="p-3 text-right">
+                      <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => openEditModal(user)}
-                          className="rounded-lg bg-blue-600/10 px-3 py-1.5 text-xs font-medium text-blue-400 transition hover:bg-blue-600/20"
+                          className="p-1.5 rounded text-blue-400 hover:bg-blue-400/10 transition"
+                          title="Editar"
                         >
-                          Editar
+                          <MoreHorizontal size={14} />
                         </button>
                         <button
                           onClick={() => openPasswordModal(user)}
-                          className="rounded-lg bg-yellow-600/10 px-3 py-1.5 text-xs font-medium text-yellow-400 transition hover:bg-yellow-600/20"
+                          className="p-1.5 rounded text-yellow-500 hover:bg-yellow-500/10 transition"
+                          title="Mudar Senha"
                         >
-                          Senha
-                        </button>
-                        <button
-                          onClick={() => toggleRole(user.id, user.role)}
-                          className="rounded-lg bg-purple-600/10 px-3 py-1.5 text-xs font-medium text-purple-400 transition hover:bg-purple-600/20"
-                        >
-                          {user.role === "admin" ? "→ Usuário" : "→ Admin"}
+                          <CreditCard size={14} />
                         </button>
                         <button
                           onClick={() => toggleBan(user.id, user.banned)}
-                          className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+                          className={`p-1.5 rounded transition ${
                             user.banned
-                              ? "bg-green-600 text-white hover:bg-green-700"
-                              : "bg-red-600/10 text-red-400 hover:bg-red-600/20"
+                              ? "text-green-500 hover:bg-green-500/10"
+                              : "text-red-400 hover:bg-red-400/10"
                           }`}
+                          title={user.banned ? "Desbanir" : "Banir"}
                         >
-                          {user.banned ? "Desbanir" : "Banir"}
+                          <Users size={14} />
                         </button>
-                        <Link
-                          href={`/admin/dashboard/user/${user.id}`}
-                          className="rounded-lg bg-gray-800 px-3 py-1.5 text-xs font-medium text-gray-300 transition hover:bg-gray-700 hover:text-white"
+                        <button
+                          onClick={() => handleDeleteUser(user.id, user.email)}
+                          className="p-1.5 rounded text-red-600 hover:bg-red-600/10 transition"
+                          title="Excluir"
                         >
-                          Detalhes
-                        </Link>
+                          <FileText size={14} />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -438,6 +471,73 @@ export default function AdminDashboard() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between border-t border-gray-800 p-4">
+            <div className="text-xs text-gray-500">
+              Mostrando{" "}
+              <span className="font-medium text-white">
+                {(currentPage - 1) * itemsPerPage + 1}
+              </span>{" "}
+              até{" "}
+              <span className="font-medium text-white">
+                {Math.min(currentPage * itemsPerPage, filteredUsers.length)}
+              </span>{" "}
+              de{" "}
+              <span className="font-medium text-white">
+                {filteredUsers.length}
+              </span>{" "}
+              usuários
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="rounded-lg border border-gray-700 bg-gray-800 px-3 py-1 text-xs font-medium text-white transition hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Anterior
+              </button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((page) => {
+                    // Show current page, first, last, and neighbors
+                    return (
+                      page === 1 ||
+                      page === totalPages ||
+                      Math.abs(page - currentPage) <= 1
+                    );
+                  })
+                  .map((page, index, array) => (
+                    <div key={page} className="flex items-center">
+                      {index > 0 && array[index - 1] !== page - 1 && (
+                        <span className="text-gray-500 px-1">...</span>
+                      )}
+                      <button
+                        onClick={() => setCurrentPage(page)}
+                        className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
+                          currentPage === page
+                            ? "bg-blue-600 text-white"
+                            : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    </div>
+                  ))}
+              </div>
+              <button
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
+                disabled={currentPage === totalPages}
+                className="rounded-lg border border-gray-700 bg-gray-800 px-3 py-1 text-xs font-medium text-white transition hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Próximo
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Create User Modal */}
@@ -458,9 +558,18 @@ export default function AdminDashboard() {
                   onChange={(e) =>
                     setCreateForm({ ...createForm, email: e.target.value })
                   }
-                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                  className={`w-full rounded-lg border px-3 py-2 text-white focus:outline-none ${
+                    emailCounts[createForm.email] > 0
+                      ? "border-red-500 bg-red-500/10 focus:border-red-500"
+                      : "border-gray-700 bg-gray-800 focus:border-blue-500"
+                  }`}
                   placeholder="usuario@exemplo.com"
                 />
+                {emailCounts[createForm.email] > 0 && (
+                  <p className="mt-1 text-[10px] font-bold text-red-500 animate-pulse">
+                    ESTE E-MAIL JÁ EXISTE NO SISTEMA E NÃO PODE SER DUPLICADO.
+                  </p>
+                )}
               </div>
               <div>
                 <label className="mb-1 block text-sm text-gray-400">
