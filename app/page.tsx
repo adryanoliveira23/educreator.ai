@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Check, Zap, FileText, Download, Star } from "lucide-react";
+import SupportMenu from "@/components/SupportMenu";
 
 export default function LandingPage() {
   return (
@@ -410,6 +411,7 @@ export default function LandingPage() {
           <p>© 2026 EduCreator AI. Todos os direitos reservados.</p>
         </div>
       </footer>
+      <SupportMenu />
     </div>
   );
 }
