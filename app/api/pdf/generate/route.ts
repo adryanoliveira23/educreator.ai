@@ -4,7 +4,15 @@ import { decodeHtmlEntities } from "@/lib/utils";
 
 export async function POST(req: Request) {
   try {
-    const { title, description, content, header, questions, layout = "standard", includeImages = true } = await req.json();
+    const {
+      title,
+      description,
+      content,
+      header,
+      questions,
+      layout = "standard",
+      includeImages = true,
+    } = await req.json();
 
     const doc = new PDFDocument({ size: "A4" });
     const chunks: Buffer[] = [];
@@ -93,13 +101,17 @@ export async function POST(req: Request) {
               const imgHeight = layout === "two_per_page" ? 200 : 300;
               const xPos = (pageWidth - imgWidth) / 2;
 
-              if (doc.y + imgHeight > doc.page.height - doc.page.margins.bottom) {
+              if (
+                doc.y + imgHeight >
+                doc.page.height - doc.page.margins.bottom
+              ) {
                 doc.addPage();
                 drawHeader();
               }
 
               const base64Image = imageBuffer.toString("base64");
-              const contentType = imageRes.headers.get("content-type") || "image/png";
+              const contentType =
+                imageRes.headers.get("content-type") || "image/png";
               const dataUri = `data:${contentType};base64,${base64Image}`;
 
               doc.image(dataUri, xPos, doc.y, { width: imgWidth });
@@ -113,7 +125,15 @@ export async function POST(req: Request) {
 
         if (Array.isArray(q.alternatives)) {
           q.alternatives.forEach((alt: string) => {
-            if (["multiple_choice", "check_box", "true_false", "counting", "image_selection"].includes(q.type)) {
+            if (
+              [
+                "multiple_choice",
+                "check_box",
+                "true_false",
+                "counting",
+                "image_selection",
+              ].includes(q.type)
+            ) {
               doc.text(`(   ) ${decodeHtmlEntities(alt)}`);
             } else {
               doc.text(`- ${decodeHtmlEntities(alt)}`);
@@ -129,7 +149,11 @@ export async function POST(req: Request) {
               doc.y += 30;
               break;
             } else {
-              doc.moveTo(doc.x + 40, doc.y + 20).lineTo(doc.page.width - 50, doc.y + 20).dash(2, {}).stroke();
+              doc
+                .moveTo(doc.x + 40, doc.y + 20)
+                .lineTo(doc.page.width - 50, doc.y + 20)
+                .dash(2, {})
+                .stroke();
               doc.y += 25;
             }
           }
@@ -152,7 +176,11 @@ export async function POST(req: Request) {
         } else if (item.type === "question") {
           doc.moveDown(0.5);
           doc.fontSize(12).font("Helvetica-Bold").text(item.value);
-          doc.font("Helvetica").moveDown().text("__________________________________________________________").moveDown();
+          doc
+            .font("Helvetica")
+            .moveDown()
+            .text("__________________________________________________________")
+            .moveDown();
         }
       });
     }
@@ -170,9 +198,11 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: "Failed to generate PDF", details: error instanceof Error ? error.message : String(error) },
+      {
+        error: "Failed to generate PDF",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 },
     );
-  }
   }
 }
