@@ -15,9 +15,6 @@ import { initMercadoPago, Payment } from "@mercadopago/sdk-react";
 
 // Initialize Mercado Pago with Public Key
 const MP_PUBLIC_KEY = process.env.NEXT_PUBLIC_MP_PUBLIC_KEY;
-if (MP_PUBLIC_KEY) {
-  initMercadoPago(MP_PUBLIC_KEY);
-}
 
 function CheckoutContent() {
   const { user, loading } = useAuth();
@@ -27,6 +24,14 @@ function CheckoutContent() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
+    if (MP_PUBLIC_KEY) {
+      initMercadoPago(MP_PUBLIC_KEY);
+    } else {
+      console.error(
+        "Mercado Pago Public Key is missing from environment variables.",
+      );
+    }
+
     if (!loading && !user) {
       router.push("/login?redirect=/checkout");
     }
