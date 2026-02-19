@@ -135,20 +135,32 @@ export async function POST(req: Request) {
     }
 
     // Increment usage
-    await adminDb
-      .collection("users")
-      .doc(uid)
-      .update({
-        pdfs_generated_count: admin.firestore.FieldValue.increment(1),
-      });
+    try {
+      await adminDb
+        .collection("users")
+        .doc(uid)
+        .update({
+          pdfs_generated_count: admin.firestore.FieldValue.increment(1),
+        });
+      console.log(`Updated usage count for user ${uid}`);
+    } catch (dbError) {
+      console.error("Error updating user count:", dbError);
+    }
 
     // Save activity
-    await adminDb.collection("activities").add({
-      userId: uid,
-      prompt,
-      result: parsedResult,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+    try {
+      const activityRef = await adminDb.collection("activities").add({
+        userId: uid,
+        prompt,
+        result: parsedResult,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      console.log(
+        `Saved new activity with ID: ${activityRef.id} for user ${uid}`,
+      );
+    } catch (dbError) {
+      console.error("Error saving activity to Firestore:", dbError);
+    }
 
     return NextResponse.json(parsedResult);
   } catch (error) {

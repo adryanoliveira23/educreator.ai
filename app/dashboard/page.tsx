@@ -141,7 +141,7 @@ export default function Dashboard() {
       setActivities(acts);
     } catch (e) {
       console.warn(
-        "Firestore index missing for detailed query, falling back to simple query",
+        "Firestore index missing for detailed query, falling back to simple query and manual sorting. Please create the index in Firebase Console.",
         e,
       );
       const q = query(
@@ -153,6 +153,13 @@ export default function Dashboard() {
         id: doc.id,
         ...doc.data(),
       })) as Activity[];
+
+      // Manual sorting as fallback
+      acts.sort((a, b) => {
+        const timeA = (a.createdAt as { seconds: number })?.seconds || 0;
+        const timeB = (b.createdAt as { seconds: number })?.seconds || 0;
+        return timeB - timeA;
+      });
 
       setActivities(acts);
     }
