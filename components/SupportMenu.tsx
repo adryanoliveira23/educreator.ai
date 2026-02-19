@@ -164,22 +164,6 @@ export default function SupportMenu() {
 
       {/* Floating Buttons */}
       <div className="flex flex-col gap-3">
-        {/* WhatsApp Button (Small) */}
-        {!isOpen && (
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-green-600 hover:scale-110 transition-all duration-300 group"
-            title="Suporte via WhatsApp"
-          >
-            <Phone size={24} />
-            <span className="absolute right-14 bg-white text-gray-800 px-3 py-1 rounded-lg text-xs font-bold opacity-0 group-hover:opacity-100 shadow-md whitespace-nowrap transition-opacity pointer-events-none border border-gray-100">
-              WhatsApp (+55 66 9976-2785)
-            </span>
-          </a>
-        )}
-
         {/* AI Support Button (Main) */}
         <button
           onClick={() => setIsOpen(!isOpen)}
