@@ -20,19 +20,20 @@ import {
   FileText,
   Loader2,
   Lock,
-  Clock,
   Zap,
   Check,
   X,
   Layout,
-  Image as ImageIcon,
+  ImageIcon,
   Menu,
+  Plus,
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 
 import { signOut } from "firebase/auth";
 import { decodeHtmlEntities } from "@/lib/utils";
 import { activityTemplates, type ActivityTemplate } from "@/lib/templates";
+import ActivitySidebar from "@/components/ActivitySidebar";
 
 interface Question {
   number: number;
@@ -103,16 +104,63 @@ export default function Dashboard() {
   const [selectedWallpaper, setSelectedWallpaper] = useState<string | null>(
     null,
   );
+  const [customWallpaper, setCustomWallpaper] = useState<string | null>(null);
   const [questionCount, setQuestionCount] = useState(5);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!["image/jpeg", "image/jpg", "image/png"].includes(file.type)) {
+        alert("Apenas JPG, JPEG ou PNG são permitidos.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        setCustomWallpaper(base64);
+        setSelectedWallpaper(base64);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const applyTemplate = useCallback((template: ActivityTemplate) => {
+    setPrompt(template.prompt);
+    setSelectedTypes([template.type]);
+    if (template.wallpaperUrl) {
+      setSelectedWallpaper(template.wallpaperUrl);
+    }
+    // Force prompt update in textarea if needed
+    const textarea = document.querySelector("textarea");
+    if (textarea) textarea.value = template.prompt;
+
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  }, []);
 
   useEffect(() => {
     // Check for payment status in URL
     const params = new URLSearchParams(window.location.search);
     const status = params.get("status");
-    if (status === "success")
+    const templateId = params.get("template");
+
+    if (templateId) {
+      const template = activityTemplates.find((t) => t.id === templateId);
+      if (template) {
+        applyTemplate(template);
+        // Clear param without reload
+        window.history.replaceState({}, "", "/dashboard");
+      }
+    }
+
+    if (status === "success" || status === "approved") {
       alert("Pagamento aprovado! Seu plano foi atualizado.");
-    if (status === "failure") alert("Pagamento falhou. Tente novamente.");
-  }, []);
+      window.history.replaceState({}, "", "/dashboard");
+    }
+    if (status === "failure") {
+      alert("Pagamento falhou. Tente novamente.");
+      window.history.replaceState({}, "", "/dashboard");
+    }
+  }, [applyTemplate]);
 
   const fetchUserData = useCallback(async () => {
     if (!user) return;
@@ -274,15 +322,6 @@ export default function Dashboard() {
     setSelectedTypes(["multiple_choice"]);
   };
 
-  const applyTemplate = (template: ActivityTemplate) => {
-    setPrompt(template.prompt);
-    setSelectedTypes([template.type]);
-    if (template.wallpaperUrl) {
-      setSelectedWallpaper(template.wallpaperUrl);
-    }
-    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-  };
-
   const handleWallpaperUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -383,108 +422,21 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* Sidebar Overlay */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
-      <aside
-        className={`w-64 bg-white border-r flex flex-col fixed md:relative h-[100dvh] z-50 transition-transform duration-300 ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-        }`}
-      >
-        <div className="p-6 border-b">
-          <h1 className="text-xl font-bold text-blue-600 flex items-center gap-2">
-            <span className="bg-blue-100 p-1 rounded">⚡</span> EduCreator
-          </h1>
-          <button
-            onClick={startNewActivity}
-            className="mt-4 w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 font-medium"
-          >
-            + Nova Atividade
-          </button>
-        </div>
-
-        <div className="p-4 flex-grow overflow-y-auto">
-          <div className="mb-6">
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-              Seu Plano
-            </h3>
-            <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
-              <div className="flex justify-between items-center mb-2">
-                <span className="font-bold text-blue-900 capitalize">
-                  {userData.plan === "trial" ? "Teste Grátis" : userData.plan}
-                  {userData.subscription_status &&
-                    userData.subscription_status !== "active" &&
-                    userData.subscription_status !== "trial" && (
-                      <span className="text-[10px] ml-1 text-red-500 font-normal">
-                        (Pendente)
-                      </span>
-                    )}
-                </span>
-                {/* Limits hidden as per request */}
-                {/* <span className="text-xs text-blue-600 font-medium">
-                  {usage}/{limit}
-                </span> */}
-              </div>
-              {/* Progress bar hidden */}
-              {/* <div className="w-full bg-blue-200 rounded-full h-2 mb-2">
-                <div
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${percentage}%` }}
-                ></div>
-              </div> */}
-              <button
-                onClick={() => setShowPlans(true)}
-                className="text-xs text-blue-600 font-medium hover:underline flex items-center gap-1 w-full justify-center mt-2"
-              >
-                <Lock size={12} /> Fazer Upgrade / Mudar
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-              <Clock size={14} /> Histórico Recente
-            </h3>
-            <ul className="space-y-2">
-              {activities.length === 0 && (
-                <p className="text-sm text-gray-400 italic">
-                  Nenhuma atividade ainda.
-                </p>
-              )}
-              {activities.slice(0, 5).map((act) => (
-                <li key={act.id} className="text-sm truncate">
-                  <button
-                    onClick={() => setResult(act.result)}
-                    className="text-gray-700 hover:text-blue-600 text-left w-full truncate block p-2 hover:bg-gray-50 rounded"
-                  >
-                    {act.result?.title || act.prompt}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        <div className="p-4 border-t">
-          <button
-            onClick={handleLogout}
-            className="w-full py-2 text-sm text-gray-600 hover:text-red-500 transition"
-          >
-            Sair
-          </button>
-        </div>
-      </aside>
+      <ActivitySidebar
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+        startNewActivity={startNewActivity}
+        userData={userData}
+        activities={activities}
+        setResult={setResult}
+        setShowPlans={setShowPlans}
+        handleLogout={handleLogout}
+      />
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col relative pt-16 md:pt-0 h-full overflow-hidden">
         {showWarning && !showPlans && (
-          <div className="fixed inset-0 z-[60] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-60 bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-10 text-center animate-in fade-in zoom-in duration-500 border border-white/20">
               <div className="w-20 h-20 bg-linear-to-tr from-red-500 to-pink-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-xl rotate-3">
                 <Lock size={40} />
@@ -546,33 +498,21 @@ export default function Dashboard() {
                   <p className="text-green-600 font-medium mb-4 text-sm">
                     Depois R$ 21,90/mês
                   </p>
-                  <ul className="space-y-3 mb-6 text-sm flex-grow">
+                  <ul className="space-y-3 mb-6 text-sm grow">
                     <li className="flex items-center gap-2 text-gray-700">
-                      <Check
-                        size={18}
-                        className="text-green-500 flex-shrink-0"
-                      />{" "}
+                      <Check size={18} className="text-green-500 shrink-0" />{" "}
                       Acesso total à ferramenta
                     </li>
                     <li className="flex items-center gap-2 text-gray-700">
-                      <Check
-                        size={18}
-                        className="text-green-500 flex-shrink-0"
-                      />{" "}
+                      <Check size={18} className="text-green-500 shrink-0" />{" "}
                       Crie qualquer atividade
                     </li>
                     <li className="flex items-center gap-2 text-gray-700">
-                      <Check
-                        size={18}
-                        className="text-green-500 flex-shrink-0"
-                      />{" "}
+                      <Check size={18} className="text-green-500 shrink-0" />{" "}
                       Cancele quando quiser
                     </li>
                     <li className="flex items-center gap-2 text-gray-700">
-                      <Check
-                        size={18}
-                        className="text-green-500 flex-shrink-0"
-                      />{" "}
+                      <Check size={18} className="text-green-500 shrink-0" />{" "}
                       Sem cobrança hoje
                     </li>
                   </ul>
@@ -596,33 +536,21 @@ export default function Dashboard() {
                   <p className="text-gray-500 mb-6 text-sm">
                     Para professores ativos.
                   </p>
-                  <ul className="space-y-3 mb-8 text-sm flex-grow">
+                  <ul className="space-y-3 mb-8 text-sm grow">
                     <li className="flex items-center gap-2 text-gray-700">
-                      <Check
-                        size={18}
-                        className="text-green-500 flex-shrink-0"
-                      />{" "}
+                      <Check size={18} className="text-green-500 shrink-0" />{" "}
                       Geração mais rápida
                     </li>
                     <li className="flex items-center gap-2 text-gray-700">
-                      <Check
-                        size={18}
-                        className="text-green-500 flex-shrink-0"
-                      />{" "}
+                      <Check size={18} className="text-green-500 shrink-0" />{" "}
                       Suporte prioritário
                     </li>
                     <li className="flex items-center gap-2 text-gray-700">
-                      <Check
-                        size={18}
-                        className="text-green-500 flex-shrink-0"
-                      />{" "}
+                      <Check size={18} className="text-green-500 shrink-0" />{" "}
                       Ideal pra quem prepara atividades toda semana
                     </li>
                     <li className="flex items-center gap-2 text-gray-700">
-                      <Check
-                        size={18}
-                        className="text-green-500 flex-shrink-0"
-                      />{" "}
+                      <Check size={18} className="text-green-500 shrink-0" />{" "}
                       Mais agilidade pra planejar aulas e avaliações
                     </li>
                   </ul>
@@ -645,7 +573,7 @@ export default function Dashboard() {
                   <p className="text-gray-500 mb-6 text-sm">
                     Para professores ocasionais.
                   </p>
-                  <ul className="space-y-3 mb-8 text-sm flex-grow">
+                  <ul className="space-y-3 mb-8 text-sm grow">
                     <li className="flex items-center gap-2 text-gray-700">
                       <Check
                         size={18}
@@ -832,98 +760,163 @@ export default function Dashboard() {
                     </div>
 
                     {/* Wallpaper Selection */}
-                    <div className="mt-6 border-t pt-6">
-                      <h3 className="text-xs md:text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                        <ImageIcon size={14} /> Papel de Parede (Opcional)
+                    <div className="mt-8 border-t pt-6">
+                      <h3 className="text-sm font-black text-slate-800 mb-4 flex items-center gap-2">
+                        <ImageIcon size={18} className="text-blue-600" /> Papel
+                        de Parede Temático
                       </h3>
 
-                      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8 gap-4">
                         {/* None Option */}
                         <button
                           onClick={() => setSelectedWallpaper(null)}
-                          className={`p-2 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all ${
+                          className={`p-3 rounded-2xl border-2 flex flex-col items-center justify-center gap-2 transition-all group ${
                             selectedWallpaper === null
-                              ? "border-blue-600 bg-blue-50/50 ring-2 ring-blue-100"
-                              : "border-gray-200 bg-white hover:border-blue-300"
+                              ? "border-blue-600 bg-blue-50 ring-4 ring-blue-50"
+                              : "border-slate-100 bg-white hover:border-blue-200"
                           }`}
                         >
-                          <div className="w-8 h-8 rounded border border-dashed border-gray-300 flex items-center justify-center text-gray-400">
-                            <X size={16} />
+                          <div className="w-12 h-12 rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-400 group-hover:border-blue-300 group-hover:text-blue-400 transition-colors">
+                            <X size={20} />
                           </div>
-                          <span className="text-[10px] font-medium">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                             Nenhum
                           </span>
                         </button>
 
+                        {/* Manual Upload */}
+                        <div className="relative p-3 rounded-2xl border-2 border-slate-100 bg-white hover:border-blue-200 transition-all group flex flex-col items-center justify-center gap-2 overflow-hidden shrink-0">
+                          <input
+                            type="file"
+                            accept=".jpg,.jpeg,.png"
+                            onChange={handleFileUpload}
+                            className="absolute inset-0 opacity-0 cursor-pointer z-20"
+                          />
+                          <div className="w-12 h-12 rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-400 group-hover:border-blue-300 group-hover:text-blue-400 transition-colors">
+                            <Plus size={20} />
+                          </div>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                            Customizar
+                          </span>
+                          {customWallpaper && (
+                            <div className="absolute inset-0 bg-blue-600 pointer-events-none flex items-center justify-center z-10">
+                              <Check size={20} className="text-white" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Predefined Wallpapers */}
+                        {[
+                          {
+                            id: "bear",
+                            url: "https://images.unsplash.com/photo-1559440666-374fa0770281?q=80&w=200&auto=format&fit=crop",
+                            label: "Urso",
+                            icon: "🧸",
+                          },
+                          {
+                            id: "dino",
+                            url: "https://images.unsplash.com/photo-1547721064-3625203387b9?q=80&w=200&auto=format&fit=crop",
+                            label: "Dino",
+                            icon: "🦖",
+                          },
+                          {
+                            id: "space",
+                            url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=200&auto=format&fit=crop",
+                            label: "Espaço",
+                            icon: "🚀",
+                          },
+                          {
+                            id: "ocean",
+                            url: "https://images.unsplash.com/photo-1518133835878-5a93cc3f89e5?q=80&w=200&auto=format&fit=crop",
+                            label: "Mar",
+                            icon: "🌊",
+                          },
+                          {
+                            id: "magic",
+                            url: "https://images.unsplash.com/photo-1510444583100-84a86b3a0cc3?q=80&w=200&auto=format&fit=crop",
+                            label: "Mágico",
+                            icon: "✨",
+                          },
+                          {
+                            id: "robots",
+                            url: "https://images.unsplash.com/photo-1546776310-eef45dd6d63c?q=80&w=200&auto=format&fit=crop",
+                            label: "Robôs",
+                            icon: "🤖",
+                          },
+                          {
+                            id: "nature",
+                            url: "https://images.unsplash.com/photo-150208259853b-e97738219011?q=80&w=200&auto=format&fit=crop",
+                            label: "Natureza",
+                            icon: "🌿",
+                          },
+                          {
+                            id: "stars",
+                            url: "https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=200&auto=format&fit=crop",
+                            label: "Estrelas",
+                            icon: "⭐",
+                          },
+                          {
+                            id: "clouds",
+                            url: "https://images.unsplash.com/photo-1534088568595-a066f410bcda?q=80&w=200&auto=format&fit=crop",
+                            label: "Nuvens",
+                            icon: "☁️",
+                          },
+                          {
+                            id: "animals",
+                            url: "https://images.unsplash.com/photo-1519066629447-267fffa62d4b?q=80&w=200&auto=format&fit=crop",
+                            label: "Animais",
+                            icon: "🐾",
+                          },
+                          {
+                            id: "shapes",
+                            url: "https://images.unsplash.com/photo-1563456801-628d052a6136?q=80&w=200&auto=format&fit=crop",
+                            label: "Formas",
+                            icon: "📐",
+                          },
+                        ].map((wp) => (
+                          <button
+                            key={wp.id}
+                            onClick={() => setSelectedWallpaper(wp.url)}
+                            className={`p-3 rounded-2xl border-2 flex flex-col items-center justify-center gap-2 transition-all relative overflow-hidden group shrink-0 ${
+                              selectedWallpaper === wp.url
+                                ? "border-blue-600 bg-blue-50 ring-4 ring-blue-50"
+                                : "border-slate-100 bg-white hover:border-blue-200"
+                            }`}
+                          >
+                            <div
+                              className="w-12 h-12 rounded-xl border bg-white overflow-hidden shadow-sm relative flex items-center justify-center text-2xl group-hover:scale-110 transition-transform"
+                              style={{
+                                backgroundImage: `url(${wp.url})`,
+                                backgroundSize: "cover",
+                                opacity: 0.8,
+                              }}
+                            >
+                              <span className="relative z-10 drop-shadow-md">
+                                {wp.icon}
+                              </span>
+                              <div className="absolute inset-0 bg-white/40" />
+                            </div>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                              {wp.label}
+                            </span>
+                          </button>
+                        ))}
+
                         {/* Custom Upload Option */}
-                        <label className="p-2 rounded-xl border border-dashed border-gray-300 bg-gray-50 hover:bg-white hover:border-blue-400 transition-all cursor-pointer flex flex-col items-center justify-center gap-1">
+                        <label className="p-3 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 hover:bg-white hover:border-blue-400 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group">
                           <input
                             type="file"
                             className="hidden"
                             accept="image/*"
                             onChange={handleWallpaperUpload}
                           />
-                          <div className="w-8 h-8 rounded bg-blue-100 text-blue-600 flex items-center justify-center">
-                            <ImageIcon size={16} />
+                          <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <Plus size={20} />
                           </div>
-                          <span className="text-[10px] font-medium">Subir</span>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600">
+                            Personalizar
+                          </span>
                         </label>
-
-                        {/* Predefined Wallpapers */}
-                        {[
-                          {
-                            id: "stars",
-                            url: "/wallpapers/stars.png",
-                            label: "Estrelas",
-                          },
-                          {
-                            id: "clouds",
-                            url: "/wallpapers/clouds.png",
-                            label: "Nuvens",
-                          },
-                          {
-                            id: "animals",
-                            url: "/wallpapers/animals.png",
-                            label: "Animais",
-                          },
-                          {
-                            id: "shapes",
-                            url: "/wallpapers/shapes.png",
-                            label: "Formas",
-                          },
-                          {
-                            id: "doodles",
-                            url: "/wallpapers/doodles.png",
-                            label: "Doodles",
-                          },
-                          {
-                            id: "school",
-                            url: "/wallpapers/school.png",
-                            label: "Escola",
-                          },
-                        ].map((wp) => (
-                          <button
-                            key={wp.id}
-                            onClick={() => setSelectedWallpaper(wp.url)}
-                            className={`p-2 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all ${
-                              selectedWallpaper === wp.url
-                                ? "border-blue-600 bg-blue-50/50 ring-2 ring-blue-100"
-                                : "border-gray-200 bg-white hover:border-blue-300"
-                            }`}
-                          >
-                            <div
-                              className="w-8 h-8 rounded border bg-white overflow-hidden shadow-xs"
-                              style={{
-                                backgroundImage: `url(${wp.url})`,
-                                backgroundSize: "cover",
-                                opacity: 0.5,
-                              }}
-                            />
-                            <span className="text-[10px] font-medium">
-                              {wp.label}
-                            </span>
-                          </button>
-                        ))}
                       </div>
                     </div>
                   </div>
@@ -1135,35 +1128,42 @@ export default function Dashboard() {
             )}
 
             {!result && !isGenerating && (
-              <div className="flex flex-col items-center justify-center py-6 text-center">
-                <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4 shadow-inner">
-                  <Zap size={32} />
+              <div className="flex-1 flex flex-col items-center justify-center py-20 pb-[28rem] md:pb-80 px-6 text-center animate-in fade-in zoom-in duration-1000">
+                <div className="relative group mb-12">
+                  <div className="absolute inset-0 bg-blue-500 blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 rounded-full" />
+                  <div className="relative w-24 h-24 bg-white text-blue-600 rounded-4xl flex items-center justify-center shadow-2xl shadow-blue-200 group-hover:scale-110 transition-transform duration-500 border border-slate-50">
+                    <Zap size={48} fill="currentColor" />
+                  </div>
                 </div>
-                <h2 className="text-lg sm:text-2xl md:text-3xl font-extrabold text-gray-900 mb-1 tracking-tight">
-                  O que vamos criar hoje?
-                </h2>
-                <p className="text-xs text-gray-500 mb-4 max-w-sm mx-auto leading-relaxed">
-                  Escolha um template abaixo ou descreva sua ideia.
-                </p>
 
-                {/* Template Gallery */}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 w-full max-w-4xl mb-8 px-4">
-                  {activityTemplates.map((template) => (
+                <div className="max-w-2xl space-y-4">
+                  <h2 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tight leading-tight">
+                    O que vamos <span className="text-blue-600">criar</span>{" "}
+                    hoje?
+                  </h2>
+                  <p className="text-lg text-slate-500 font-medium max-w-lg mx-auto leading-relaxed italic">
+                    &quot;A educação é a arma mais poderosa que você pode usar
+                    para mudar o mundo.&quot;
+                  </p>
+                </div>
+
+                <div className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-5xl">
+                  {activityTemplates.slice(0, 4).map((template) => (
                     <button
                       key={template.id}
                       onClick={() => applyTemplate(template)}
-                      className="group relative p-4 bg-white border border-gray-100 rounded-2xl hover:border-blue-500 hover:shadow-lg transition-all duration-300 text-left flex flex-col h-full"
+                      className="group relative p-6 bg-white border border-slate-100 rounded-3xl hover:border-blue-500 hover:shadow-2xl hover:shadow-blue-900/10 hover:-translate-y-2 transition-all duration-500 text-left flex flex-col"
                     >
                       <div
-                        className={`w-10 h-10 ${template.color} text-white rounded-xl flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform duration-300 shadow-md`}
+                        className={`w-12 h-12 ${template.color} text-white rounded-2xl flex items-center justify-center text-2xl mb-4 shadow-lg shadow-blue-900/10 group-hover:rotate-12 transition-transform`}
                       >
                         {template.icon}
                       </div>
-                      <h4 className="font-bold text-sm text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1">
+                      <h4 className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
                         {template.title}
                       </h4>
-                      <p className="text-[10px] text-gray-400 mt-1 leading-tight line-clamp-2">
-                        {template.description}
+                      <p className="text-[10px] text-slate-400 mt-2 font-medium uppercase tracking-wider">
+                        {template.category}
                       </p>
                     </button>
                   ))}
@@ -1173,29 +1173,42 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Input Area */}
-        <div className="fixed bottom-6 left-0 right-0 z-30 px-4 md:relative md:bottom-0 md:px-0">
-          <div className="max-w-3xl mx-auto bg-white/95 backdrop-blur-xl border border-gray-200 p-3 md:p-6 rounded-3xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] md:shadow-none md:rounded-none md:border-t md:border-x-0 md:border-b-0 md:bg-white">
-            <div className="w-full">
-              {error && (
-                <p className="text-red-500 text-sm mb-2 text-center">{error}</p>
-              )}
-              {/* Ultra-Compact Activity Selector - Bulletproof Layout */}
-              {!result && !isGenerating && (
-                <div className="mb-4 w-full overflow-hidden">
-                  <style
-                    dangerouslySetInnerHTML={{
-                      __html: `
-                  .no-scrollbar::-webkit-scrollbar { display: none; }
-                  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-                `,
-                    }}
-                  />
-                  <div
-                    className="overflow-x-auto no-scrollbar w-full"
-                    style={{ WebkitOverflowScrolling: "touch" }}
-                  >
-                    <div className="flex items-center gap-2 px-4 py-3 w-max">
+        {/* Floating Input Area */}
+        <div className="fixed bottom-4 md:bottom-10 left-0 right-0 md:left-72 z-40 px-4 md:px-6 pointer-events-none">
+          <div className="max-w-4xl mx-auto pointer-events-auto">
+            <div className="bg-white/90 backdrop-blur-2xl border border-white/50 p-4 md:p-6 rounded-[2rem] md:rounded-4xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] ring-1 ring-black/5">
+              <div className="w-full space-y-4 md:space-y-6">
+                {error && (
+                  <p className="text-red-500 text-sm mb-2 text-center animate-bounce">
+                    {error}
+                  </p>
+                )}
+
+                <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
+                  <div className="flex flex-col gap-2">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+                      Número de Questões (1-20)
+                    </span>
+                    <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl">
+                      <input
+                        type="range"
+                        min="1"
+                        max="20"
+                        value={questionCount}
+                        onChange={(e) =>
+                          setQuestionCount(parseInt(e.target.value))
+                        }
+                        className="w-32 md:w-48 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                      />
+                      <div className="bg-white px-3 py-1 rounded-xl text-xs font-black text-blue-600 shadow-sm border border-slate-200 min-w-12 text-center">
+                        {questionCount}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Activity Types - Simple Wrap Layout */}
+                  {!result && !isGenerating && (
+                    <div className="flex-1 w-full flex flex-wrap items-center gap-1.5 md:gap-2">
                       {[
                         {
                           id: "multiple_choice",
@@ -1246,81 +1259,50 @@ export default function Dashboard() {
                                   : [...prev, type.id],
                               );
                             }}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-all border whitespace-nowrap shrink-0 ${
+                            className={`flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1.5 rounded-xl md:rounded-2xl text-[10px] md:text-[11px] font-bold transition-all border whitespace-nowrap ${
                               isSelected
-                                ? "bg-blue-600 border-blue-600 text-white shadow-sm"
-                                : "bg-white border-gray-200 text-gray-600 hover:border-blue-400 hover:text-blue-600 shadow-sm"
+                                ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200"
+                                : "bg-white border-slate-200 text-slate-500 hover:border-blue-300 hover:text-blue-600"
                             }`}
                           >
-                            <span
-                              className={
-                                isSelected ? "text-white/80" : "text-blue-400"
-                              }
-                            >
-                              {type.icon}
-                            </span>
+                            {type.icon}
                             {type.label}
                           </button>
                         );
                       })}
                     </div>
-                  </div>
-                </div>
-              )}
-              {!result && !isGenerating && (
-                <div className="mb-4 px-4">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-                    <Zap size={14} className="text-blue-500" /> Quantidade de
-                    Questões: {questionCount}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {[1, 3, 5, 8, 10].map((num) => (
-                      <button
-                        key={num}
-                        type="button"
-                        onClick={() => setQuestionCount(num)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
-                          questionCount === num
-                            ? "bg-blue-600 border-blue-600 text-white shadow-md"
-                            : "bg-white border-gray-200 text-gray-600 hover:border-blue-300"
-                        }`}
-                      >
-                        {num}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <form
-                onSubmit={handleGenerate}
-                className="relative flex items-center shadow-sm border rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-100 transition"
-              >
-                <input
-                  type="text"
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Ex: Quero uma atividade do 5º ano sobre Carnaval"
-                  className="w-full p-4 pr-12 outline-none text-gray-900 placeholder-gray-400"
-                  disabled={isGenerating || (percentage >= 100 && !result)}
-                />
-                <button
-                  type="submit"
-                  disabled={isGenerating || !prompt.trim() || percentage >= 100}
-                  className="absolute right-2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
-                >
-                  {isGenerating ? (
-                    <Loader2 className="animate-spin" size={20} />
-                  ) : (
-                    <Send size={20} />
                   )}
-                </button>
-              </form>
-              <p className="text-center text-xs text-gray-400 mt-2">
-                {percentage >= 100
-                  ? "Limite do plano atingido."
-                  : "A IA pode cometer erros. Revise antes de imprimir."}
-              </p>
+                </div>
+
+                <form onSubmit={handleGenerate} className="relative group">
+                  <div className="absolute inset-0 bg-blue-600/5 blur-xl group-focus-within:bg-blue-600/10 transition-colors rounded-3xl" />
+                  <div className="relative flex items-center bg-slate-50 border-2 border-slate-100 rounded-4xl overflow-hidden focus-within:border-blue-500/50 focus-within:bg-white focus-within:ring-8 focus-within:ring-blue-50 transition-all duration-500">
+                    <input
+                      type="text"
+                      value={prompt}
+                      onChange={(e) => setPrompt(e.target.value)}
+                      placeholder="Ex: Quero uma atividade do 5º ano sobre Carnaval..."
+                      className="w-full p-5 pr-16 outline-none bg-transparent text-slate-800 placeholder-slate-400 font-medium"
+                      disabled={isGenerating}
+                    />
+                    <button
+                      type="submit"
+                      disabled={isGenerating || !prompt.trim()}
+                      className="absolute right-3 w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center hover:bg-blue-700 hover:scale-105 active:scale-95 disabled:bg-slate-200 disabled:scale-100 disabled:cursor-not-allowed transition-all shadow-xl shadow-blue-200 duration-300"
+                    >
+                      {isGenerating ? (
+                        <Loader2 className="animate-spin" size={20} />
+                      ) : (
+                        <Send size={20} />
+                      )}
+                    </button>
+                  </div>
+                </form>
+
+                <p className="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  A IA pode cometer erros. Revise antes de imprimir.
+                </p>
+              </div>
             </div>
           </div>
         </div>
