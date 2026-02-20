@@ -342,7 +342,6 @@ export default function Dashboard() {
   const limits: Record<string, number> = {
     normal: 10,
     pro: 30,
-    premium: 999999,
     trial: 999999,
   };
   const limit = limits[userData.plan || "normal"];
@@ -512,7 +511,7 @@ export default function Dashboard() {
                 </button>
               </div>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Trial */}
                 <div className="bg-white p-6 rounded-2xl shadow-xl border-2 border-green-500 relative transform md:-translate-y-2 flex flex-col">
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-4 py-1 rounded-full text-xs font-bold tracking-wide shadow-sm whitespace-nowrap">
@@ -562,55 +561,6 @@ export default function Dashboard() {
                     className="block text-center w-full py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition shadow-md hover:shadow-lg"
                   >
                     Testar Agora
-                  </button>
-                </div>
-
-                {/* Normal */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:border-blue-300 transition relative flex flex-col">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    Normal
-                  </h3>
-                  <div className="text-3xl font-extrabold text-gray-900 mb-2">
-                    R$ 21,90
-                  </div>
-                  <p className="text-gray-500 mb-6 text-sm">
-                    Para professores ocasionais.
-                  </p>
-                  <ul className="space-y-3 mb-8 text-sm flex-grow">
-                    <li className="flex items-center gap-2 text-gray-700">
-                      <Check
-                        size={18}
-                        className="text-green-500 flex-shrink-0"
-                      />{" "}
-                      Geração com IA
-                    </li>
-                    <li className="flex items-center gap-2 text-gray-700">
-                      <Check
-                        size={18}
-                        className="text-green-500 flex-shrink-0"
-                      />{" "}
-                      Histórico por 30 dias
-                    </li>
-                    <li className="flex items-center gap-2 text-gray-700">
-                      <Check
-                        size={18}
-                        className="text-green-500 flex-shrink-0"
-                      />{" "}
-                      Ideal pra quem usa 2–3x por semana
-                    </li>
-                    <li className="flex items-center gap-2 text-gray-700">
-                      <Check
-                        size={18}
-                        className="text-green-500 flex-shrink-0"
-                      />{" "}
-                      PDF pronto pra imprimir em 1 clique
-                    </li>
-                  </ul>
-                  <button
-                    onClick={() => handleUpgrade("normal")}
-                    className="block text-center w-full py-3 border border-blue-600 text-blue-600 font-bold rounded-xl hover:bg-blue-50 transition"
-                  >
-                    Escolher Normal
                   </button>
                 </div>
 
@@ -664,43 +614,52 @@ export default function Dashboard() {
                   </button>
                 </div>
 
-                {/* Premium */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:border-purple-300 transition flex flex-col">
+                {/* Normal */}
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:border-blue-300 transition relative flex flex-col">
                   <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    Premium
+                    Normal
                   </h3>
                   <div className="text-3xl font-extrabold text-gray-900 mb-2">
-                    R$ 89,90
+                    R$ 21,90
                   </div>
-                  <p className="text-gray-500 mb-6 text-sm">Uso intenso.</p>
+                  <p className="text-gray-500 mb-6 text-sm">
+                    Para professores ocasionais.
+                  </p>
                   <ul className="space-y-3 mb-8 text-sm flex-grow">
                     <li className="flex items-center gap-2 text-gray-700">
                       <Check
                         size={18}
                         className="text-green-500 flex-shrink-0"
                       />{" "}
-                      Acesso a novos modelos
+                      Geração com IA
                     </li>
                     <li className="flex items-center gap-2 text-gray-700">
                       <Check
                         size={18}
                         className="text-green-500 flex-shrink-0"
                       />{" "}
-                      Histórico vitalício
+                      Histórico por 30 dias
                     </li>
                     <li className="flex items-center gap-2 text-gray-700">
                       <Check
                         size={18}
                         className="text-green-500 flex-shrink-0"
                       />{" "}
-                      Crie e reutilize atividades o ano inteiro
+                      Ideal pra quem usa 2–3x por semana
+                    </li>
+                    <li className="flex items-center gap-2 text-gray-700">
+                      <Check
+                        size={18}
+                        className="text-green-500 flex-shrink-0"
+                      />{" "}
+                      PDF pronto pra imprimir em 1 clique
                     </li>
                   </ul>
                   <button
-                    onClick={() => handleUpgrade("premium")}
-                    className="block text-center w-full py-3 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition"
+                    onClick={() => handleUpgrade("normal")}
+                    className="block text-center w-full py-3 border border-blue-600 text-blue-600 font-bold rounded-xl hover:bg-blue-50 transition"
                   >
-                    Escolher Premium
+                    Escolher Normal
                   </button>
                 </div>
               </div>

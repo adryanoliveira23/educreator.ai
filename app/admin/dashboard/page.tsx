@@ -196,11 +196,8 @@ export default function AdminDashboard() {
     setShowPasswordModal(true);
   };
 
-  // Derived metrics
   const totalUsers = users.length;
-  const activeSubs = users.filter(
-    (u) => u.plan === "pro" || u.plan === "premium",
-  ).length;
+  const activeSubs = users.filter((u) => u.plan === "pro").length;
   const totalPDFs = users.reduce(
     (acc, curr) => acc + (curr.pdfs_generated_count || 0),
     0,
@@ -375,11 +372,9 @@ export default function AdminDashboard() {
                           className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${
                             user.plan === "trial"
                               ? "bg-green-500/10 text-green-400 border border-green-500/20"
-                              : user.plan === "premium"
-                                ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
-                                : user.plan === "pro"
-                                  ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                                  : "bg-gray-500/10 text-gray-400 border border-gray-500/20"
+                              : user.plan === "pro"
+                                ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                                : "bg-gray-500/10 text-gray-400 border border-gray-500/20"
                           }`}
                         >
                           {user.plan === "trial"
@@ -598,7 +593,6 @@ export default function AdminDashboard() {
                 >
                   <option value="normal">Normal</option>
                   <option value="pro">Pro</option>
-                  <option value="premium">Premium</option>
                 </select>
               </div>
               <div>
@@ -667,7 +661,6 @@ export default function AdminDashboard() {
                 >
                   <option value="normal">Normal</option>
                   <option value="pro">Pro</option>
-                  <option value="premium">Premium</option>
                 </select>
               </div>
               <div>

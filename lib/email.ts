@@ -17,7 +17,7 @@ export async function sendWelcomeEmail(
   const planNames: Record<string, string> = {
     normal: "Normal (R$ 21,90/mês)",
     pro: "Pro (R$ 45,90/mês)",
-    premium: "Premium (R$ 89,90/mês)",
+
     trial: "Teste Grátis (7 Dias)",
   };
 

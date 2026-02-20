@@ -29,9 +29,6 @@ export async function POST(req: Request) {
         "https://pay.cakto.com.br/9m78gio_761861",
       pro:
         process.env.CACKTO_PRO_URL || "https://pay.cakto.com.br/3ey44xv_761899",
-      premium:
-        process.env.CACKTO_PREMIUM_URL ||
-        "https://pay.cakto.com.br/ecbriic_761903",
     };
 
     if (plan === "trial") {

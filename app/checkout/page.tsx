@@ -135,16 +135,7 @@ function CheckoutContent() {
       ],
       highlight: "Popular",
     },
-    premium: {
-      name: "Plano Premium",
-      price: "R$ 89,90",
-      features: [
-        "PDFs Ilimitados",
-        "Acesso antecipado",
-        "Suporte VIP",
-        "Geração ultrarrápida",
-      ],
-    },
+
     trial: {
       name: "Teste Grátis 7 Dias",
       price: "R$ 0,00",
