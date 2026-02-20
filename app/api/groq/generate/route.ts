@@ -74,15 +74,15 @@ export async function POST(req: Request) {
       {
         "title": "TÍTULO DA ATIVIDADE EM MAIÚSCULAS",
         "header": {
-          "studentName": "Nome do aluno:",
-          "school": "Escola:",
-          "teacherName": "Nome do professor(a):"
+          "studentName": "",
+          "school": "",
+          "teacherName": ""
         },
         "questions": [
           {
             "number": 1,
-            "imagePrompt": "Detailed description in ENGLISH for image generation. Style guidelines: Follow the 'CRITICAL STYLE FOR imagePrompt' section below.",
-            "questionText": "Texto da pergunta ou comando",
+            "imagePrompt": "Detailed description in ENGLISH for image generation. Style guidelines: Follow the 'CRITICAL STYLE FOR imagePrompt' section below. IMPORTANT: Must strictly match the subject and quantity mentioned in questionText.",
+            "questionText": "Texto da pergunta ou comando (NÃO inclua ( ) ou [] aqui)",
             "type": "tipo_escolhido_para_esta_questao",
             "alternatives": ["Opção 1", "Opção 2", "Opção 3", "Opção 4"],
             "answerLines": 0,
@@ -92,22 +92,23 @@ export async function POST(req: Request) {
       }
       
       INSTRUÇÕES POR TIPO DE ATIVIDADE:
-      - multiple_choice: Questões de marcar. Use ( ) para todas.
+      - multiple_choice: Questões de marcar. NÃO escreva ( ) nas alternativas, apenas o texto da opção. O sistema irá adicionar os parênteses automaticamente.
       - writing: Pedir para escrever nome de figuras ou frases. "answerLines" entre 1-3. Se for só uma palavra, use 1 linha grossa (caixa).
       - matching: Relacionar figuras com letras ou palavras.
       - image_selection: Pedir para circular/marcar figuras específicas (ex: 'Circule quem voa').
-      - counting: Mostrar conjunto de objetos e pedir para contar e escrever o número em um ( ).
+      - counting: Mostrar conjunto de objetos e pedir para contar e escrever o número. O imagePrompt DEVE descrever a quantidade exata de objetos.
       - completion: Completar palavras ou seqüências (ex: A _ E _ I _ O _ U).
       - pintar: Atividade de colorir. O comando deve ser para pintar algo.
 
       INSTRUÇÕES GERAIS:
       - Gere sempre entre 5 a 10 questões.
+      - NÃO repita o texto da questão nem as alternativas. Cada alternativa deve ser única e correta apenas conforme o contexto.
+      - NÃO use ( ) ou outros marcadores manuais no questionText ou alternatives.
       - CRITICAL STYLE FOR 'imagePrompt': 
-        - If type is 'pintar': MANDATORY: Use 'Black and white line art, coloring page style, clean thick black outlines, NO COLORS, NO SHADING, pure white background, simple for children'. NEVER use words like 'color', 'colored', 'bright', 'vibrant'.
+        - If type is 'pintar': MANDATORY: Use 'STRICTLY Black and white line art, coloring book page style, clean thick black outlines, NO COLORS, NO SHADING, NO GRADIENTS, pure white background, simple for children, high contrast, minimalism'. NEVER use words like 'color', 'colored', 'bright', 'vibrant', 'shading', 'photorealistic'.
         - For other types: Use 'Pedagogical clipart, white background, high contrast, clean lines, bright colors'.
-      - Se a questão for 'Escreva o nome das figuras', cada questão deve ser uma figura diferente com um 'imagePrompt' específico.
-      - Se a questão for de contar (counting), a imagem DEVE mostrar a quantidade exata citada no texto.
-      - Para questões de marcar, SEMPRE use ( ) no texto ou alternativas.
+      - MANDATORY: Every question MUST have an 'imagePrompt' that illustrates the SPECIFIC subject of the question. If the question is about monkeys, the prompt MUST be about monkeys, not other animals.
+      - MANDATORY: The 'imagePrompt' must specify the SAME QUANTITY as the question (e.g., '3 monkeys' if the question says '3 monkeys').
       - IMPORTANTE: NÃO use entidades HTML (como &quot;, &apos;, etc). Use caracteres normais.
     `;
 
@@ -133,12 +134,22 @@ export async function POST(req: Request) {
         async (q: {
           imagePrompt?: string;
           questionText?: string;
+          type?: string;
           number?: number;
           alternatives?: string[];
           [key: string]: unknown;
         }) => {
           if (q.imagePrompt) {
-            const imageUrl = await generateImage(q.imagePrompt);
+            // Force coloring style if the type is 'pintar'
+            let finalPrompt = q.imagePrompt;
+            if (
+              q.type === "pintar" ||
+              q.questionText?.toLowerCase().includes("pinte")
+            ) {
+              finalPrompt = `Coloring book page, black and white line art, clean thick black outlines, white background, NO COLOR, NO SHADING. ${q.imagePrompt}`;
+            }
+
+            const imageUrl = await generateImage(finalPrompt);
             return { ...q, imageUrl };
           }
           return q;

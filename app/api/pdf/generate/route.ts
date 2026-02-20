@@ -26,12 +26,25 @@ export async function POST(req: Request) {
     const pageWidth = doc.page.width;
     const pageMargins = doc.page.margins;
 
-    const drawHeader = () => {
-      if (header) {
+    const drawHeader = (showFields: boolean = true) => {
+      if (header && showFields) {
         doc.fontSize(12).font("Helvetica");
 
         const drawField = (label: string, value: string = "") => {
-          doc.text(`${label} ${value}_`.padEnd(80, "_"));
+          // Clean value: remove leading colons, double colons, or the label itself
+          let cleanValue = value ? value.trim() : "";
+
+          // Remove leading colons or double colons
+          cleanValue = cleanValue.replace(/^[:\s]+/, "");
+
+          // If the value still contains the label, remove it
+          if (cleanValue.toLowerCase().startsWith(label.toLowerCase())) {
+            cleanValue = cleanValue.slice(label.length).trim();
+            // Remove colons again after label removal
+            cleanValue = cleanValue.replace(/^[:\s]+/, "");
+          }
+
+          doc.text(`${label.replace(/:$/, "")}: ${cleanValue}`.padEnd(80, "_"));
           doc.moveDown(0.5);
         };
 
@@ -47,14 +60,16 @@ export async function POST(req: Request) {
         doc.moveDown(1.5);
       }
 
-      doc
-        .fontSize(18)
-        .font("Helvetica-Bold")
-        .text(decodeHtmlEntities(title), { align: "center" });
-      doc.moveDown(1.5);
+      if (title) {
+        doc
+          .fontSize(18)
+          .font("Helvetica-Bold")
+          .text(decodeHtmlEntities(title), { align: "center" });
+        doc.moveDown(1.5);
+      }
     };
 
-    drawHeader();
+    drawHeader(true);
 
     if (description) {
       doc
@@ -72,11 +87,11 @@ export async function POST(req: Request) {
 
         if (layout === "one_per_page" && i > 0) {
           doc.addPage();
-          drawHeader();
+          drawHeader(false);
         } else if (layout === "two_per_page") {
           if (questionCountOnPage >= 2) {
             doc.addPage();
-            drawHeader();
+            drawHeader(false);
             questionCountOnPage = 0;
           }
         }
@@ -106,7 +121,7 @@ export async function POST(req: Request) {
                 doc.page.height - doc.page.margins.bottom
               ) {
                 doc.addPage();
-                drawHeader();
+                drawHeader(false);
               }
 
               const base64Image = imageBuffer.toString("base64");

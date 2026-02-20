@@ -350,9 +350,9 @@ export default function Dashboard() {
   const percentage = Math.min((usage / limit) * 100, 100);
 
   return (
-    <div className="flex h-screen bg-gray-100 font-sans relative">
+    <div className="flex h-dvh bg-gray-100 font-sans relative overflow-hidden">
       {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between p-4 bg-white border-b absolute top-0 left-0 right-0 z-40">
+      <div className="md:hidden flex items-center justify-between p-4 bg-white border-b fixed top-0 left-0 right-0 z-40">
         <h1 className="text-xl font-bold text-blue-600 flex items-center gap-2">
           <span className="bg-blue-100 p-1 rounded">⚡</span> EduCreator
         </h1>
@@ -374,7 +374,7 @@ export default function Dashboard() {
 
       {/* Sidebar */}
       <aside
-        className={`w-64 bg-white border-r flex flex-col fixed md:relative h-full z-50 transition-transform duration-300 ${
+        className={`w-64 bg-white border-r flex flex-col fixed md:relative h-[100dvh] z-50 transition-transform duration-300 ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         }`}
       >
@@ -463,7 +463,7 @@ export default function Dashboard() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col relative pt-16 md:pt-0">
+      <main className="flex-1 flex flex-col relative pt-16 md:pt-0 h-full overflow-hidden">
         {showWarning && !showPlans && (
           <div className="fixed inset-0 z-[60] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-10 text-center animate-in fade-in zoom-in duration-500 border border-white/20">
@@ -709,7 +709,7 @@ export default function Dashboard() {
         )}
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-12 bg-gray-50/50">
+        <div className="flex-1 overflow-y-auto p-4 md:p-12 bg-gray-50/50 pb-40 md:pb-12">
           <div className="max-w-3xl mx-auto space-y-6 pb-20 md:pb-0">
             {currentPrompt && (
               <div className="flex justify-end animate-in slide-in-from-right-4 duration-300">
@@ -730,8 +730,8 @@ export default function Dashboard() {
 
             {result && (
               <div className="bg-white rounded-2xl shadow-md border overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="p-6 border-b bg-white flex justify-between items-center sticky top-0 z-10">
-                  <h2 className="text-xl font-bold text-gray-900 truncate mr-4">
+                <div className="p-4 md:p-6 border-b bg-white flex justify-between items-center sticky top-0 z-10 gap-2">
+                  <h2 className="text-base md:text-xl font-bold text-gray-900 truncate">
                     {result.title}
                   </h2>
                   <div className="flex gap-2 shrink-0">
@@ -740,58 +740,56 @@ export default function Dashboard() {
                         handleDownloadPDF({ ...result, layout, includeImages })
                       }
                       disabled={isDownloading}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-xs font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-[10px] md:text-xs font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isDownloading ? (
                         <>
-                          <Loader2 className="animate-spin" size={14} />{" "}
+                          <Loader2 className="animate-spin" size={12} />{" "}
                           Gerando...
                         </>
                       ) : (
                         <>
-                          <FileText size={14} /> Baixar PDF
+                          <FileText size={12} /> Baixar PDF
                         </>
                       )}
                     </button>
                     <button
                       onClick={startNewActivity}
-                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"
+                      className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"
                       title="Nova Atividade"
                     >
-                      <X size={20} />
+                      <X size={18} />
                     </button>
                   </div>
                 </div>
 
                 {/* Layout and Image Options */}
-                <div className="px-8 py-6 bg-gray-50 border-b space-y-6">
+                <div className="px-4 md:px-8 py-4 md:py-6 bg-gray-50 border-b space-y-4 md:space-y-6">
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                      <Layout size={16} /> Configurações do PDF
+                    <h3 className="text-xs md:text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                      <Layout size={14} /> Configurações do PDF
                     </h3>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                       {/* Standard Layout */}
                       <button
                         onClick={() => setLayout("standard")}
-                        className={`p-4 rounded-xl border-2 transition-all text-left flex flex-col gap-3 group ${
+                        className={`p-2 md:p-4 rounded-xl border flex-1 transition-all text-left flex flex-col gap-2 group ${
                           layout === "standard"
                             ? "border-blue-600 bg-blue-50/50 ring-2 ring-blue-100"
                             : "border-gray-200 bg-white hover:border-blue-300"
                         }`}
                       >
                         <div className="w-full aspect-video bg-gray-100 rounded-lg overflow-hidden relative flex flex-col p-2 gap-1 border border-gray-100">
-                          <div className="h-2 w-3/4 bg-gray-300 rounded-full" />
-                          <div className="h-2 w-full bg-gray-200 rounded-full" />
-                          <div className="h-6 w-full bg-gray-200 rounded-md" />
-                          <div className="h-2 w-1/2 bg-gray-300 rounded-full mt-1" />
+                          <div className="h-1.5 w-3/4 bg-gray-300 rounded-full" />
+                          <div className="h-1.5 w-full bg-gray-200 rounded-full" />
                           <div className="h-4 w-full bg-gray-200 rounded-md" />
                         </div>
-                        <div>
-                          <p className="font-bold text-sm text-gray-900">
+                        <div className="md:block">
+                          <p className="font-bold text-[10px] md:text-sm text-gray-900">
                             Fluxo Contínuo
                           </p>
-                          <p className="text-[10px] text-gray-500">
+                          <p className="hidden md:block text-[10px] text-gray-500">
                             Formato padrão longo
                           </p>
                         </div>
@@ -800,24 +798,23 @@ export default function Dashboard() {
                       {/* 1 Per Page */}
                       <button
                         onClick={() => setLayout("one_per_page")}
-                        className={`p-4 rounded-xl border-2 transition-all text-left flex flex-col gap-3 group ${
+                        className={`p-2 md:p-4 rounded-xl border flex-1 transition-all text-left flex flex-col gap-2 group ${
                           layout === "one_per_page"
                             ? "border-blue-600 bg-blue-50/50 ring-2 ring-blue-100"
                             : "border-gray-200 bg-white hover:border-blue-300"
                         }`}
                       >
                         <div className="w-full aspect-video bg-gray-100 rounded-lg overflow-hidden relative flex flex-col p-2 gap-1 border border-gray-100 items-center justify-center">
-                          <div className="w-[45%] h-[85%] bg-white rounded border border-gray-200 p-1 flex flex-col gap-1 shadow-xs">
-                            <div className="h-1 w-3/4 bg-gray-300 rounded-full" />
-                            <div className="h-4 w-full bg-gray-200 rounded-sm" />
+                          <div className="w-[40%] h-[80%] bg-white rounded border border-gray-200 p-0.5 flex flex-col gap-0.5 shadow-xs">
+                            <div className="h-0.5 w-3/4 bg-gray-300 rounded-full" />
+                            <div className="h-3 w-full bg-gray-200 rounded-sm" />
                           </div>
-                          <div className="w-[45%] h-[85%] bg-white rounded border border-gray-200 p-1 absolute right-[-10px] scale-90 translate-y-1 opacity-60"></div>
                         </div>
-                        <div>
-                          <p className="font-bold text-sm text-gray-900">
+                        <div className="md:block">
+                          <p className="font-bold text-[10px] md:text-sm text-gray-900">
                             1 por Página
                           </p>
-                          <p className="text-[10px] text-gray-500">
+                          <p className="hidden md:block text-[10px] text-gray-500">
                             Questão isolada
                           </p>
                         </div>
@@ -826,26 +823,24 @@ export default function Dashboard() {
                       {/* 2 Per Page */}
                       <button
                         onClick={() => setLayout("two_per_page")}
-                        className={`p-4 rounded-xl border-2 transition-all text-left flex flex-col gap-3 group ${
+                        className={`p-2 md:p-4 rounded-xl border flex-1 transition-all text-left flex flex-col gap-2 group ${
                           layout === "two_per_page"
                             ? "border-blue-600 bg-blue-50/50 ring-2 ring-blue-100"
                             : "border-gray-200 bg-white hover:border-blue-300"
                         }`}
                       >
                         <div className="w-full aspect-video bg-gray-100 rounded-lg overflow-hidden relative border border-gray-100 flex items-center justify-center p-2">
-                          <div className="w-[50%] h-[90%] bg-white rounded border border-gray-200 p-1 flex flex-col gap-1">
-                            <div className="h-1 w-2/3 bg-gray-300 rounded-full" />
+                          <div className="w-[40%] h-[80%] bg-white rounded border border-gray-200 p-0.5 flex flex-col gap-0.5">
+                            <div className="h-0.5 w-2/3 bg-gray-300 rounded-full" />
                             <div className="h-2 w-full bg-gray-200 rounded-sm" />
-                            <div className="h-0.5 w-full bg-gray-100 rounded-full mt-1" />
-                            <div className="h-1 w-2/3 bg-gray-300 rounded-full" />
-                            <div className="h-2 w-full bg-gray-200 rounded-sm" />
+                            <div className="h-0.5 w-full bg-gray-100 rounded-full mt-0.5" />
                           </div>
                         </div>
-                        <div>
-                          <p className="font-bold text-sm text-gray-900">
+                        <div className="md:block">
+                          <p className="font-bold text-[10px] md:text-sm text-gray-900">
                             2 por Página
                           </p>
-                          <p className="text-[10px] text-gray-500">
+                          <p className="hidden md:block text-[10px] text-gray-500">
                             Economia de papel
                           </p>
                         </div>
@@ -882,51 +877,102 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                <div className="p-8">
+                <div className="px-4 md:px-8 py-4 md:py-6">
                   {/* Activity Placeholder Header */}
-                  <div className="mb-8 space-y-3 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                    <div className="flex items-center gap-2 text-sm text-gray-500 italic">
-                      <span>
-                        {result.header.studentName || "Nome do Aluno"}:
-                        _______________________
+                  <div className="mb-4 space-y-2 p-3 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] md:text-xs text-gray-500 italic">
+                      <span className="shrink-0">
+                        {(() => {
+                          const label = "Aluno";
+                          let val = result.header.studentName?.trim() || "";
+                          val = val.replace(/^[:\s]+/, "");
+                          if (
+                            val.toLowerCase().startsWith("nome do aluno") ||
+                            val.toLowerCase().startsWith("aluno")
+                          ) {
+                            val = val
+                              .replace(/^(nome do aluno|aluno)/i, "")
+                              .replace(/^[:\s]+/, "")
+                              .trim();
+                          }
+                          return `${label}: ${val}`;
+                        })()}
+                        {(!result.header.studentName ||
+                          result.header.studentName.length < 3) &&
+                          " ________________"}
                       </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-500 italic">
-                      <span>
-                        {result.header.school || "Escola"}:
-                        _______________________
+                      <span className="shrink-0">
+                        {(() => {
+                          const label = "Escola";
+                          let val = result.header.school?.trim() || "";
+                          val = val.replace(/^[:\s]+/, "");
+                          if (val.toLowerCase().startsWith("escola")) {
+                            val = val
+                              .replace(/^escola/i, "")
+                              .replace(/^[:\s]+/, "")
+                              .trim();
+                          }
+                          return `${label}: ${val}`;
+                        })()}
+                        {(!result.header.school ||
+                          result.header.school.length < 3) &&
+                          " ________________"}
                       </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-500 italic">
-                      <span>
-                        {result.header.teacherName || "Professor(a)"}:
-                        _______________________
+                      <span className="shrink-0">
+                        {(() => {
+                          const label = "Prof.";
+                          let val = result.header.teacherName?.trim() || "";
+                          val = val.replace(/^[:\s]+/, "");
+                          if (
+                            val.toLowerCase().startsWith("nome do professor") ||
+                            val.toLowerCase().startsWith("professor") ||
+                            val.toLowerCase().startsWith("prof")
+                          ) {
+                            val = val
+                              .replace(
+                                /^(nome do professor\(a\)|nome do professor|professor|prof)/i,
+                                "",
+                              )
+                              .replace(/^[:\s]+/, "")
+                              .trim();
+                          }
+                          return `${label}: ${val}`;
+                        })()}
+                        {(!result.header.teacherName ||
+                          result.header.teacherName.length < 3) &&
+                          " ________________"}
                       </span>
                     </div>
                   </div>
 
                   {/* Questions */}
-                  <div className="space-y-8">
+                  <div className="space-y-4 md:space-y-6">
                     {result.questions?.map((question, i) => (
                       <div key={i} className="group relative">
                         <div className="flex items-start gap-4 mb-4">
-                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600 text-xs font-bold">
-                            {question.number}
-                          </span>
+                          <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-[10px] md:text-sm shrink-0">
+                            {i + 1}
+                          </div>
                           <div className="flex-1">
-                            <p className="text-gray-900 font-medium leading-relaxed">
-                              {decodeHtmlEntities(question.questionText)}
-                            </p>
+                            <h3 className="font-bold text-sm md:text-lg text-gray-900 leading-tight">
+                              {(() => {
+                                const cleanText = decodeHtmlEntities(
+                                  question.questionText,
+                                )
+                                  .replace(/^[\s()\[\]-]+/, "") // Remove leading markers
+                                  .replace(/[\s()\[\]-]+$/, ""); // Remove trailing markers
+                                return cleanText;
+                              })()}
+                            </h3>
                           </div>
                         </div>
 
                         {question.imageUrl && (
-                          <div className="ml-10 mb-6 rounded-xl overflow-hidden border border-gray-100 shadow-sm transition-transform hover:scale-[1.01] duration-300">
+                          <div className="mb-4 max-w-[200px] md:max-w-[300px]">
                             <img
                               src={question.imageUrl}
                               alt={`Ilustração para questão ${question.number}`}
-                              className="w-full max-h-[400px] object-cover"
-                              loading="lazy"
+                              className="rounded-xl border shadow-sm w-full bg-white"
                             />
                           </div>
                         )}
@@ -934,16 +980,21 @@ export default function Dashboard() {
                         {/* Alternatives (Multiple choice / Selection) */}
                         {question.alternatives &&
                           question.alternatives.length > 0 && (
-                            <div className="space-y-2 ml-10">
+                            <div className="grid grid-cols-1 gap-2">
                               {question.alternatives.map((alt, j) => (
                                 <div
                                   key={j}
-                                  className="flex items-start gap-3 text-gray-700 text-sm py-1 hover:bg-gray-50 rounded-lg px-2 -ml-2 transition-colors"
+                                  className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50/50"
                                 >
-                                  <span className="shrink-0 mt-0.5 font-mono text-gray-400">
-                                    ( )
+                                  <span className="w-5 h-5 flex items-center justify-center rounded-full border border-gray-300 text-[10px] text-gray-400">
+                                    {String.fromCharCode(65 + j)}
                                   </span>
-                                  <span>{alt}</span>
+                                  <p className="text-gray-700 text-sm">
+                                    {decodeHtmlEntities(alt).replace(
+                                      /^[\s()\[\]-]+/,
+                                      "",
+                                    )}
+                                  </p>
                                 </div>
                               ))}
                             </div>
@@ -1004,88 +1055,38 @@ export default function Dashboard() {
             )}
 
             {!result && !isGenerating && (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-8 shadow-inner">
-                  <Zap size={40} />
+              <div className="flex flex-col items-center justify-center py-6 text-center">
+                <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4 shadow-inner">
+                  <Zap size={32} />
                 </div>
-                <h2 className="text-3xl font-extrabold text-gray-900 mb-3 tracking-tight">
+                <h2 className="text-lg sm:text-2xl md:text-3xl font-extrabold text-gray-900 mb-1 tracking-tight">
                   O que vamos criar hoje?
                 </h2>
-                <p className="text-gray-500 mb-8 max-w-sm mx-auto leading-relaxed">
+                <p className="text-xs text-gray-500 mb-4 max-w-sm mx-auto leading-relaxed">
                   Escolha um template abaixo ou descreva sua ideia.
                 </p>
 
                 {/* Template Gallery */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl mb-12">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 w-full max-w-4xl mb-8 px-4">
                   {activityTemplates.map((template) => (
                     <button
                       key={template.id}
                       onClick={() => applyTemplate(template)}
-                      className="group relative p-6 bg-white border border-gray-100 rounded-3xl hover:border-blue-500 hover:shadow-xl transition-all duration-300 text-left flex flex-col h-full"
+                      className="group relative p-4 bg-white border border-gray-100 rounded-2xl hover:border-blue-500 hover:shadow-lg transition-all duration-300 text-left flex flex-col h-full"
                     >
                       <div
-                        className={`w-12 h-12 ${template.color} text-white rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
+                        className={`w-10 h-10 ${template.color} text-white rounded-xl flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform duration-300 shadow-md`}
                       >
                         {template.icon}
                       </div>
-                      <h4 className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                      <h4 className="font-bold text-sm text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1">
                         {template.title}
                       </h4>
-                      <p className="text-xs text-gray-400 mt-2 leading-relaxed">
+                      <p className="text-[10px] text-gray-400 mt-1 leading-tight line-clamp-2">
                         {template.description}
                       </p>
-                      <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-300 group-hover:text-blue-200">
-                          {template.category}
-                        </span>
-                        <Zap
-                          size={14}
-                          className="text-gray-200 group-hover:text-blue-400 group-hover:translate-x-1 transition-all"
-                        />
-                      </div>
                     </button>
                   ))}
-                </div>
-
-                <div className="flex items-center gap-4 w-full max-w-xl mb-6">
-                  <div className="h-px bg-gray-200 flex-1"></div>
-                  <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                    Exemplos Rápidos
-                  </span>
-                  <div className="h-px bg-gray-200 flex-1"></div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-xl text-left">
-                  <button
-                    onClick={() =>
-                      setPrompt(
-                        "Atividade de matemática para 1º ano sobre adição simples",
-                      )
-                    }
-                    className="group p-5 bg-white border border-gray-200 rounded-2xl hover:border-blue-500 hover:shadow-md transition-all duration-300"
-                  >
-                    <p className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
-                      &quot;Matemática 1º ano: Adição simples&quot;
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      Exemplo de comando rápido
-                    </p>
-                  </button>
-                  <button
-                    onClick={() =>
-                      setPrompt(
-                        "Texto e interpretação sobre o Ciclo da Água para 3º ano",
-                      )
-                    }
-                    className="group p-5 bg-white border border-gray-200 rounded-2xl hover:border-blue-500 hover:shadow-md transition-all duration-300"
-                  >
-                    <p className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
-                      &quot;Português 3º ano: Ciclo da Água&quot;
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      Exemplo de comando rápido
-                    </p>
-                  </button>
                 </div>
               </div>
             )}
@@ -1093,128 +1094,130 @@ export default function Dashboard() {
         </div>
 
         {/* Input Area */}
-        <div className="bg-white border-t p-6">
-          <div className="max-w-3xl mx-auto">
-            {error && (
-              <p className="text-red-500 text-sm mb-2 text-center">{error}</p>
-            )}
-            {/* Ultra-Compact Activity Selector - Bulletproof Layout */}
-            {!result && !isGenerating && (
-              <div className="mb-4 w-full overflow-hidden">
-                <style
-                  dangerouslySetInnerHTML={{
-                    __html: `
+        <div className="fixed bottom-6 left-0 right-0 z-30 px-4 md:relative md:bottom-0 md:px-0">
+          <div className="max-w-3xl mx-auto bg-white/95 backdrop-blur-xl border border-gray-200 p-3 md:p-6 rounded-3xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] md:shadow-none md:rounded-none md:border-t md:border-x-0 md:border-b-0 md:bg-white">
+            <div className="w-full">
+              {error && (
+                <p className="text-red-500 text-sm mb-2 text-center">{error}</p>
+              )}
+              {/* Ultra-Compact Activity Selector - Bulletproof Layout */}
+              {!result && !isGenerating && (
+                <div className="mb-4 w-full overflow-hidden">
+                  <style
+                    dangerouslySetInnerHTML={{
+                      __html: `
                   .no-scrollbar::-webkit-scrollbar { display: none; }
                   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
                 `,
-                  }}
-                />
-                <div
-                  className="overflow-x-auto no-scrollbar w-full"
-                  style={{ WebkitOverflowScrolling: "touch" }}
-                >
-                  <div className="flex items-center gap-2 px-4 py-3 w-max mx-auto">
-                    {[
-                      {
-                        id: "multiple_choice",
-                        label: "Marcar X",
-                        icon: <Check size={14} />,
-                      },
-                      {
-                        id: "writing",
-                        label: "Escrever",
-                        icon: <FileText size={14} />,
-                      },
-                      {
-                        id: "counting",
-                        label: "Contar",
-                        icon: <Zap size={14} />,
-                      },
-                      {
-                        id: "matching",
-                        label: "Ligar",
-                        icon: <Layout size={14} />,
-                      },
-                      {
-                        id: "image_selection",
-                        label: "Circular",
-                        icon: <ImageIcon size={14} />,
-                      },
-                      {
-                        id: "completion",
-                        label: "Completar",
-                        icon: <FileText size={14} />,
-                      },
-                      {
-                        id: "pintar",
-                        label: "Pintar",
-                        icon: <ImageIcon size={14} />,
-                      },
-                    ].map((type) => {
-                      const isSelected = selectedTypes.includes(type.id);
-                      return (
-                        <button
-                          key={type.id}
-                          onClick={() => {
-                            setSelectedTypes((prev) =>
-                              prev.includes(type.id)
-                                ? prev.length > 1
-                                  ? prev.filter((t) => t !== type.id)
-                                  : prev
-                                : [...prev, type.id],
-                            );
-                          }}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-all border whitespace-nowrap shrink-0 ${
-                            isSelected
-                              ? "bg-blue-600 border-blue-600 text-white shadow-sm"
-                              : "bg-white border-gray-200 text-gray-600 hover:border-blue-400 hover:text-blue-600 shadow-sm"
-                          }`}
-                        >
-                          <span
-                            className={
-                              isSelected ? "text-white/80" : "text-blue-400"
-                            }
+                    }}
+                  />
+                  <div
+                    className="overflow-x-auto no-scrollbar w-full"
+                    style={{ WebkitOverflowScrolling: "touch" }}
+                  >
+                    <div className="flex items-center gap-2 px-4 py-3 w-max">
+                      {[
+                        {
+                          id: "multiple_choice",
+                          label: "Marcar X",
+                          icon: <Check size={14} />,
+                        },
+                        {
+                          id: "writing",
+                          label: "Escrever",
+                          icon: <FileText size={14} />,
+                        },
+                        {
+                          id: "counting",
+                          label: "Contar",
+                          icon: <Zap size={14} />,
+                        },
+                        {
+                          id: "matching",
+                          label: "Ligar",
+                          icon: <Layout size={14} />,
+                        },
+                        {
+                          id: "image_selection",
+                          label: "Circular",
+                          icon: <ImageIcon size={14} />,
+                        },
+                        {
+                          id: "completion",
+                          label: "Completar",
+                          icon: <FileText size={14} />,
+                        },
+                        {
+                          id: "pintar",
+                          label: "Pintar",
+                          icon: <ImageIcon size={14} />,
+                        },
+                      ].map((type) => {
+                        const isSelected = selectedTypes.includes(type.id);
+                        return (
+                          <button
+                            key={type.id}
+                            onClick={() => {
+                              setSelectedTypes((prev) =>
+                                prev.includes(type.id)
+                                  ? prev.length > 1
+                                    ? prev.filter((t) => t !== type.id)
+                                    : prev
+                                  : [...prev, type.id],
+                              );
+                            }}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-all border whitespace-nowrap shrink-0 ${
+                              isSelected
+                                ? "bg-blue-600 border-blue-600 text-white shadow-sm"
+                                : "bg-white border-gray-200 text-gray-600 hover:border-blue-400 hover:text-blue-600 shadow-sm"
+                            }`}
                           >
-                            {type.icon}
-                          </span>
-                          {type.label}
-                        </button>
-                      );
-                    })}
+                            <span
+                              className={
+                                isSelected ? "text-white/80" : "text-blue-400"
+                              }
+                            >
+                              {type.icon}
+                            </span>
+                            {type.label}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            <form
-              onSubmit={handleGenerate}
-              className="relative flex items-center shadow-sm border rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-100 transition"
-            >
-              <input
-                type="text"
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Ex: Quero uma atividade do 5º ano sobre Carnaval"
-                className="w-full p-4 pr-12 outline-none text-gray-900 placeholder-gray-400"
-                disabled={isGenerating || (percentage >= 100 && !result)}
-              />
-              <button
-                type="submit"
-                disabled={isGenerating || !prompt.trim() || percentage >= 100}
-                className="absolute right-2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
+              <form
+                onSubmit={handleGenerate}
+                className="relative flex items-center shadow-sm border rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-100 transition"
               >
-                {isGenerating ? (
-                  <Loader2 className="animate-spin" size={20} />
-                ) : (
-                  <Send size={20} />
-                )}
-              </button>
-            </form>
-            <p className="text-center text-xs text-gray-400 mt-2">
-              {percentage >= 100
-                ? "Limite do plano atingido."
-                : "A IA pode cometer erros. Revise antes de imprimir."}
-            </p>
+                <input
+                  type="text"
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="Ex: Quero uma atividade do 5º ano sobre Carnaval"
+                  className="w-full p-4 pr-12 outline-none text-gray-900 placeholder-gray-400"
+                  disabled={isGenerating || (percentage >= 100 && !result)}
+                />
+                <button
+                  type="submit"
+                  disabled={isGenerating || !prompt.trim() || percentage >= 100}
+                  className="absolute right-2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
+                >
+                  {isGenerating ? (
+                    <Loader2 className="animate-spin" size={20} />
+                  ) : (
+                    <Send size={20} />
+                  )}
+                </button>
+              </form>
+              <p className="text-center text-xs text-gray-400 mt-2">
+                {percentage >= 100
+                  ? "Limite do plano atingido."
+                  : "A IA pode cometer erros. Revise antes de imprimir."}
+              </p>
+            </div>
           </div>
         </div>
       </main>
