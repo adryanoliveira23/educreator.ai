@@ -262,113 +262,116 @@ export default function LandingPage() {
             Escolha o plano ideal para a sua necessidade. Cancele quando quiser.
           </p>
 
-          {/* Trial */}
-          <div className="bg-white p-6 rounded-2xl shadow-xl border-2 border-green-500 relative transform md:-translate-y-2">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-4 py-1 rounded-full text-sm font-bold tracking-wide shadow-sm">
-              TESTE GRÁTIS
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* Trial */}
+            <div className="bg-white p-6 rounded-2xl shadow-xl border-2 border-green-500 relative transform md:-translate-y-2">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-4 py-1 rounded-full text-sm font-bold tracking-wide shadow-sm">
+                TESTE GRÁTIS
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                7 Dias Grátis
+              </h3>
+              <div className="text-3xl font-extrabold text-gray-900 mb-2">
+                R$ 0,00
+              </div>
+              <p className="text-green-600 font-medium mb-4 text-sm">
+                Depois R$ 21,90/mês
+              </p>
+              <ul className="space-y-3 mb-6 text-sm">
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Check size={18} className="text-green-500" /> Acesso total à
+                  ferramenta
+                </li>
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Check size={18} className="text-green-500" /> Crie qualquer
+                  atividade
+                </li>
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Check size={18} className="text-green-500" /> Cancele quando
+                  quiser
+                </li>
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Check size={18} className="text-green-500" /> Sem cobrança
+                  hoje
+                </li>
+              </ul>
+              <Link
+                href="/register?plan=trial"
+                className="block text-center w-full py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition shadow-md hover:shadow-lg"
+              >
+                Testar Agora
+              </Link>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
-              7 Dias Grátis
-            </h3>
-            <div className="text-3xl font-extrabold text-gray-900 mb-2">
-              R$ 0,00
-            </div>
-            <p className="text-green-600 font-medium mb-4 text-sm">
-              Depois R$ 21,90/mês
-            </p>
-            <ul className="space-y-3 mb-6 text-sm">
-              <li className="flex items-center gap-2 text-gray-700">
-                <Check size={18} className="text-green-500" /> Acesso total à
-                ferramenta
-              </li>
-              <li className="flex items-center gap-2 text-gray-700">
-                <Check size={18} className="text-green-500" /> Crie qualquer
-                atividade
-              </li>
-              <li className="flex items-center gap-2 text-gray-700">
-                <Check size={18} className="text-green-500" /> Cancele quando
-                quiser
-              </li>
-              <li className="flex items-center gap-2 text-gray-700">
-                <Check size={18} className="text-green-500" /> Sem cobrança hoje
-              </li>
-            </ul>
-            <Link
-              href="/register?plan=trial"
-              className="block text-center w-full py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition shadow-md hover:shadow-lg"
-            >
-              Testar Agora
-            </Link>
-          </div>
 
-          {/* Pro */}
-          <div className="bg-white p-8 rounded-2xl shadow-xl border-2 border-blue-600 relative transform md:-translate-y-4">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-bold tracking-wide">
-              MAIS POPULAR
+            {/* Pro */}
+            <div className="bg-white p-8 rounded-2xl shadow-xl border-2 border-blue-600 relative transform md:-translate-y-4">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-bold tracking-wide">
+                MAIS POPULAR
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Pro</h3>
+              <div className="text-4xl font-extrabold text-gray-900 mb-2">
+                R$ 45,90
+                <span className="text-lg text-gray-500 font-normal">/mês</span>
+              </div>
+              <p className="text-gray-500 mb-6">Para professores ativos.</p>
+              <ul className="space-y-3 mb-8 text-sm">
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Check size={18} className="text-green-500" /> Geração mais
+                  rápida
+                </li>
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Check size={18} className="text-green-500" /> Suporte
+                  prioritário
+                </li>
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Check size={18} className="text-green-500" /> Ideal pra quem
+                  prepara atividades toda semana
+                </li>
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Check size={18} className="text-green-500" /> Mais agilidade
+                  pra planejar aulas e avaliações
+                </li>
+              </ul>
+              <Link
+                href="/register?plan=pro"
+                className="block text-center w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg"
+              >
+                Escolher Pro
+              </Link>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Pro</h3>
-            <div className="text-4xl font-extrabold text-gray-900 mb-2">
-              R$ 45,90
-              <span className="text-lg text-gray-500 font-normal">/mês</span>
-            </div>
-            <p className="text-gray-500 mb-6">Para professores ativos.</p>
-            <ul className="space-y-3 mb-8 text-sm">
-              <li className="flex items-center gap-2 text-gray-700">
-                <Check size={18} className="text-green-500" /> Geração mais
-                rápida
-              </li>
-              <li className="flex items-center gap-2 text-gray-700">
-                <Check size={18} className="text-green-500" /> Suporte
-                prioritário
-              </li>
-              <li className="flex items-center gap-2 text-gray-700">
-                <Check size={18} className="text-green-500" /> Ideal pra quem
-                prepara atividades toda semana
-              </li>
-              <li className="flex items-center gap-2 text-gray-700">
-                <Check size={18} className="text-green-500" /> Mais agilidade
-                pra planejar aulas e avaliações
-              </li>
-            </ul>
-            <Link
-              href="/register?plan=pro"
-              className="block text-center w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg"
-            >
-              Escolher Pro
-            </Link>
-          </div>
 
-          {/* Normal */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:border-blue-300 transition relative">
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Normal</h3>
-            <div className="text-4xl font-extrabold text-gray-900 mb-2">
-              R$ 21,90
-              <span className="text-lg text-gray-500 font-normal">/mês</span>
+            {/* Normal */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:border-blue-300 transition relative">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Normal</h3>
+              <div className="text-4xl font-extrabold text-gray-900 mb-2">
+                R$ 21,90
+                <span className="text-lg text-gray-500 font-normal">/mês</span>
+              </div>
+              <p className="text-gray-500 mb-6">Para professores ocasionais.</p>
+              <ul className="space-y-3 mb-8 text-sm">
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Check size={18} className="text-green-500" /> Geração com IA
+                </li>
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Check size={18} className="text-green-500" /> Histórico por
+                  30 dias
+                </li>
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Check size={18} className="text-green-500" /> Ideal pra quem
+                  usa 2–3x por semana
+                </li>
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Check size={18} className="text-green-500" /> PDF pronto pra
+                  imprimir em 1 clique
+                </li>
+              </ul>
+              <Link
+                href="/register?plan=normal"
+                className="block text-center w-full py-3 border border-blue-600 text-blue-600 font-bold rounded-xl hover:bg-blue-50 transition"
+              >
+                Escolher Normal
+              </Link>
             </div>
-            <p className="text-gray-500 mb-6">Para professores ocasionais.</p>
-            <ul className="space-y-3 mb-8 text-sm">
-              <li className="flex items-center gap-2 text-gray-700">
-                <Check size={18} className="text-green-500" /> Geração com IA
-              </li>
-              <li className="flex items-center gap-2 text-gray-700">
-                <Check size={18} className="text-green-500" /> Histórico por 30
-                dias
-              </li>
-              <li className="flex items-center gap-2 text-gray-700">
-                <Check size={18} className="text-green-500" /> Ideal pra quem
-                usa 2–3x por semana
-              </li>
-              <li className="flex items-center gap-2 text-gray-700">
-                <Check size={18} className="text-green-500" /> PDF pronto pra
-                imprimir em 1 clique
-              </li>
-            </ul>
-            <Link
-              href="/register?plan=normal"
-              className="block text-center w-full py-3 border border-blue-600 text-blue-600 font-bold rounded-xl hover:bg-blue-50 transition"
-            >
-              Escolher Normal
-            </Link>
           </div>
         </section>
       </main>
