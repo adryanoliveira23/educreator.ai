@@ -12,6 +12,7 @@ export async function POST(req: Request) {
       questions,
       layout = "standard",
       includeImages = true,
+      wallpaperUrl,
     } = await req.json();
 
     const doc = new PDFDocument({ size: "A4" });
@@ -24,7 +25,45 @@ export async function POST(req: Request) {
     });
 
     const pageWidth = doc.page.width;
+    const pageHeight = doc.page.height;
     const pageMargins = doc.page.margins;
+
+    // Background helper
+    const drawBackground = async () => {
+      if (!wallpaperUrl) return;
+
+      try {
+        let imageBuffer: Buffer;
+        if (wallpaperUrl.startsWith("data:")) {
+          const base64Data = wallpaperUrl.split(",")[1];
+          imageBuffer = Buffer.from(base64Data, "base64");
+        } else {
+          // Resolve relative URLs for local wallpapers
+          const fullUrl = wallpaperUrl.startsWith("http")
+            ? wallpaperUrl
+            : `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}${wallpaperUrl}`;
+          const res = await fetch(fullUrl);
+          if (!res.ok) return;
+          imageBuffer = Buffer.from(await res.arrayBuffer());
+        }
+
+        // Draw background with low opacity for print-friendliness
+        doc.save();
+        doc.opacity(0.12); // Subtle enough for printing
+        doc.image(imageBuffer, 0, 0, {
+          width: pageWidth,
+          height: pageHeight,
+          align: "center",
+          valign: "center",
+        });
+        doc.restore();
+      } catch (err) {
+        console.error("Error drawing background:", err);
+      }
+    };
+
+    // Initial background
+    await drawBackground();
 
     const drawHeader = (showFields: boolean = true) => {
       if (header && showFields) {
@@ -87,10 +126,12 @@ export async function POST(req: Request) {
 
         if (layout === "one_per_page" && i > 0) {
           doc.addPage();
+          await drawBackground();
           drawHeader(false);
         } else if (layout === "two_per_page") {
           if (questionCountOnPage >= 2) {
             doc.addPage();
+            await drawBackground();
             drawHeader(false);
             questionCountOnPage = 0;
           }
@@ -121,6 +162,7 @@ export async function POST(req: Request) {
                 doc.page.height - doc.page.margins.bottom
               ) {
                 doc.addPage();
+                await drawBackground();
                 drawHeader(false);
               }
 

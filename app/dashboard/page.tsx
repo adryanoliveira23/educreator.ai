@@ -62,6 +62,7 @@ interface ActivityContent {
   questions: Question[];
   layout?: "standard" | "one_per_page" | "two_per_page";
   includeImages?: boolean;
+  wallpaperUrl?: string | null;
 }
 
 interface Activity {
@@ -99,6 +100,10 @@ export default function Dashboard() {
     "standard" | "one_per_page" | "two_per_page"
   >("standard");
   const [includeImages, setIncludeImages] = useState(true);
+  const [selectedWallpaper, setSelectedWallpaper] = useState<string | null>(
+    null,
+  );
+  const [questionCount, setQuestionCount] = useState(5);
 
   useEffect(() => {
     // Check for payment status in URL
@@ -232,6 +237,7 @@ export default function Dashboard() {
         body: JSON.stringify({
           prompt: currentPrompt || prompt,
           activityTypes: selectedTypes,
+          questionCount,
         }),
       });
 
@@ -271,7 +277,21 @@ export default function Dashboard() {
   const applyTemplate = (template: ActivityTemplate) => {
     setPrompt(template.prompt);
     setSelectedTypes([template.type]);
+    if (template.wallpaperUrl) {
+      setSelectedWallpaper(template.wallpaperUrl);
+    }
     window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  };
+
+  const handleWallpaperUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedWallpaper(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const [isDownloading, setIsDownloading] = useState(false);
@@ -696,7 +716,12 @@ export default function Dashboard() {
                   <div className="flex gap-2 shrink-0">
                     <button
                       onClick={() =>
-                        handleDownloadPDF({ ...result, layout, includeImages })
+                        handleDownloadPDF({
+                          ...result,
+                          layout,
+                          includeImages,
+                          wallpaperUrl: selectedWallpaper,
+                        })
                       }
                       disabled={isDownloading}
                       className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-[10px] md:text-xs font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
@@ -804,6 +829,102 @@ export default function Dashboard() {
                           </p>
                         </div>
                       </button>
+                    </div>
+
+                    {/* Wallpaper Selection */}
+                    <div className="mt-6 border-t pt-6">
+                      <h3 className="text-xs md:text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <ImageIcon size={14} /> Papel de Parede (Opcional)
+                      </h3>
+
+                      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+                        {/* None Option */}
+                        <button
+                          onClick={() => setSelectedWallpaper(null)}
+                          className={`p-2 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all ${
+                            selectedWallpaper === null
+                              ? "border-blue-600 bg-blue-50/50 ring-2 ring-blue-100"
+                              : "border-gray-200 bg-white hover:border-blue-300"
+                          }`}
+                        >
+                          <div className="w-8 h-8 rounded border border-dashed border-gray-300 flex items-center justify-center text-gray-400">
+                            <X size={16} />
+                          </div>
+                          <span className="text-[10px] font-medium">
+                            Nenhum
+                          </span>
+                        </button>
+
+                        {/* Custom Upload Option */}
+                        <label className="p-2 rounded-xl border border-dashed border-gray-300 bg-gray-50 hover:bg-white hover:border-blue-400 transition-all cursor-pointer flex flex-col items-center justify-center gap-1">
+                          <input
+                            type="file"
+                            className="hidden"
+                            accept="image/*"
+                            onChange={handleWallpaperUpload}
+                          />
+                          <div className="w-8 h-8 rounded bg-blue-100 text-blue-600 flex items-center justify-center">
+                            <ImageIcon size={16} />
+                          </div>
+                          <span className="text-[10px] font-medium">Subir</span>
+                        </label>
+
+                        {/* Predefined Wallpapers */}
+                        {[
+                          {
+                            id: "stars",
+                            url: "/wallpapers/stars.png",
+                            label: "Estrelas",
+                          },
+                          {
+                            id: "clouds",
+                            url: "/wallpapers/clouds.png",
+                            label: "Nuvens",
+                          },
+                          {
+                            id: "animals",
+                            url: "/wallpapers/animals.png",
+                            label: "Animais",
+                          },
+                          {
+                            id: "shapes",
+                            url: "/wallpapers/shapes.png",
+                            label: "Formas",
+                          },
+                          {
+                            id: "doodles",
+                            url: "/wallpapers/doodles.png",
+                            label: "Doodles",
+                          },
+                          {
+                            id: "school",
+                            url: "/wallpapers/school.png",
+                            label: "Escola",
+                          },
+                        ].map((wp) => (
+                          <button
+                            key={wp.id}
+                            onClick={() => setSelectedWallpaper(wp.url)}
+                            className={`p-2 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all ${
+                              selectedWallpaper === wp.url
+                                ? "border-blue-600 bg-blue-50/50 ring-2 ring-blue-100"
+                                : "border-gray-200 bg-white hover:border-blue-300"
+                            }`}
+                          >
+                            <div
+                              className="w-8 h-8 rounded border bg-white overflow-hidden shadow-xs"
+                              style={{
+                                backgroundImage: `url(${wp.url})`,
+                                backgroundSize: "cover",
+                                opacity: 0.5,
+                              }}
+                            />
+                            <span className="text-[10px] font-medium">
+                              {wp.label}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
@@ -1026,7 +1147,7 @@ export default function Dashboard() {
                 </p>
 
                 {/* Template Gallery */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 w-full max-w-4xl mb-8 px-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 w-full max-w-4xl mb-8 px-4">
                   {activityTemplates.map((template) => (
                     <button
                       key={template.id}
@@ -1143,6 +1264,30 @@ export default function Dashboard() {
                         );
                       })}
                     </div>
+                  </div>
+                </div>
+              )}
+              {!result && !isGenerating && (
+                <div className="mb-4 px-4">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <Zap size={14} className="text-blue-500" /> Quantidade de
+                    Questões: {questionCount}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {[1, 3, 5, 8, 10].map((num) => (
+                      <button
+                        key={num}
+                        type="button"
+                        onClick={() => setQuestionCount(num)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                          questionCount === num
+                            ? "bg-blue-600 border-blue-600 text-white shadow-md"
+                            : "bg-white border-gray-200 text-gray-600 hover:border-blue-300"
+                        }`}
+                      >
+                        {num}
+                      </button>
+                    ))}
                   </div>
                 </div>
               )}

@@ -56,7 +56,8 @@ export async function POST(req: Request) {
       );
     }
 
-    const { prompt, activityTypes } = await req.json();
+    const { prompt, activityTypes, questionCount } = await req.json();
+    const count = questionCount || 5;
     const typesToUse = Array.isArray(activityTypes)
       ? activityTypes
       : [activityTypes || "multiple_choice"];
@@ -67,17 +68,19 @@ export async function POST(req: Request) {
       Você é um assistente pedagógico de ELITE, com doutorado em educação infantil, especializado em criar atividades educacionais IMPECÁVEIS.
       Seu objetivo é gerar conteúdo que seja sinônimo de excelência, clareza e precisão absoluta.
       
+      OBJETIVO: Gerar EXATAMENTE ${count} questões.
       Formatos escolhidos: ${typesToUse.join(", ")}.
       
       REGRAS DE OURO (ZERO ERRO):
-      1. SINCRONIA MÁXIMA: O 'imagePrompt' DEVE ser uma descrição visual EXATA do que a questão pede. Se a pergunta é "Quantos gatos?", a imagem DEVE conter gatos, e a quantidade DEVE ser a mesma da resposta correta.
-      2. COERÊNCIA LÓGICA: 
+      1. QUANTIDADE: O array 'questions' DEVE conter EXATAMENTE ${count} objetos de questão.
+      2. SINCRONIA MÁXIMA: O 'imagePrompt' DEVE ser uma descrição visual EXATA do que a questão pede. Se a pergunta é "Quantos gatos?", a imagem DEVE conter gatos, e a quantidade DEVE ser a mesma da resposta correta.
+      3. COERÊNCIA LÓGICA: 
          - Em 'multiple_choice', as 4 alternativas devem ser plausíveis, mas apenas uma correta e CLARA.
          - Em 'counting', defina o número primeiro, coloque-o no 'imagePrompt' e garanta que ele esteja nas opções.
          - Em 'matching', os itens em 'matchingPairs' devem ter uma relação pedagógica óbvia e correta.
          - Em 'completion', a lacuna deve ser preenchível de forma inequívoca.
-      3. PERSONA PEDAGÓGICA: Use linguagem acolhedora, clara e gramaticalmente correta em Português.
-      4. QUALIDADE VISUAL: O 'imagePrompt' (em Inglês) deve focar em 'Pedagogical clipart, clean lines, white background'. Nada de fundos complexos ou sombras que confundam a criança.
+      4. PERSONA PEDAGÓGICA: Use linguagem acolhedora, clara e gramaticalmente correta em Português.
+      5. QUALIDADE VISUAL: O 'imagePrompt' (em Inglês) deve focar em 'Pedagogical clipart, clean lines, white background'. Nada de fundos complexos ou sombras que confundam a criança.
       
       ESTRUTURA JSON RÍGIDA:
       {
@@ -87,12 +90,13 @@ export async function POST(req: Request) {
           {
             "number": 1,
             "type": "tipo_escolhido",
-            "questionText": "Comando direto e instrutivo (ex: 'Conte os elementos abaixo e marque a opção correta')",
-            "imagePrompt": "Detailed visual description in ENGLISH focused on clarity and quantity.",
-            "alternatives": ["Opção A", "Opção B", "Opção C", "Opção D"],
+            "questionText": "...",
+            "imagePrompt": "...",
+            "alternatives": ["A", "B", "C", "D"],
             "answerLines": 0,
             "matchingPairs": []
           }
+          // Continue até completar ${count} questões...
         ]
       }
       
