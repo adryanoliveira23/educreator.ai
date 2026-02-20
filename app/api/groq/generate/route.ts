@@ -56,13 +56,19 @@ export async function POST(req: Request) {
       );
     }
 
-    const { prompt, activityType } = await req.json();
+    const { prompt, activityTypes } = await req.json();
+    const typesToUse = Array.isArray(activityTypes)
+      ? activityTypes
+      : [activityTypes || "multiple_choice"];
 
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
     const systemPrompt = `
       Você é um assistente pedagógico especializado em criar atividades educativas para crianças.
-      O usuário escolheu o tipo de atividade: ${activityType || "multiple_choice"}.
+      O usuário escolheu os seguintes formatos de atividade: ${typesToUse.join(", ")}.
+      
+      IMPORTANTE: Se mais de um formato foi escolhido, você DEVE misturar as questões entre esses formatos ao longo da atividade.
+      Ex: Se escolher 'Marcar' e 'Pintar', algumas questões devem ser de marcar e outras de pintar.
       
       Gere o conteúdo em JSON estrito com a seguinte estrutura:
       {
@@ -77,7 +83,7 @@ export async function POST(req: Request) {
             "number": 1,
             "imagePrompt": "Detailed description in ENGLISH for image generation. Style guidelines: Follow the 'CRITICAL STYLE FOR imagePrompt' section below.",
             "questionText": "Texto da pergunta ou comando",
-            "type": "${activityType || "multiple_choice"}",
+            "type": "tipo_escolhido_para_esta_questao",
             "alternatives": ["Opção 1", "Opção 2", "Opção 3", "Opção 4"],
             "answerLines": 0,
             "matchingPairs": []

@@ -26,6 +26,7 @@ import {
   X,
   Layout,
   Image as ImageIcon,
+  Menu,
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 
@@ -91,7 +92,9 @@ export default function Dashboard() {
   const [showPlans, setShowPlans] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activityType, setActivityType] = useState("multiple_choice");
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([
+    "multiple_choice",
+  ]);
   const [layout, setLayout] = useState<
     "standard" | "one_per_page" | "two_per_page"
   >("standard");
@@ -228,7 +231,7 @@ export default function Dashboard() {
         },
         body: JSON.stringify({
           prompt: currentPrompt || prompt,
-          activityType,
+          activityTypes: selectedTypes,
         }),
       });
 
@@ -262,12 +265,12 @@ export default function Dashboard() {
     setCurrentPrompt("");
     setIsGenerating(false);
     setError("");
-    setActivityType("multiple_choice");
+    setSelectedTypes(["multiple_choice"]);
   };
 
   const applyTemplate = (template: ActivityTemplate) => {
     setPrompt(template.prompt);
-    setActivityType(template.type);
+    setSelectedTypes([template.type]);
     window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
   };
 
@@ -355,13 +358,9 @@ export default function Dashboard() {
         </h1>
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+          className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
         >
-          {isSidebarOpen ? (
-            <X size={24} />
-          ) : (
-            <Send size={24} className="rotate-90" />
-          )}
+          {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
@@ -710,8 +709,8 @@ export default function Dashboard() {
         )}
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-12 bg-gray-50/50">
-          <div className="max-w-3xl mx-auto space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 md:p-12 bg-gray-50/50">
+          <div className="max-w-3xl mx-auto space-y-6 pb-20 md:pb-0">
             {currentPrompt && (
               <div className="flex justify-end animate-in slide-in-from-right-4 duration-300">
                 <div className="bg-blue-600 text-white p-4 rounded-2xl rounded-tr-none shadow-sm max-w-[80%]">
@@ -1099,35 +1098,91 @@ export default function Dashboard() {
             {error && (
               <p className="text-red-500 text-sm mb-2 text-center">{error}</p>
             )}
-            {/* Activity Type Selector */}
+            {/* Ultra-Compact Activity Selector - Bulletproof Layout */}
             {!result && !isGenerating && (
-              <div className="mb-6 flex flex-wrap justify-center gap-2">
-                {[
-                  {
-                    id: "multiple_choice",
-                    label: "Múltipla Escolha",
-                    icon: "✔️",
-                  },
-                  { id: "writing", label: "Escrita / Nomes", icon: "✏️" },
-                  { id: "counting", label: "Contagem", icon: "🔢" },
-                  { id: "matching", label: "Relacionar", icon: "🔗" },
-                  { id: "image_selection", label: "Identificar", icon: "🖼️" },
-                  { id: "completion", label: "Completar", icon: "🔤" },
-                  { id: "pintar", label: "Pintar", icon: "🎨" },
-                ].map((type) => (
-                  <button
-                    key={type.id}
-                    onClick={() => setActivityType(type.id)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-sm border ${
-                      activityType === type.id
-                        ? "bg-blue-600 text-white border-blue-600 shadow-blue-100"
-                        : "bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600"
-                    }`}
-                  >
-                    <span className="mr-1.5">{type.icon}</span>
-                    {type.label}
-                  </button>
-                ))}
+              <div className="mb-4 w-full overflow-hidden">
+                <style
+                  dangerouslySetInnerHTML={{
+                    __html: `
+                  .no-scrollbar::-webkit-scrollbar { display: none; }
+                  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+                `,
+                  }}
+                />
+                <div
+                  className="overflow-x-auto no-scrollbar w-full"
+                  style={{ WebkitOverflowScrolling: "touch" }}
+                >
+                  <div className="flex items-center gap-2 px-4 py-3 w-max mx-auto">
+                    {[
+                      {
+                        id: "multiple_choice",
+                        label: "Marcar X",
+                        icon: <Check size={14} />,
+                      },
+                      {
+                        id: "writing",
+                        label: "Escrever",
+                        icon: <FileText size={14} />,
+                      },
+                      {
+                        id: "counting",
+                        label: "Contar",
+                        icon: <Zap size={14} />,
+                      },
+                      {
+                        id: "matching",
+                        label: "Ligar",
+                        icon: <Layout size={14} />,
+                      },
+                      {
+                        id: "image_selection",
+                        label: "Circular",
+                        icon: <ImageIcon size={14} />,
+                      },
+                      {
+                        id: "completion",
+                        label: "Completar",
+                        icon: <FileText size={14} />,
+                      },
+                      {
+                        id: "pintar",
+                        label: "Pintar",
+                        icon: <ImageIcon size={14} />,
+                      },
+                    ].map((type) => {
+                      const isSelected = selectedTypes.includes(type.id);
+                      return (
+                        <button
+                          key={type.id}
+                          onClick={() => {
+                            setSelectedTypes((prev) =>
+                              prev.includes(type.id)
+                                ? prev.length > 1
+                                  ? prev.filter((t) => t !== type.id)
+                                  : prev
+                                : [...prev, type.id],
+                            );
+                          }}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-all border whitespace-nowrap shrink-0 ${
+                            isSelected
+                              ? "bg-blue-600 border-blue-600 text-white shadow-sm"
+                              : "bg-white border-gray-200 text-gray-600 hover:border-blue-400 hover:text-blue-600 shadow-sm"
+                          }`}
+                        >
+                          <span
+                            className={
+                              isSelected ? "text-white/80" : "text-blue-400"
+                            }
+                          >
+                            {type.icon}
+                          </span>
+                          {type.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             )}
 
