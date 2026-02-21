@@ -15,6 +15,8 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  const [rememberMe, setRememberMe] = useState(true);
+
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -27,6 +29,18 @@ export default function LoginPage() {
           "Configuração do Firebase ausente. Verifique as variáveis de ambiente.",
         );
       }
+
+      // Set persistence based on checkbox
+      const {
+        setPersistence,
+        browserLocalPersistence,
+        browserSessionPersistence,
+      } = await import("firebase/auth");
+      await setPersistence(
+        auth,
+        rememberMe ? browserLocalPersistence : browserSessionPersistence,
+      );
+
       await signInWithEmailAndPassword(auth, email, password);
       router.push("/dashboard");
     } catch (err: unknown) {
@@ -166,11 +180,13 @@ export default function LoginPage() {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-600"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-600 cursor-pointer"
                 />
                 <label
                   htmlFor="remember-me"
-                  className="ml-2 block text-sm text-gray-900"
+                  className="ml-2 block text-sm text-gray-900 cursor-pointer"
                 >
                   Lembrar de mim
                 </label>
