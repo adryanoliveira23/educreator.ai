@@ -303,9 +303,6 @@ export default function LandingPage() {
                   </div>
                   <div className="text-4xl mb-6">{template.icon}</div>
                   <h3 className="text-xl font-bold mb-2">{template.title}</h3>
-                  <div className="flex items-center text-xs font-semibold text-blue-400 gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    Ver exemplo <ChevronRight size={14} />
-                  </div>
                 </div>
               ))}
             </div>
