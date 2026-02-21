@@ -286,6 +286,7 @@ export default function Dashboard() {
           prompt: currentPrompt || prompt,
           activityTypes: selectedTypes,
           questionCount,
+          context: result,
         }),
       });
 

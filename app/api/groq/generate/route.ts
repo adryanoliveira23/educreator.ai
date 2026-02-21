@@ -56,7 +56,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { prompt, activityTypes, questionCount } = await req.json();
+    const { prompt, activityTypes, questionCount, context } = await req.json();
 
     // Logic to detect page/question counts from natural language
     let detectedCount = questionCount || 5;
@@ -87,6 +87,15 @@ export async function POST(req: Request) {
       OBJETIVO: Gerar EXATAMENTE ${count} questões.
       Formatos escolhidos: ${typesToUse.join(", ")}.
       
+      ${
+        context
+          ? `ESTADO ATUAL DA ATIVIDADE: Você está EDITANDO uma atividade existente. 
+      O usuário fez o seguinte pedido: "${prompt}".
+      Sua tarefa é aplicar APENAS as mudanças solicitadas, mantendo o restante da estrutura o mais fiel possível ao original.
+      IMPORTANTE: Preserve os campos 'imageUrl' das questões que NÃO forem alteradas significativamente para evitar regeneração desnecessária.`
+          : "Você está criando uma atividade do ZERO."
+      }
+      
       REGRAS DE OURO (ZERO ERRO):
       1. QUANTIDADE: O array 'questions' DEVE conter EXATAMENTE ${count} objetos de questão.
       2. SINCRONIA MÁXIMA: O 'imagePrompt' DEVE ser uma descrição visual EXATA do que a questão pede. Se a pergunta é "Quantos gatos?", a imagem DEVE conter gatos, e a quantidade DEVE ser a mesma da resposta correta.
@@ -108,11 +117,11 @@ export async function POST(req: Request) {
             "type": "tipo_escolhido",
             "questionText": "...",
             "imagePrompt": "...",
+            "imageUrl": "...", // MANTENHA O URL ORIGINAL SE A QUESTÃO NÃO MUDOU
             "alternatives": ["A", "B", "C", "D"],
             "answerLines": 0,
             "matchingPairs": []
           }
-          // Continue até completar ${count} questões...
         ]
       }
       
@@ -122,19 +131,25 @@ export async function POST(req: Request) {
       - matching: Gere pares lógicos (ex: Letra 'A' com 'Abacaxi').
       - completion: Ex: 'C _ S _' para 'CASA'.
       - pintar: Comando deve ser "Pinte o/a...". Estilo LINE ART estrito.
-      
-      DICA DE ESTILO (imagePrompt):
-      - Pintar: 'STRICTLY Black and white line art, coloring book page style, thick outlines, white background, NO SHADING'.
-      - Geral: 'Cartoon illustration style, vibrant colors, clear outlines, white background, high quality educational clipart'.
     `;
 
+    const messages: Groq.Chat.ChatCompletionMessageParam[] = [
+      { role: "system", content: systemPrompt },
+    ];
+
+    if (context) {
+      messages.push({
+        role: "assistant",
+        content: `Atividade original: ${JSON.stringify(context)}`,
+      });
+    }
+
+    messages.push({ role: "user", content: prompt });
+
     const completion = await groq.chat.completions.create({
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: prompt },
-      ],
+      messages,
       model: "llama-3.1-8b-instant",
-      temperature: 1,
+      temperature: 0.7, // Reduced temperature for more consistent edits
       max_completion_tokens: 4096,
       top_p: 1,
       stop: null,
@@ -155,6 +170,11 @@ export async function POST(req: Request) {
           alternatives?: string[];
           [key: string]: unknown;
         }) => {
+          if (q.imageUrl && !q.imagePrompt) {
+            // Context preserved imageUrl
+            return q;
+          }
+
           if (q.imagePrompt) {
             // Force coloring style if the type is 'pintar'
             let finalPrompt = q.imagePrompt;

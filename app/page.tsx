@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import {
   Check,
-  Zap,
-  FileText,
   Download,
   Star,
   ShieldCheck,
@@ -17,7 +16,7 @@ import {
   MousePointer2,
 } from "lucide-react";
 import SupportMenu from "@/components/SupportMenu";
-import { useEffect, useState } from "react";
+import InteractiveDemo from "@/components/landing/InteractiveDemo";
 
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
@@ -160,97 +159,21 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Dashboard Preview / Mockup */}
+        {/* Demo Section */}
         <section id="demo" className="container mx-auto px-6 mb-32">
-          <div className="relative max-w-5xl mx-auto">
-            <div className="absolute -inset-1 bg-linear-to-r from-blue-600 to-indigo-600 rounded-4xl blur opacity-20 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
-            <div className="relative bg-white rounded-4xl shadow-2xl overflow-hidden border border-slate-200">
-              <div className="bg-slate-50 px-6 py-4 flex justify-between items-center border-b border-slate-100">
-                <div className="flex gap-2">
-                  <div className="w-3 h-3 rounded-full bg-slate-200"></div>
-                  <div className="w-3 h-3 rounded-full bg-slate-200"></div>
-                  <div className="w-3 h-3 rounded-full bg-slate-200"></div>
-                </div>
-                <div className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
-                  Painel do Professor AI
-                </div>
-                <div className="w-10"></div>
-              </div>
-
-              <div className="flex flex-col md:flex-row h-[500px]">
-                {/* Mock Sidebar */}
-                <div className="hidden md:block w-64 bg-slate-50 border-r border-slate-100 p-6 space-y-4">
-                  <div className="h-8 w-full bg-blue-100/50 rounded-lg"></div>
-                  <div className="space-y-2 pt-4">
-                    <div className="h-4 w-3/4 bg-slate-200 rounded"></div>
-                    <div className="h-4 w-2/3 bg-slate-200 rounded"></div>
-                    <div className="h-4 w-1/2 bg-slate-200 rounded"></div>
-                  </div>
-                </div>
-
-                {/* Mock Chat Area */}
-                <div className="flex-1 p-8 bg-white flex flex-col">
-                  <div className="flex-1 space-y-8 overflow-y-auto pr-2 custom-scrollbar">
-                    {/* User Question */}
-                    <div className="flex justify-end">
-                      <div className="bg-slate-100 text-slate-700 p-5 rounded-2xl rounded-tr-none max-w-md shadow-sm border border-slate-200/50">
-                        <p className="text-sm font-semibold">
-                          Crie uma atividade de matemática para o 2º ano sobre
-                          adição de frutas, com desenhos para colorir.
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* AI Response */}
-                    <div className="flex justify-start">
-                      <div className="flex gap-4 max-w-2xl">
-                        <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shrink-0">
-                          <Zap size={20} fill="white" />
-                        </div>
-                        <div className="bg-white border-2 border-slate-100 p-6 rounded-2xl rounded-tl-none shadow-xl">
-                          <h3 className="text-lg font-bold text-slate-900 mb-2">
-                            🍍 Atividade de Adição: Salada de Frutas
-                          </h3>
-                          <p className="text-sm text-slate-500 mb-6">
-                            EduCreator gerou 1 atividade inédita pronta para o
-                            seu 2º ano.
-                          </p>
-
-                          <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 mb-6 font-mono text-xs text-slate-600 line-clamp-4">
-                            1. Na cesta de Maria havia 4 maçãs. Ela comprou mais
-                            3 bananas. Quantas frutas...
-                          </div>
-
-                          <div className="flex gap-3">
-                            <button className="flex items-center gap-2 text-xs font-bold text-white bg-blue-600 px-5 py-2.5 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-100">
-                              <FileText size={16} /> Baixar PDF Completo
-                            </button>
-                            <button className="flex items-center gap-2 text-xs font-bold text-slate-600 bg-slate-100 px-5 py-2.5 rounded-xl hover:bg-slate-200 transition">
-                              Personalizar
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Mock Input */}
-                  <div className="mt-8 relative">
-                    <div className="absolute inset-0 bg-blue-600 rounded-2xl blur-lg opacity-10"></div>
-                    <div className="relative bg-slate-50 border-2 border-slate-200 p-4 rounded-2xl text-slate-400 text-sm font-medium flex justify-between items-center group cursor-pointer hover:border-blue-400 transition-colors">
-                      Falar para a IA o que você precisa...
-                      <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
-                        <ArrowRight size={18} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl md:text-4xl font-black mb-6 text-slate-900 tracking-tight">
+              Veja a <span className="text-blue-600">Mágica</span> Acontecendo
+            </h2>
+            <p className="text-lg text-slate-600 font-medium">
+              Deixe nossa IA cuidar do trabalho pesado. Em menos de 2 minutos,
+              você tem uma atividade pronta para aplicar.
+            </p>
           </div>
+
+          <InteractiveDemo />
         </section>
 
-        {/* Benefits Section */}
         <section id="solucao" className="py-24 bg-white relative">
           <div className="container mx-auto px-6">
             <div className="text-center max-w-3xl mx-auto mb-20">

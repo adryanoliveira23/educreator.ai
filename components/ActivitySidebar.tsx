@@ -10,12 +10,40 @@ interface UserData {
   pdfs_generated_count?: number;
 }
 
+interface ActivityQuestion {
+  number: number;
+  questionText: string;
+  type:
+    | "multiple_choice"
+    | "check_box"
+    | "true_false"
+    | "writing"
+    | "matching"
+    | "image_selection"
+    | "counting"
+    | "completion"
+    | "pintar";
+  alternatives: string[];
+  imageUrl?: string;
+  answerLines?: number;
+}
+
+interface ActivityResult {
+  title: string;
+  header: {
+    studentName: string;
+    school: string;
+    teacherName: string;
+  };
+  questions: ActivityQuestion[];
+  layout?: "standard" | "one_per_page" | "two_per_page";
+  includeImages?: boolean;
+  wallpaperUrl?: string | null;
+}
+
 interface ActivityItem {
   id: string;
-  result: {
-    title: string;
-    [key: string]: any;
-  };
+  result: ActivityResult;
   prompt: string;
   timestamp?: {
     seconds: number;
@@ -29,7 +57,7 @@ interface ActivitySidebarProps {
   startNewActivity: () => void;
   userData: UserData;
   activities: ActivityItem[];
-  setResult: (result: any) => void;
+  setResult: (result: ActivityResult) => void;
   setShowPlans: (show: boolean) => void;
   handleLogout: () => void;
 }
