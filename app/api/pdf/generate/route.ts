@@ -153,8 +153,19 @@ export async function POST(req: Request) {
               const arrayBuffer = await imageRes.arrayBuffer();
               const imageBuffer = Buffer.from(arrayBuffer);
 
-              const imgWidth = layout === "two_per_page" ? 300 : 400;
-              const imgHeight = layout === "two_per_page" ? 200 : 300;
+              const isPintar =
+                q.type === "pintar" ||
+                q.questionText?.toLowerCase().includes("pinte");
+              const imgWidth = isPintar
+                ? pageWidth - pageMargins.left - pageMargins.right
+                : layout === "two_per_page"
+                  ? 300
+                  : 400;
+              const imgHeight = isPintar
+                ? 500
+                : layout === "two_per_page"
+                  ? 200
+                  : 300;
               const xPos = (pageWidth - imgWidth) / 2;
 
               if (

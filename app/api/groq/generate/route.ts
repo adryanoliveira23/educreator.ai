@@ -57,7 +57,23 @@ export async function POST(req: Request) {
     }
 
     const { prompt, activityTypes, questionCount } = await req.json();
-    const count = questionCount || 5;
+
+    // Logic to detect page/question counts from natural language
+    let detectedCount = questionCount || 5;
+    const lowerPrompt = prompt.toLowerCase();
+
+    // Check for "X páginas" or "X questões"
+    const pageMatch = lowerPrompt.match(
+      /(\d+)\s*(página|pagina|questão|questao|questoes|questões)/,
+    );
+    if (pageMatch) {
+      const num = parseInt(pageMatch[1]);
+      if (num > 0 && num <= 30) {
+        detectedCount = num;
+      }
+    }
+
+    const count = detectedCount;
     const typesToUse = Array.isArray(activityTypes)
       ? activityTypes
       : [activityTypes || "multiple_choice"];
@@ -109,7 +125,7 @@ export async function POST(req: Request) {
       
       DICA DE ESTILO (imagePrompt):
       - Pintar: 'STRICTLY Black and white line art, coloring book page style, thick outlines, white background, NO SHADING'.
-      - Geral: 'High-quality educational clipart, vibrant but simple, white background, high contrast'.
+      - Geral: 'Cartoon illustration style, vibrant colors, clear outlines, white background, high quality educational clipart'.
     `;
 
     const completion = await groq.chat.completions.create({
@@ -146,7 +162,10 @@ export async function POST(req: Request) {
               q.type === "pintar" ||
               q.questionText?.toLowerCase().includes("pinte")
             ) {
-              finalPrompt = `Coloring book page, black and white line art, clean thick black outlines, white background, NO COLOR, NO SHADING. ${q.imagePrompt}`;
+              finalPrompt = `STRICTLY Black and white line art, coloring book style, thick black outlines, white background, NO COLOR, NO SHADING. ${q.imagePrompt}`;
+            } else {
+              // Enforce cartoon style for all other images
+              finalPrompt = `Cartoon illustration style, vibrant colors, clear outlines, white background, educational clipart. ${q.imagePrompt}`;
             }
 
             const imageUrl = await generateImage(finalPrompt);

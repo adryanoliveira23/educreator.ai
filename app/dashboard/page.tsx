@@ -434,7 +434,7 @@ export default function Dashboard() {
       />
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col relative pt-16 md:pt-0 h-full overflow-hidden">
+      <main className="flex-1 flex flex-col relative pt-12 md:pt-0 h-full overflow-hidden">
         {showWarning && !showPlans && (
           <div className="fixed inset-0 z-60 bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-10 text-center animate-in fade-in zoom-in duration-500 border border-white/20">
@@ -616,8 +616,10 @@ export default function Dashboard() {
         )}
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-12 bg-gray-50/50 pb-40 md:pb-12">
-          <div className="max-w-3xl mx-auto space-y-6 pb-20 md:pb-0">
+        <div className="flex-1 overflow-y-auto p-4 md:p-12 bg-gray-50/50 pb-96 md:pb-64">
+          <div
+            className={`${result ? "max-w-3xl" : "max-w-6xl"} mx-auto space-y-6 pb-20 md:pb-0`}
+          >
             {currentPrompt && (
               <div className="flex justify-end animate-in slide-in-from-right-4 duration-300">
                 <div className="bg-blue-600 text-white p-4 rounded-2xl rounded-tr-none shadow-sm max-w-[80%]">
@@ -675,279 +677,32 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                {/* Layout and Image Options */}
-                <div className="px-4 md:px-8 py-4 md:py-6 bg-gray-50 border-b space-y-4 md:space-y-6">
-                  <div>
-                    <h3 className="text-xs md:text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                      <Layout size={14} /> Configurações do PDF
-                    </h3>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {/* Standard Layout */}
-                      <button
-                        onClick={() => setLayout("standard")}
-                        className={`p-2 md:p-4 rounded-xl border flex-1 transition-all text-left flex flex-col gap-2 group ${
-                          layout === "standard"
-                            ? "border-blue-600 bg-blue-50/50 ring-2 ring-blue-100"
-                            : "border-gray-200 bg-white hover:border-blue-300"
-                        }`}
-                      >
-                        <div className="w-full aspect-video bg-gray-100 rounded-lg overflow-hidden relative flex flex-col p-2 gap-1 border border-gray-100">
-                          <div className="h-1.5 w-3/4 bg-gray-300 rounded-full" />
-                          <div className="h-1.5 w-full bg-gray-200 rounded-full" />
-                          <div className="h-4 w-full bg-gray-200 rounded-md" />
-                        </div>
-                        <div className="md:block">
-                          <p className="font-bold text-[10px] md:text-sm text-gray-900">
-                            Fluxo Contínuo
-                          </p>
-                          <p className="hidden md:block text-[10px] text-gray-500">
-                            Formato padrão longo
-                          </p>
-                        </div>
-                      </button>
-
-                      {/* 1 Per Page */}
-                      <button
-                        onClick={() => setLayout("one_per_page")}
-                        className={`p-2 md:p-4 rounded-xl border flex-1 transition-all text-left flex flex-col gap-2 group ${
-                          layout === "one_per_page"
-                            ? "border-blue-600 bg-blue-50/50 ring-2 ring-blue-100"
-                            : "border-gray-200 bg-white hover:border-blue-300"
-                        }`}
-                      >
-                        <div className="w-full aspect-video bg-gray-100 rounded-lg overflow-hidden relative flex flex-col p-2 gap-1 border border-gray-100 items-center justify-center">
-                          <div className="w-[40%] h-[80%] bg-white rounded border border-gray-200 p-0.5 flex flex-col gap-0.5 shadow-xs">
-                            <div className="h-0.5 w-3/4 bg-gray-300 rounded-full" />
-                            <div className="h-3 w-full bg-gray-200 rounded-sm" />
-                          </div>
-                        </div>
-                        <div className="md:block">
-                          <p className="font-bold text-[10px] md:text-sm text-gray-900">
-                            1 por Página
-                          </p>
-                          <p className="hidden md:block text-[10px] text-gray-500">
-                            Questão isolada
-                          </p>
-                        </div>
-                      </button>
-
-                      {/* 2 Per Page */}
-                      <button
-                        onClick={() => setLayout("two_per_page")}
-                        className={`p-2 md:p-4 rounded-xl border flex-1 transition-all text-left flex flex-col gap-2 group ${
-                          layout === "two_per_page"
-                            ? "border-blue-600 bg-blue-50/50 ring-2 ring-blue-100"
-                            : "border-gray-200 bg-white hover:border-blue-300"
-                        }`}
-                      >
-                        <div className="w-full aspect-video bg-gray-100 rounded-lg overflow-hidden relative border border-gray-100 flex items-center justify-center p-2">
-                          <div className="w-[40%] h-[80%] bg-white rounded border border-gray-200 p-0.5 flex flex-col gap-0.5">
-                            <div className="h-0.5 w-2/3 bg-gray-300 rounded-full" />
-                            <div className="h-2 w-full bg-gray-200 rounded-sm" />
-                            <div className="h-0.5 w-full bg-gray-100 rounded-full mt-0.5" />
-                          </div>
-                        </div>
-                        <div className="md:block">
-                          <p className="font-bold text-[10px] md:text-sm text-gray-900">
-                            2 por Página
-                          </p>
-                          <p className="hidden md:block text-[10px] text-gray-500">
-                            Economia de papel
-                          </p>
-                        </div>
-                      </button>
+                <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
+                      <ImageIcon size={20} />
                     </div>
-
-                    {/* Wallpaper Selection */}
-                    <div className="mt-8 border-t pt-6">
-                      <h3 className="text-sm font-black text-slate-800 mb-4 flex items-center gap-2">
-                        <ImageIcon size={18} className="text-blue-600" /> Papel
-                        de Parede Temático
-                      </h3>
-
-                      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8 gap-4">
-                        {/* None Option */}
-                        <button
-                          onClick={() => setSelectedWallpaper(null)}
-                          className={`p-3 rounded-2xl border-2 flex flex-col items-center justify-center gap-2 transition-all group ${
-                            selectedWallpaper === null
-                              ? "border-blue-600 bg-blue-50 ring-4 ring-blue-50"
-                              : "border-slate-100 bg-white hover:border-blue-200"
-                          }`}
-                        >
-                          <div className="w-12 h-12 rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-400 group-hover:border-blue-300 group-hover:text-blue-400 transition-colors">
-                            <X size={20} />
-                          </div>
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                            Nenhum
-                          </span>
-                        </button>
-
-                        {/* Manual Upload */}
-                        <div className="relative p-3 rounded-2xl border-2 border-slate-100 bg-white hover:border-blue-200 transition-all group flex flex-col items-center justify-center gap-2 overflow-hidden shrink-0">
-                          <input
-                            type="file"
-                            accept=".jpg,.jpeg,.png"
-                            onChange={handleFileUpload}
-                            className="absolute inset-0 opacity-0 cursor-pointer z-20"
-                          />
-                          <div className="w-12 h-12 rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-400 group-hover:border-blue-300 group-hover:text-blue-400 transition-colors">
-                            <Plus size={20} />
-                          </div>
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                            Customizar
-                          </span>
-                          {customWallpaper && (
-                            <div className="absolute inset-0 bg-blue-600 pointer-events-none flex items-center justify-center z-10">
-                              <Check size={20} className="text-white" />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Predefined Wallpapers */}
-                        {[
-                          {
-                            id: "bear",
-                            url: "https://images.unsplash.com/photo-1559440666-374fa0770281?q=80&w=200&auto=format&fit=crop",
-                            label: "Urso",
-                            icon: "🧸",
-                          },
-                          {
-                            id: "dino",
-                            url: "https://images.unsplash.com/photo-1547721064-3625203387b9?q=80&w=200&auto=format&fit=crop",
-                            label: "Dino",
-                            icon: "🦖",
-                          },
-                          {
-                            id: "space",
-                            url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=200&auto=format&fit=crop",
-                            label: "Espaço",
-                            icon: "🚀",
-                          },
-                          {
-                            id: "ocean",
-                            url: "https://images.unsplash.com/photo-1518133835878-5a93cc3f89e5?q=80&w=200&auto=format&fit=crop",
-                            label: "Mar",
-                            icon: "🌊",
-                          },
-                          {
-                            id: "magic",
-                            url: "https://images.unsplash.com/photo-1510444583100-84a86b3a0cc3?q=80&w=200&auto=format&fit=crop",
-                            label: "Mágico",
-                            icon: "✨",
-                          },
-                          {
-                            id: "robots",
-                            url: "https://images.unsplash.com/photo-1546776310-eef45dd6d63c?q=80&w=200&auto=format&fit=crop",
-                            label: "Robôs",
-                            icon: "🤖",
-                          },
-                          {
-                            id: "nature",
-                            url: "https://images.unsplash.com/photo-150208259853b-e97738219011?q=80&w=200&auto=format&fit=crop",
-                            label: "Natureza",
-                            icon: "🌿",
-                          },
-                          {
-                            id: "stars",
-                            url: "https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=200&auto=format&fit=crop",
-                            label: "Estrelas",
-                            icon: "⭐",
-                          },
-                          {
-                            id: "clouds",
-                            url: "https://images.unsplash.com/photo-1534088568595-a066f410bcda?q=80&w=200&auto=format&fit=crop",
-                            label: "Nuvens",
-                            icon: "☁️",
-                          },
-                          {
-                            id: "animals",
-                            url: "https://images.unsplash.com/photo-1519066629447-267fffa62d4b?q=80&w=200&auto=format&fit=crop",
-                            label: "Animais",
-                            icon: "🐾",
-                          },
-                          {
-                            id: "shapes",
-                            url: "https://images.unsplash.com/photo-1563456801-628d052a6136?q=80&w=200&auto=format&fit=crop",
-                            label: "Formas",
-                            icon: "📐",
-                          },
-                        ].map((wp) => (
-                          <button
-                            key={wp.id}
-                            onClick={() => setSelectedWallpaper(wp.url)}
-                            className={`p-3 rounded-2xl border-2 flex flex-col items-center justify-center gap-2 transition-all relative overflow-hidden group shrink-0 ${
-                              selectedWallpaper === wp.url
-                                ? "border-blue-600 bg-blue-50 ring-4 ring-blue-50"
-                                : "border-slate-100 bg-white hover:border-blue-200"
-                            }`}
-                          >
-                            <div
-                              className="w-12 h-12 rounded-xl border bg-white overflow-hidden shadow-sm relative flex items-center justify-center text-2xl group-hover:scale-110 transition-transform"
-                              style={{
-                                backgroundImage: `url(${wp.url})`,
-                                backgroundSize: "cover",
-                                opacity: 0.8,
-                              }}
-                            >
-                              <span className="relative z-10 drop-shadow-md">
-                                {wp.icon}
-                              </span>
-                              <div className="absolute inset-0 bg-white/40" />
-                            </div>
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
-                              {wp.label}
-                            </span>
-                          </button>
-                        ))}
-
-                        {/* Custom Upload Option */}
-                        <label className="p-3 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 hover:bg-white hover:border-blue-400 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group">
-                          <input
-                            type="file"
-                            className="hidden"
-                            accept="image/*"
-                            onChange={handleWallpaperUpload}
-                          />
-                          <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <Plus size={20} />
-                          </div>
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600">
-                            Personalizar
-                          </span>
-                        </label>
-                      </div>
+                    <div>
+                      <p className="font-bold text-sm text-gray-900">
+                        Incluir Ilustrações
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Gerar imagens para as questões
+                      </p>
                     </div>
                   </div>
-
-                  <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
-                        <ImageIcon size={20} />
-                      </div>
-                      <div>
-                        <p className="font-bold text-sm text-gray-900">
-                          Incluir Ilustrações
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          Gerar imagens para as questões
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => setIncludeImages(!includeImages)}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ring-2 ring-offset-2 ring-transparent ${
-                        includeImages ? "bg-blue-600" : "bg-gray-200"
+                  <button
+                    onClick={() => setIncludeImages(!includeImages)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ring-2 ring-offset-2 ring-transparent ${
+                      includeImages ? "bg-blue-600" : "bg-gray-200"
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        includeImages ? "translate-x-6" : "translate-x-1"
                       }`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          includeImages ? "translate-x-6" : "translate-x-1"
-                        }`}
-                      />
-                    </button>
-                  </div>
+                    />
+                  </button>
                 </div>
 
                 <div className="px-4 md:px-8 py-4 md:py-6">
@@ -1128,26 +883,29 @@ export default function Dashboard() {
             )}
 
             {!result && !isGenerating && (
-              <div className="flex-1 flex flex-col items-center justify-center py-20 pb-[28rem] md:pb-80 px-6 text-center animate-in fade-in zoom-in duration-1000">
-                <div className="relative group mb-12">
+              <div className="flex-1 flex flex-col items-center justify-start pt-0 pb-96 md:pb-[32rem] px-6 text-center animate-in fade-in zoom-in duration-1000">
+                <div className="relative group mb-1">
                   <div className="absolute inset-0 bg-blue-500 blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 rounded-full" />
-                  <div className="relative w-24 h-24 bg-white text-blue-600 rounded-4xl flex items-center justify-center shadow-2xl shadow-blue-200 group-hover:scale-110 transition-transform duration-500 border border-slate-50">
-                    <Zap size={48} fill="currentColor" />
+                  <div className="relative w-10 h-10 md:w-14 md:h-14 bg-white text-blue-600 rounded-xl md:rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-200 group-hover:scale-110 transition-transform duration-500 border border-slate-50">
+                    <Zap
+                      className="w-5 h-5 md:w-7 md:h-7"
+                      fill="currentColor"
+                    />
                   </div>
                 </div>
 
-                <div className="max-w-2xl space-y-4">
-                  <h2 className="text-4xl md:text-5xl font-black text-slate-800 tracking-tight leading-tight">
+                <div className="max-w-2xl space-y-0.5">
+                  <h2 className="text-xl md:text-2xl font-black text-slate-800 tracking-tight leading-tight">
                     O que vamos <span className="text-blue-600">criar</span>{" "}
                     hoje?
                   </h2>
-                  <p className="text-lg text-slate-500 font-medium max-w-lg mx-auto leading-relaxed italic">
+                  <p className="text-[10px] md:text-xs text-slate-500 font-medium max-w-lg mx-auto leading-relaxed italic">
                     &quot;A educação é a arma mais poderosa que você pode usar
                     para mudar o mundo.&quot;
                   </p>
                 </div>
 
-                <div className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-5xl">
+                <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-3 w-full max-w-5xl">
                   {activityTemplates.slice(0, 4).map((template) => (
                     <button
                       key={template.id}
@@ -1185,7 +943,7 @@ export default function Dashboard() {
                 )}
 
                 <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
-                  <div className="flex flex-col gap-2">
+                  <div className="hidden">
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
                       Número de Questões (1-20)
                     </span>
