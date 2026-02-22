@@ -1,20 +1,9 @@
 "use client";
 
 import { useAuth } from "@/components/AuthProvider";
-import {
-  Loader2,
-  Check,
-  Lock,
-  ShieldCheck,
-  CreditCard,
-  HelpCircle,
-} from "lucide-react";
+import { Loader2, Check, Lock, ShieldCheck, ArrowRight } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
-import { initMercadoPago, Payment } from "@mercadopago/sdk-react";
-
-// Initialize Mercado Pago with Public Key
-const MP_PUBLIC_KEY = process.env.NEXT_PUBLIC_MP_PUBLIC_KEY;
 
 function CheckoutContent() {
   const { user, loading } = useAuth();
@@ -24,81 +13,35 @@ function CheckoutContent() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
-    if (MP_PUBLIC_KEY) {
-      initMercadoPago(MP_PUBLIC_KEY);
-    } else {
-      console.error(
-        "Mercado Pago Public Key is missing from environment variables.",
-      );
-    }
-
     if (!loading && !user) {
       router.push("/login?redirect=/checkout");
     }
   }, [user, loading, router]);
 
-  const handlePaymentSubmit = async (formData: any) => {
+  const handleRedirectToCakto = async () => {
     setIsProcessing(true);
-    return new Promise<void>((resolve, reject) => {
-      fetch("/api/payments/process", {
+    try {
+      const token = await user?.getIdToken();
+      const res = await fetch("/api/payments/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          ...formData,
-          payer_email: user?.email,
-          plan: plan,
-          uid: user?.uid, // Send user ID
-        }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (
-            data.status === "approved" ||
-            data.status === "pending" ||
-            data.id
-          ) {
-            // Success
-            window.location.href = "/dashboard?payment=success";
-            resolve();
-          } else {
-            console.error(data);
-            alert("Erro no pagamento: " + (data.message || "Tente novamente."));
-            reject();
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-          alert("Erro de conexão. Tente novamente.");
-          reject();
-        })
-        .finally(() => {
-          setIsProcessing(false);
-        });
-    });
-  };
-
-  const customization = {
-    paymentMethods: {
-      creditCard: "all",
-      maxInstallments: 1,
-    },
-    visual: {
-      style: {
-        theme: "default",
-      },
-      texts: {
-        cardNumber: { placeholder: "Número do cartão" },
-        cardholderName: { placeholder: "Nome do titular" },
-        email: { placeholder: "E-mail" },
-        expirationDate: { placeholder: "Vencimento" },
-        securityCode: { placeholder: "Cód. segurança" },
-        selectInstallments: "Selecione o número de parcelas",
-        formTitle: "Pagamento",
-        formSubmit: "Pagar",
-      },
-    },
+        body: JSON.stringify({ plan }),
+      });
+      const data = await res.json();
+      if (data.init_point) {
+        window.location.href = data.init_point;
+      } else {
+        alert(data.error || "Erro ao iniciar pagamento. Tente novamente.");
+        setIsProcessing(false);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao conectar com o sistema de pagamento.");
+      setIsProcessing(false);
+    }
   };
 
   if (loading || !user) {
@@ -150,9 +93,19 @@ function CheckoutContent() {
     },
   };
 
-  // @ts-ignore
+  // @ts-expect-error - plan comes from searchParams which might be null or dynamic string
   const selectedPlan = planDetails[plan] || planDetails.normal;
   const isTrial = plan === "trial";
+
+  useEffect(() => {
+    if (isTrial) {
+      router.replace("/dashboard");
+    }
+  }, [isTrial, router]);
+
+  if (isTrial) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
@@ -175,62 +128,51 @@ function CheckoutContent() {
           <div className="space-y-8">
             <div>
               <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-4 leading-tight">
-                {isTrial
-                  ? "Ative seu acesso total agora."
-                  : "Finalize sua inscrição."}
+                Finalize sua inscrição.
               </h1>
               <p className="text-lg text-gray-600">
-                Preencha os dados abaixo para desbloquear o poder da IA em suas
-                aulas.
+                Você será redirecionado para a <strong>Cakto</strong>, nossa
+                parceira de pagamentos segura, para concluir sua assinatura do{" "}
+                <strong>{selectedPlan.name}</strong>.
               </p>
             </div>
 
-            {/* Embed Payment Form */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-              <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <CreditCard className="text-blue-600" size={20} />
-                Dados do Cartão
-              </h3>
-
-              {MP_PUBLIC_KEY ? (
-                <Payment
-                  initialization={{ amount: 21.9 }}
-                  customization={customization as object as any} // Keeping as any for now to avoid build break on type mismatch, but will try to fix if specific error
-                  onSubmit={handlePaymentSubmit as any} // This often needs 'any' because of strict library types vs our implementation
-                  onError={(error) => console.error("Brick Error:", error)}
-                  onReady={() => console.log("Brick Ready")}
-                  locale="pt-BR"
-                />
-              ) : (
-                <div className="text-red-500">
-                  Erro de configuração: Chave pública não encontrada.
-                </div>
-              )}
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+              <button
+                onClick={handleRedirectToCakto}
+                disabled={isProcessing}
+                className="w-full py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200 hover:shadow-blue-300 transform hover:-translate-y-1 active:scale-95 duration-200 flex items-center justify-center gap-2 text-lg"
+              >
+                {isProcessing ? (
+                  <Loader2 className="animate-spin" size={24} />
+                ) : (
+                  <>
+                    Pagar e Ativar Plano <ArrowRight size={20} />
+                  </>
+                )}
+              </button>
+              <p className="text-center text-gray-400 text-xs mt-4">
+                Pagamento via Cartão de Crédito ou PIX pela Cakto.
+              </p>
             </div>
 
-            {isTrial && (
-              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg shadow-sm">
-                <div className="flex gap-3">
-                  <HelpCircle
-                    className="text-yellow-600 flex-shrink-0"
-                    size={24}
-                  />
-                  <div>
-                    <p className="font-bold text-yellow-800 text-lg mb-1">
-                      Por que pedimos o cartão agora?
-                    </p>
-                    <p className="text-yellow-700 leading-relaxed">
-                      Para verificar sua identidade e garantir que você não
-                      perca o acesso após o período de teste.
-                      <br />
-                      <span className="font-bold underline">
-                        Você não será cobrado hoje.
-                      </span>
-                    </p>
-                  </div>
+            <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg shadow-sm">
+              <div className="flex gap-3">
+                <ShieldCheck
+                  className="text-blue-600 flex-shrink-0"
+                  size={24}
+                />
+                <div>
+                  <p className="font-bold text-blue-800 text-lg mb-1">
+                    Garantia de Satisfação
+                  </p>
+                  <p className="text-blue-700 leading-relaxed">
+                    Acesso imediato após a confirmação do pagamento. Cancele sua
+                    assinatura quando quiser diretamente pelo painel.
+                  </p>
                 </div>
               </div>
-            )}
+            </div>
           </div>
 
           {/* Right Column - Checkout Card */}
@@ -252,11 +194,6 @@ function CheckoutContent() {
                     </h3>
                   </div>
                   <div className="text-right">
-                    {selectedPlan.originalPrice && (
-                      <span className="block text-sm text-gray-400 line-through">
-                        {selectedPlan.originalPrice}
-                      </span>
-                    )}
                     <span className="block text-2xl font-bold text-blue-600">
                       {selectedPlan.price}
                     </span>
@@ -285,7 +222,10 @@ function CheckoutContent() {
                 />
                 <div className="text-xs text-yellow-800">
                   <p className="font-bold">Compra Segura</p>
-                  <p>Seus dados são protegidos com criptografia de 256 bits.</p>
+                  <p>
+                    Seus dados são protegidos com criptografia de ponta pela
+                    Cakto.
+                  </p>
                 </div>
               </div>
             </div>

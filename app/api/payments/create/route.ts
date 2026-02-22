@@ -23,6 +23,7 @@ export async function POST(req: Request) {
     const { plan } = await req.json();
 
     // Cackto payment links mapping
+    // These should be updated to your actual Cakto product links
     const cacktoLinks: Record<string, string> = {
       normal:
         process.env.CACKTO_NORMAL_URL ||
@@ -32,68 +33,11 @@ export async function POST(req: Request) {
     };
 
     if (plan === "trial") {
-      try {
-        const { PreApproval } = await import("mercadopago");
-        const { mpClient } = await import("@/lib/mercadopago");
-
-        const preapproval = new PreApproval(mpClient);
-
-        const rawBaseUrl =
-          process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-        // Ensure valid protocol and no double slashes
-        let baseUrl = rawBaseUrl;
-        if (!baseUrl.startsWith("http")) {
-          baseUrl = `https://${baseUrl}`;
-        }
-
-        // Mercado Pago API rejects "localhost" for back_urls.
-        const isLocalhost = baseUrl.includes("localhost");
-        const validBackUrlBase = isLocalhost
-          ? "https://educreator.ai"
-          : baseUrl;
-
-        const urlObj = new URL("/dashboard", validBackUrlBase);
-        urlObj.searchParams.set("payment", "success");
-        const backUrl = urlObj.toString();
-
-        console.log("Creating preference with back_url:", backUrl);
-
-        const response = await preapproval.create({
-          body: {
-            reason: "EduCreator AI - Plano Mensal (Teste Grátis 7 dias)",
-            auto_recurring: {
-              frequency: 1,
-              frequency_type: "months",
-              transaction_amount: 21.9, // Default to Normal plan price
-              currency_id: "BRL",
-              free_trial: {
-                frequency: 7,
-                frequency_type: "days",
-              },
-            } as any,
-            back_url: backUrl,
-            payer_email: email || "test_user_123@testuser.com",
-            status: "pending",
-            external_reference: uid, // Store user ID here
-          },
-        });
-
-        if (response.init_point) {
-          return NextResponse.json({ init_point: response.init_point });
-        } else {
-          throw new Error("No init_point in Mercado Pago response");
-        }
-      } catch (mpError) {
-        console.error("Mercado Pago Error:", mpError);
-        const errorMessage =
-          mpError instanceof Error
-            ? mpError.message
-            : JSON.stringify(mpError, null, 2);
-        return NextResponse.json(
-          { error: `Erro Mercado Pago: ${errorMessage}`, details: mpError },
-          { status: 500 },
-        );
-      }
+      // Trial users go straight to dashboard without a payment link
+      return NextResponse.json(
+        { error: "Trial plan does not require payment" },
+        { status: 400 },
+      );
     }
 
     const basePaymentLink = cacktoLinks[plan as string];

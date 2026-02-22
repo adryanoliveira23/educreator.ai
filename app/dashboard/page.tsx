@@ -78,6 +78,11 @@ interface UserData {
   plan: "normal" | "pro" | "premium" | "trial";
   pdfs_generated_count: number;
   subscription_status?: string;
+  metadata?: {
+    trial_cookie_present: boolean;
+    user_agent: string;
+    registration_date: string;
+  };
 }
 
 export default function Dashboard() {
@@ -101,6 +106,21 @@ export default function Dashboard() {
     "standard" | "one_per_page" | "two_per_page"
   >("standard");
   const [includeImages, setIncludeImages] = useState(true);
+
+  // Scarcity logic
+  const isTrial = userData?.plan === "trial";
+  const hasUsedTrial = userData?.metadata?.trial_cookie_present || false;
+
+  // Calculate trial days left (placeholder logic, assuming 7 days from registration)
+  const getTrialDaysLeft = () => {
+    if (!userData?.metadata?.registration_date) return 7;
+    const regDate = new Date(userData.metadata.registration_date);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - regDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return Math.max(0, 7 - diffDays);
+  };
+  const daysLeft = getTrialDaysLeft();
   const [selectedWallpaper, setSelectedWallpaper] = useState<string | null>(
     null,
   );
@@ -450,6 +470,25 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col relative pt-12 md:pt-0 h-full overflow-hidden">
+        {/* Scarcity Banner for Trial Users */}
+        {isTrial && (
+          <div className="bg-linear-to-r from-blue-600 to-indigo-700 text-white px-4 py-2 flex items-center justify-between shadow-md z-30">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <Zap size={16} className="text-yellow-300 animate-pulse" />
+              <span>
+                Seu teste grátis expira em <strong>{daysLeft} dias</strong>.
+                Faça o upgrade agora e economize até 10 horas semanais!
+              </span>
+            </div>
+            <button
+              onClick={() => setShowPlans(true)}
+              className="bg-white text-blue-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-blue-50 transition shadow-sm"
+            >
+              Fazer Upgrade
+            </button>
+          </div>
+        )}
+
         {showWarning && !showPlans && (
           <div className="fixed inset-0 z-60 bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-10 text-center animate-in fade-in zoom-in duration-500 border border-white/20">
@@ -484,147 +523,224 @@ export default function Dashboard() {
         )}
 
         {showPlans && (
-          <div className="fixed inset-0 z-50 bg-white/95 backdrop-blur flex items-center justify-center p-4 md:p-8 overflow-y-auto">
-            <div className="max-w-7xl w-full bg-white p-4 md:p-8 rounded-2xl shadow-2xl border my-auto">
-              <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl md:text-3xl font-bold text-center">
-                  Escolha seu Plano
-                </h2>
+          <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 md:p-8 overflow-y-auto">
+            <div className="max-w-7xl w-full bg-slate-50 p-4 md:p-10 rounded-[2.5rem] shadow-3xl border border-white/20 my-auto relative animate-in fade-in zoom-in slide-in-from-bottom-5 duration-500">
+              <div className="flex justify-between items-center mb-10">
+                <div className="text-left">
+                  <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-2">
+                    Evolua sua produtividade
+                  </h2>
+                  <p className="text-slate-500 font-medium">
+                    Escolha o plano ideal para transformar suas aulas.
+                  </p>
+                </div>
                 <button
                   onClick={() => setShowPlans(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full transition"
+                  className="p-3 bg-white hover:bg-slate-100 rounded-2xl transition shadow-sm border border-slate-200 group"
                 >
-                  <X size={24} className="text-gray-500" />
+                  <X
+                    size={24}
+                    className="text-slate-400 group-hover:text-slate-600 transition-colors"
+                  />
                 </button>
               </div>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Trial */}
-                <div className="bg-white p-6 rounded-2xl shadow-xl border-2 border-green-500 relative transform md:-translate-y-2 flex flex-col">
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-4 py-1 rounded-full text-xs font-bold tracking-wide shadow-sm whitespace-nowrap">
-                    TESTE GRÁTIS
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {/* Trial - Only show if not used or if already on trial */}
+                {(!hasUsedTrial || isTrial) && (
+                  <div className="bg-white p-8 rounded-[2rem] shadow-xl border-2 border-green-500/30 relative flex flex-col hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-6 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg whitespace-nowrap">
+                      DEGUSTAÇÃO
+                    </div>
+                    <div className="mb-6">
+                      <h3 className="text-xl font-bold text-slate-900 mb-1">
+                        Teste Gratuito
+                      </h3>
+                      <p className="text-slate-400 text-xs font-medium uppercase tracking-wider">
+                        7 dias de acesso total
+                      </p>
+                    </div>
+                    <div className="flex items-baseline gap-1 mb-2">
+                      <span className="text-4xl font-black text-slate-900">
+                        R$ 0
+                      </span>
+                      <span className="text-slate-400 font-bold">/7 dias</span>
+                    </div>
+                    <p className="text-green-600 font-bold mb-8 text-xs bg-green-50 inline-block px-3 py-1 rounded-full w-fit">
+                      Garantia de cancelamento imediato
+                    </p>
+                    <ul className="space-y-4 mb-8 text-sm grow">
+                      <li className="flex items-center gap-3 text-slate-600 font-medium">
+                        <Check
+                          size={20}
+                          className="text-green-500 shrink-0 bg-green-50 p-1 rounded-full"
+                        />{" "}
+                        Acesso total à inteligência artificial
+                      </li>
+                      <li className="flex items-center gap-3 text-slate-600 font-medium">
+                        <Check
+                          size={20}
+                          className="text-green-500 shrink-0 bg-green-50 p-1 rounded-full"
+                        />{" "}
+                        Crie qualquer tipo de atividade
+                      </li>
+                      <li className="flex items-center gap-3 text-slate-600 font-medium">
+                        <Check
+                          size={20}
+                          className="text-green-500 shrink-0 bg-green-50 p-1 rounded-full"
+                        />{" "}
+                        Cancele quando quiser sem letras miúdas
+                      </li>
+                      <li className="flex items-center gap-3 text-slate-600 font-medium">
+                        <Check
+                          size={20}
+                          className="text-green-500 shrink-0 bg-green-50 p-1 rounded-full"
+                        />{" "}
+                        Experimente antes de investir
+                      </li>
+                    </ul>
+                    <button
+                      onClick={() => handleUpgrade("trial")}
+                      className="block text-center w-full py-5 bg-green-500 text-white font-black rounded-2xl hover:bg-green-600 transition shadow-xl shadow-green-100 active:scale-95 duration-200"
+                    >
+                      Começar Grátis
+                    </button>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    7 Dias Grátis
-                  </h3>
-                  <div className="text-3xl font-extrabold text-gray-900 mb-2">
-                    R$ 0,00
-                  </div>
-                  <p className="text-green-600 font-medium mb-4 text-sm">
-                    Depois R$ 21,90/mês
-                  </p>
-                  <ul className="space-y-3 mb-6 text-sm grow">
-                    <li className="flex items-center gap-2 text-gray-700">
-                      <Check size={18} className="text-green-500 shrink-0" />{" "}
-                      Acesso total à ferramenta
-                    </li>
-                    <li className="flex items-center gap-2 text-gray-700">
-                      <Check size={18} className="text-green-500 shrink-0" />{" "}
-                      Crie qualquer atividade
-                    </li>
-                    <li className="flex items-center gap-2 text-gray-700">
-                      <Check size={18} className="text-green-500 shrink-0" />{" "}
-                      Cancele quando quiser
-                    </li>
-                    <li className="flex items-center gap-2 text-gray-700">
-                      <Check size={18} className="text-green-500 shrink-0" />{" "}
-                      Sem cobrança hoje
-                    </li>
-                  </ul>
-                  <button
-                    onClick={() => handleUpgrade("trial")}
-                    className="block text-center w-full py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition shadow-md hover:shadow-lg"
-                  >
-                    Testar Agora
-                  </button>
-                </div>
+                )}
 
                 {/* Pro */}
-                <div className="bg-white p-6 rounded-2xl shadow-xl border-2 border-blue-600 relative transform md:-translate-y-4 flex flex-col">
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-xs font-bold tracking-wide whitespace-nowrap">
-                    MAIS POPULAR
+                <div className="bg-slate-900 p-8 rounded-[2rem] shadow-2xl border-2 border-blue-600 relative flex flex-col transform md:-translate-y-4 hover:shadow-blue-900/10 transition-all duration-300">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white px-6 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg whitespace-nowrap">
+                    RECOMENDADO
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Pro</h3>
-                  <div className="text-3xl font-extrabold text-gray-900 mb-2">
-                    R$ 45,90
+                  <div className="mb-6">
+                    <h3 className="text-xl font-bold text-white mb-1">
+                      Plano Pro
+                    </h3>
+                    <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">
+                      Para o professor imparável
+                    </p>
                   </div>
-                  <p className="text-gray-500 mb-6 text-sm">
-                    Para professores ativos.
+                  <div className="flex items-baseline gap-1 mb-2">
+                    <span className="text-4xl font-black text-white">
+                      R$ 45,90
+                    </span>
+                    <span className="text-slate-500 font-bold">/mês</span>
+                  </div>
+                  <p className="text-blue-400 font-bold mb-8 text-xs bg-blue-400/10 inline-block px-3 py-1 rounded-full w-fit">
+                    Economize +20 horas semanais
                   </p>
-                  <ul className="space-y-3 mb-8 text-sm grow">
-                    <li className="flex items-center gap-2 text-gray-700">
-                      <Check size={18} className="text-green-500 shrink-0" />{" "}
-                      Geração mais rápida
+                  <ul className="space-y-4 mb-8 text-sm grow">
+                    <li className="flex items-center gap-3 text-slate-300 font-medium">
+                      <Zap
+                        size={20}
+                        className="text-blue-400 shrink-0 bg-blue-400/10 p-1 rounded-full"
+                      />{" "}
+                      Geração ultra-rápida (Prioritária)
                     </li>
-                    <li className="flex items-center gap-2 text-gray-700">
-                      <Check size={18} className="text-green-500 shrink-0" />{" "}
-                      Suporte prioritário
+                    <li className="flex items-center gap-3 text-slate-300 font-medium">
+                      <Check
+                        size={20}
+                        className="text-blue-400 shrink-0 bg-blue-400/10 p-1 rounded-full"
+                      />{" "}
+                      Suporte VIP direto via WhatsApp
                     </li>
-                    <li className="flex items-center gap-2 text-gray-700">
-                      <Check size={18} className="text-green-500 shrink-0" />{" "}
-                      Ideal pra quem prepara atividades toda semana
+                    <li className="flex items-center gap-3 text-slate-300 font-medium">
+                      <Check
+                        size={20}
+                        className="text-blue-400 shrink-0 bg-blue-400/10 p-1 rounded-full"
+                      />{" "}
+                      Ideal para quem tem +2 turmas lotadas
                     </li>
-                    <li className="flex items-center gap-2 text-gray-700">
-                      <Check size={18} className="text-green-500 shrink-0" />{" "}
-                      Mais agilidade pra planejar aulas e avaliações
+                    <li className="flex items-center gap-3 text-slate-300 font-medium">
+                      <Check
+                        size={20}
+                        className="text-blue-400 shrink-0 bg-blue-400/10 p-1 rounded-full"
+                      />{" "}
+                      Acesso antecipado a novos modelos e layouts
+                    </li>
+                    <li className="flex items-center gap-3 text-slate-300 font-medium font-bold text-blue-400">
+                      <Check
+                        size={20}
+                        className="text-blue-400 shrink-0 bg-blue-400/10 p-1 rounded-full"
+                      />{" "}
+                      PDFs ilimitados e sem restrições
                     </li>
                   </ul>
                   <button
                     onClick={() => handleUpgrade("pro")}
-                    className="block text-center w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg"
+                    className="block text-center w-full py-5 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 transition shadow-2xl shadow-blue-500/20 active:scale-95 duration-200"
                   >
-                    Escolher Pro
+                    Assinar Agora
                   </button>
                 </div>
 
                 {/* Normal */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:border-blue-300 transition relative flex flex-col">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    Normal
-                  </h3>
-                  <div className="text-3xl font-extrabold text-gray-900 mb-2">
-                    R$ 21,90
+                <div className="bg-white p-8 rounded-[2rem] shadow-xl border border-slate-200 relative flex flex-col hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-200 text-slate-600 px-6 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm whitespace-nowrap">
+                    PLANILHA BÁSICA
                   </div>
-                  <p className="text-gray-500 mb-6 text-sm">
-                    Para professores ocasionais.
+                  <div className="mb-6">
+                    <h3 className="text-xl font-bold text-slate-900 mb-1">
+                      Plano Normal
+                    </h3>
+                    <p className="text-slate-400 text-xs font-medium uppercase tracking-wider">
+                      Apoio para sua rotina
+                    </p>
+                  </div>
+                  <div className="flex items-baseline gap-1 mb-2">
+                    <span className="text-4xl font-black text-slate-900">
+                      R$ 21,90
+                    </span>
+                    <span className="text-slate-400 font-bold">/mês</span>
+                  </div>
+                  <p className="text-slate-500 font-bold mb-8 text-xs bg-slate-100 inline-block px-3 py-1 rounded-full w-fit">
+                    Inteligência de alta qualidade
                   </p>
-                  <ul className="space-y-3 mb-8 text-sm grow">
-                    <li className="flex items-center gap-2 text-gray-700">
+                  <ul className="space-y-4 mb-8 text-sm grow">
+                    <li className="flex items-center gap-3 text-slate-600 font-medium">
                       <Check
-                        size={18}
-                        className="text-green-500 flex-shrink-0"
+                        size={20}
+                        className="text-slate-400 shrink-0 bg-slate-100 p-1 rounded-full"
                       />{" "}
-                      Geração com IA
+                      IA de alta qualidade educativa
                     </li>
-                    <li className="flex items-center gap-2 text-gray-700">
+                    <li className="flex items-center gap-3 text-slate-600 font-medium">
                       <Check
-                        size={18}
-                        className="text-green-500 flex-shrink-0"
+                        size={20}
+                        className="text-slate-400 shrink-0 bg-slate-100 p-1 rounded-full"
                       />{" "}
-                      Histórico por 30 dias
+                      Fim das noites planejando aulas
                     </li>
-                    <li className="flex items-center gap-2 text-gray-700">
+                    <li className="flex items-center gap-3 text-slate-600 font-medium">
                       <Check
-                        size={18}
-                        className="text-green-500 flex-shrink-0"
+                        size={20}
+                        className="text-slate-400 shrink-0 bg-slate-100 p-1 rounded-full"
                       />{" "}
-                      Ideal pra quem usa 2–3x por semana
+                      Até 10 atividades incríveis por semana
                     </li>
-                    <li className="flex items-center gap-2 text-gray-700">
+                    <li className="flex items-center gap-3 text-slate-600 font-medium">
                       <Check
-                        size={18}
-                        className="text-green-500 flex-shrink-0"
+                        size={20}
+                        className="text-slate-400 shrink-0 bg-slate-100 p-1 rounded-full"
                       />{" "}
-                      PDF pronto pra imprimir em 1 clique
+                      Histórico completo de 30 dias salvo
                     </li>
                   </ul>
                   <button
                     onClick={() => handleUpgrade("normal")}
-                    className="block text-center w-full py-3 border border-blue-600 text-blue-600 font-bold rounded-xl hover:bg-blue-50 transition"
+                    className="block text-center w-full py-5 border-2 border-slate-900 text-slate-900 font-black rounded-2xl hover:bg-slate-900 hover:text-white transition active:scale-95 duration-200"
                   >
-                    Escolher Normal
+                    Assinar Básico
                   </button>
                 </div>
+              </div>
+
+              <div className="mt-12 text-center">
+                <p className="text-slate-400 text-sm flex items-center justify-center gap-2">
+                  <Lock size={14} /> Pagamento processado com segurança pela{" "}
+                  <strong>Cakto</strong>
+                </p>
               </div>
             </div>
           </div>

@@ -59,6 +59,14 @@ export default function RegisterPage() {
         pdfs_generated_count: 0,
         createdAt: serverTimestamp(),
         subscription_status: finalStatus,
+        metadata: {
+          trial_cookie_present: hasUsedTrial,
+          user_agent:
+            typeof window !== "undefined"
+              ? window.navigator.userAgent
+              : "unknown",
+          registration_date: new Date().toISOString(),
+        },
       });
 
       if (isTrial && !hasUsedTrial) {
@@ -68,8 +76,31 @@ export default function RegisterPage() {
         document.cookie = `educreator_trial_used=true; expires=${date.toUTCString()}; path=/`;
 
         router.push("/dashboard");
+      } else if (isTrial && hasUsedTrial) {
+        // Already used trial, redirect to checkout/plans (or just dashboard with plans open)
+        router.push("/dashboard?showPlans=true");
       } else {
-        router.push(`/checkout?plan=${plan}`);
+        // Paid plans: Direct redirect to Cakto
+        try {
+          const token = await user.getIdToken();
+          const res = await fetch("/api/payments/create", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ plan }),
+          });
+          const data = await res.json();
+          if (data.init_point) {
+            window.location.href = data.init_point;
+            return;
+          }
+        } catch (paymentErr) {
+          console.error("Failed to redirect to Cakto:", paymentErr);
+        }
+        // Fallback or if already used trial
+        router.push(`/dashboard?plan=${plan}`);
       }
     } catch (err: unknown) {
       // Basic mapping for common codes if available on the error object
@@ -78,12 +109,7 @@ export default function RegisterPage() {
       if (firebaseError.code === "auth/email-already-in-use") {
         try {
           // Try to login and continue
-          const userCredential = await signInWithEmailAndPassword(
-            auth,
-            email,
-            password,
-          );
-          const user = userCredential.user;
+          await signInWithEmailAndPassword(auth, email, password);
           const searchParams = new URLSearchParams(window.location.search);
           const plan = searchParams.get("plan") || "normal";
 
