@@ -93,7 +93,6 @@ function CheckoutContent() {
     },
   };
 
-  // @ts-expect-error - plan comes from searchParams which might be null or dynamic string
   const selectedPlan = planDetails[plan] || planDetails.normal;
   const isTrial = plan === "trial";
 
