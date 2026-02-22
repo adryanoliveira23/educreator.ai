@@ -120,11 +120,12 @@ export async function POST(req: Request) {
     }
 
     if (Array.isArray(questions)) {
-      const questionsToProcess = isTrial ? questions.slice(0, 1) : questions;
+      const questionsToProcess = questions; // Process all questions
       let questionCountOnPage = 0;
 
       for (let i = 0; i < questionsToProcess.length; i++) {
         const q = questionsToProcess[i];
+        const isCensored = isTrial && i > 0;
 
         if (layout === "one_per_page" && i > 0) {
           doc.addPage();
@@ -142,98 +143,125 @@ export async function POST(req: Request) {
         doc.font("Helvetica-Bold").fontSize(12).text(`Questão ${q.number}`);
         doc.moveDown(0.3);
 
-        doc
-          .font("Helvetica")
-          .fontSize(12)
-          .text(decodeHtmlEntities(q.questionText), { align: "justify" });
-        doc.moveDown(0.5);
+        if (isCensored) {
+          const rectHeight = 100;
+          const rectWidth = pageWidth - pageMargins.left - pageMargins.right;
 
-        if (includeImages && q.imageUrl) {
-          try {
-            const imageRes = await fetch(q.imageUrl);
-            if (imageRes.ok) {
-              const arrayBuffer = await imageRes.arrayBuffer();
-              const imageBuffer = Buffer.from(arrayBuffer);
+          doc.save();
+          doc
+            .rect(doc.x, doc.y, rectWidth, rectHeight)
+            .fillAndStroke("#f1f5f9", "#e2e8f0");
 
-              const isPintar =
-                q.type === "pintar" ||
-                q.questionText?.toLowerCase().includes("pinte");
-              const imgWidth = isPintar
-                ? pageWidth - pageMargins.left - pageMargins.right
-                : layout === "two_per_page"
-                  ? 300
-                  : 400;
-              const imgHeight = isPintar
-                ? 500
-                : layout === "two_per_page"
-                  ? 200
-                  : 300;
-              const xPos = (pageWidth - imgWidth) / 2;
+          doc
+            .fillColor("#64748b")
+            .fontSize(10)
+            .text(
+              "CONTEÚDO BLOQUEADO NO PLANO DE TESTE",
+              doc.x,
+              doc.y + rectHeight / 2 - 5,
+              {
+                align: "center",
+                width: rectWidth,
+              },
+            );
+          doc.restore();
 
-              if (
-                doc.y + imgHeight >
-                doc.page.height - doc.page.margins.bottom
-              ) {
-                doc.addPage();
-                await drawBackground();
-                drawHeader(false);
+          doc.y += rectHeight;
+          doc.moveDown(1.5);
+        } else {
+          doc
+            .font("Helvetica")
+            .fontSize(12)
+            .text(decodeHtmlEntities(q.questionText), { align: "justify" });
+          doc.moveDown(0.5);
+
+          if (includeImages && q.imageUrl) {
+            try {
+              const imageRes = await fetch(q.imageUrl);
+              if (imageRes.ok) {
+                const arrayBuffer = await imageRes.arrayBuffer();
+                const imageBuffer = Buffer.from(arrayBuffer);
+
+                const isPintar =
+                  q.type === "pintar" ||
+                  q.questionText?.toLowerCase().includes("pinte");
+                const imgWidth = isPintar
+                  ? pageWidth - pageMargins.left - pageMargins.right
+                  : layout === "two_per_page"
+                    ? 300
+                    : 400;
+                const imgHeight = isPintar
+                  ? 500
+                  : layout === "two_per_page"
+                    ? 200
+                    : 300;
+                const xPos = (pageWidth - imgWidth) / 2;
+
+                if (
+                  doc.y + imgHeight >
+                  doc.page.height - doc.page.margins.bottom
+                ) {
+                  doc.addPage();
+                  await drawBackground();
+                  drawHeader(false);
+                }
+
+                const base64Image = imageBuffer.toString("base64");
+                const contentType =
+                  imageRes.headers.get("content-type") || "image/png";
+                const dataUri = `data:${contentType};base64,${base64Image}`;
+
+                doc.image(dataUri, xPos, doc.y, { width: imgWidth });
+                doc.y += imgHeight;
+                doc.moveDown(1.5);
               }
-
-              const base64Image = imageBuffer.toString("base64");
-              const contentType =
-                imageRes.headers.get("content-type") || "image/png";
-              const dataUri = `data:${contentType};base64,${base64Image}`;
-
-              doc.image(dataUri, xPos, doc.y, { width: imgWidth });
-              doc.y += imgHeight;
-              doc.moveDown(1.5);
-            }
-          } catch (err) {
-            console.error(err);
-          }
-        }
-
-        if (Array.isArray(q.alternatives)) {
-          q.alternatives.forEach((alt: string) => {
-            if (
-              [
-                "multiple_choice",
-                "check_box",
-                "true_false",
-                "counting",
-                "image_selection",
-              ].includes(q.type)
-            ) {
-              doc.text(`(   ) ${decodeHtmlEntities(alt)}`);
-            } else {
-              doc.text(`- ${decodeHtmlEntities(alt)}`);
-            }
-            doc.moveDown(0.3);
-          });
-        }
-
-        if (q.answerLines && q.answerLines > 0) {
-          for (let l = 0; l < q.answerLines; l++) {
-            if (q.answerLines === 1) {
-              doc.rect(doc.x + 40, doc.y, 200, 25).stroke();
-              doc.y += 30;
-              break;
-            } else {
-              doc
-                .moveTo(doc.x + 40, doc.y + 20)
-                .lineTo(doc.page.width - 50, doc.y + 20)
-                .dash(2, {})
-                .stroke();
-              doc.y += 25;
+            } catch (err) {
+              console.error(err);
             }
           }
-        }
 
-        if (q.type === "counting") {
-          doc.circle(doc.page.width - 100, doc.y - 20, 15).stroke();
-        }
+          if (Array.isArray(q.alternatives)) {
+            q.alternatives.forEach((alt: string) => {
+              if (
+                [
+                  "multiple_choice",
+                  "check_box",
+                  "true_false",
+                  "counting",
+                  "image_selection",
+                ].includes(q.type)
+              ) {
+                doc.text(`(   ) ${decodeHtmlEntities(alt)}`);
+              } else {
+                doc.text(`- ${decodeHtmlEntities(alt)}`);
+              }
+              doc.moveDown(0.3);
+            });
+          }
 
-        doc.moveDown(1);
+          if (q.answerLines && q.answerLines > 0) {
+            for (let l = 0; l < q.answerLines; l++) {
+              if (q.answerLines === 1) {
+                doc.rect(doc.x + 40, doc.y, 200, 25).stroke();
+                doc.y += 30;
+                break;
+              } else {
+                doc
+                  .moveTo(doc.x + 40, doc.y + 20)
+                  .lineTo(doc.page.width - 50, doc.y + 20)
+                  .dash(2, {})
+                  .stroke();
+                doc.y += 25;
+              }
+            }
+          }
+
+          if (q.type === "counting") {
+            doc.circle(doc.page.width - 100, doc.y - 20, 15).stroke();
+          }
+
+          doc.moveDown(1);
+        }
         questionCountOnPage++;
       }
 

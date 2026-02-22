@@ -165,20 +165,26 @@ export async function POST(req: Request) {
       plan === "trial" || subscriptionStatus === "pending_payment";
 
     // Automatic Image Generation for each question
-    if (
-      parsedResult.questions &&
-      Array.isArray(parsedResult.questions) &&
-      !isLimitedTrial
-    ) {
+    if (parsedResult.questions && Array.isArray(parsedResult.questions)) {
       const imagePromises = parsedResult.questions.map(
-        async (q: {
-          imagePrompt?: string;
-          questionText?: string;
-          type?: string;
-          number?: number;
-          alternatives?: string[];
-          [key: string]: unknown;
-        }) => {
+        async (
+          q: {
+            imagePrompt?: string;
+            questionText?: string;
+            type?: string;
+            number?: number;
+            alternatives?: string[];
+            [key: string]: unknown;
+          },
+          index: number,
+        ) => {
+          // Allow image generation IF NOT limited trial OR IF it's the first question (index 0)
+          const allowImage = !isLimitedTrial || index === 0;
+
+          if (!allowImage) {
+            return q;
+          }
+
           if (q.imageUrl && !q.imagePrompt) {
             // Context preserved imageUrl
             return q;

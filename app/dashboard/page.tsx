@@ -908,9 +908,15 @@ export default function Dashboard() {
                         return (
                           <div
                             key={i}
-                            className={`group relative transition-all duration-300 ${isBlurred ? "blur-sm opacity-50 select-none cursor-pointer" : ""}`}
+                            className={`group relative transition-all duration-300 ${isBlurred ? "blur-sm opacity-50 select-none cursor-pointer touch-none" : ""}`}
+                            style={
+                              isBlurred ? { WebkitTouchCallout: "none" } : {}
+                            }
                             onClick={
                               isBlurred ? () => setShowPlans(true) : undefined
+                            }
+                            onContextMenu={
+                              isBlurred ? (e) => e.preventDefault() : undefined
                             }
                           >
                             {isBlurred && (
