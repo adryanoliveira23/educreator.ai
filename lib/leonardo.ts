@@ -57,8 +57,8 @@ export async function generateImage(prompt: string): Promise<string | null> {
 
     // 2. Poll for completion
     let attempts = 0;
-    while (attempts < 20) {
-      // 20 attempts * 2 seconds = 40 seconds max
+    while (attempts < 30) {
+      // 30 attempts * 2 seconds = 60 seconds max
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       const statusResponse = await fetch(

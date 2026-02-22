@@ -9,12 +9,21 @@ import { auth, db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Lock, Mail, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
+import {
+  Lock,
+  Mail,
+  ArrowRight,
+  Loader2,
+  Eye,
+  EyeOff,
+  Phone,
+} from "lucide-react";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -55,6 +64,7 @@ export default function RegisterPage() {
 
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
+        whatsapp: whatsapp,
         plan: plan,
         pdfs_generated_count: 0,
         createdAt: serverTimestamp(),
@@ -207,6 +217,29 @@ export default function RegisterPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     className="relative block w-full rounded-lg border-0 py-3 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                     placeholder="Seu endereço de email"
+                  />
+                </div>
+              </div>
+              <div>
+                <label htmlFor="whatsapp" className="sr-only">
+                  WhatsApp
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Phone
+                      className="h-5 w-5 text-gray-400"
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <input
+                    id="whatsapp"
+                    name="whatsapp"
+                    type="text"
+                    required
+                    value={whatsapp}
+                    onChange={(e) => setWhatsapp(e.target.value)}
+                    className="relative block w-full rounded-lg border-0 py-3 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                    placeholder="Seu WhatsApp (com DDD)"
                   />
                 </div>
               </div>

@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import {
   Users,
-  FileText,
-  CreditCard,
   MoreHorizontal,
   Search,
   ShieldCheck,
   RefreshCcw,
   Eye,
+  MessageCircle,
+  Calendar,
+  Filter,
 } from "lucide-react";
 
 type User = {
@@ -27,6 +28,7 @@ type User = {
     user_agent: string;
     registration_date: string;
   };
+  whatsapp?: string;
 };
 
 const getDaysRemaining = (renovacao_em: any) => {
@@ -48,6 +50,8 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [filterPlan, setFilterPlan] = useState("all");
+  const [filterDate, setFilterDate] = useState("all"); // all, today, week, month
   const itemsPerPage = 10;
 
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -204,11 +208,36 @@ export default function UsersPage() {
     setShowEditModal(true);
   };
 
-  const filteredUsers = users.filter(
-    (user) =>
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.id.includes(searchTerm),
-  );
+      user.id.includes(searchTerm);
+
+    const matchesPlan =
+      filterPlan === "all" ||
+      (filterPlan === "paid" && user.plan !== "trial") ||
+      (filterPlan === "trial" && user.plan === "trial") ||
+      user.plan === filterPlan;
+
+    let matchesDate = true;
+    if (filterDate !== "all" && user.createdAt) {
+      const createdAt = user.createdAt._seconds
+        ? new Date(user.createdAt._seconds * 1000)
+        : new Date(user.createdAt);
+      const now = new Date();
+      if (filterDate === "today") {
+        matchesDate = createdAt.toDateString() === now.toDateString();
+      } else if (filterDate === "week") {
+        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        matchesDate = createdAt >= weekAgo;
+      } else if (filterDate === "month") {
+        const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        matchesDate = createdAt >= monthAgo;
+      }
+    }
+
+    return matchesSearch && matchesPlan && matchesDate;
+  });
 
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
   const paginatedUsers = filteredUsers.slice(
@@ -244,32 +273,71 @@ export default function UsersPage() {
   return (
     <div className="space-y-6">
       <div className="rounded-xl border border-gray-800 bg-gray-900 shadow-sm overflow-hidden">
-        <div className="flex flex-col justify-between gap-4 border-b border-gray-800 p-4 sm:flex-row sm:items-center">
-          <h2 className="text-lg font-semibold text-white">
-            Gerenciamento de Usuários
-          </h2>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700"
-            >
-              + Criar Usuário
-            </button>
-            <div className="relative">
-              <Search
-                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500"
-                size={14}
-              />
-              <input
-                type="text"
-                placeholder="Buscar por email ou ID..."
-                value={searchTerm}
+        <div className="flex flex-col border-b border-gray-800 p-4">
+          <div className="flex flex-col justify-between gap-4 mb-4 sm:flex-row sm:items-center">
+            <h2 className="text-lg font-semibold text-white">
+              Gerenciamento de Usuários
+            </h2>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700"
+              >
+                + Criar Usuário
+              </button>
+              <div className="relative">
+                <Search
+                  className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500"
+                  size={14}
+                />
+                <input
+                  type="text"
+                  placeholder="Buscar por email ou ID..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 py-1.5 pl-8 pr-3 text-xs text-white focus:border-blue-500 focus:outline-none sm:w-64"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Filter size={14} className="text-gray-500" />
+              <select
+                value={filterPlan}
                 onChange={(e) => {
-                  setSearchTerm(e.target.value);
+                  setFilterPlan(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full rounded-lg border border-gray-700 bg-gray-800 py-1.5 pl-8 pr-3 text-xs text-white focus:border-blue-500 focus:outline-none sm:w-64"
-              />
+                className="rounded-lg border border-gray-700 bg-gray-800 py-1.5 px-3 text-[10px] text-white focus:border-blue-500 outline-none"
+              >
+                <option value="all">Todos os Planos</option>
+                <option value="paid">Pagantes (Normal/Pro)</option>
+                <option value="trial">Em Teste (Trial)</option>
+                <option value="normal">Plano Normal</option>
+                <option value="pro">Plano Pro</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Calendar size={14} className="text-gray-500" />
+              <select
+                value={filterDate}
+                onChange={(e) => {
+                  setFilterDate(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="rounded-lg border border-gray-700 bg-gray-800 py-1.5 px-3 text-[10px] text-white focus:border-blue-500 outline-none"
+              >
+                <option value="all">Qualquer data</option>
+                <option value="today">Hoje</option>
+                <option value="week">Últimos 7 dias</option>
+                <option value="month">Últimos 30 dias</option>
+              </select>
             </div>
           </div>
         </div>
@@ -359,6 +427,17 @@ export default function UsersPage() {
                       >
                         <Eye size={14} />
                       </button>
+                      {user.whatsapp && (
+                        <a
+                          href={`https://wa.me/${user.whatsapp.replace(/\D/g, "")}?text=Olá! Sou o suporte do EduCreator AI. Estou entrando em contato para saber se você precisa de ajuda com seu plano.`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1.5 text-green-500 hover:bg-green-500/10 rounded"
+                          title="WhatsApp"
+                        >
+                          <MessageCircle size={14} />
+                        </a>
+                      )}
                       <button
                         onClick={() => openEditModal(user)}
                         className="p-1.5 text-blue-400 hover:bg-blue-400/10 rounded"
