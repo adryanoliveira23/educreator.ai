@@ -43,16 +43,34 @@ export default function RegisterPage() {
       );
       const user = userCredential.user;
 
-      // Create user document in Firestore with pending_payment status
+      // Create user document in Firestore
+      const isTrial = plan === "trial";
+
+      // Check for fraud prevention cookie (client-side check here as well)
+      const hasUsedTrial = document.cookie.includes(
+        "educreator_trial_used=true",
+      );
+      const finalStatus =
+        isTrial && !hasUsedTrial ? "trial" : "pending_payment";
+
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
         plan: plan,
         pdfs_generated_count: 0,
         createdAt: serverTimestamp(),
-        subscription_status: "pending_payment",
+        subscription_status: finalStatus,
       });
 
-      router.push(`/checkout?plan=${plan}`);
+      if (isTrial && !hasUsedTrial) {
+        // Set fraud prevention cookie
+        const date = new Date();
+        date.setFullYear(date.getFullYear() + 1);
+        document.cookie = `educreator_trial_used=true; expires=${date.toUTCString()}; path=/`;
+
+        router.push("/dashboard");
+      } else {
+        router.push(`/checkout?plan=${plan}`);
+      }
     } catch (err: unknown) {
       // Basic mapping for common codes if available on the error object
       const firebaseError = err as { code: string; message: string };

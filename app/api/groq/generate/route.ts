@@ -159,8 +159,17 @@ export async function POST(req: Request) {
     const result = completion.choices[0]?.message?.content;
     const parsedResult = JSON.parse(result || "{}");
 
+    const subscriptionStatus =
+      userData.subscription_status || "pending_payment";
+    const isLimitedTrial =
+      plan === "trial" || subscriptionStatus === "pending_payment";
+
     // Automatic Image Generation for each question
-    if (parsedResult.questions && Array.isArray(parsedResult.questions)) {
+    if (
+      parsedResult.questions &&
+      Array.isArray(parsedResult.questions) &&
+      !isLimitedTrial
+    ) {
       const imagePromises = parsedResult.questions.map(
         async (q: {
           imagePrompt?: string;

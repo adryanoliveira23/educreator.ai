@@ -174,10 +174,15 @@ export default function Dashboard() {
         setUserData(data);
 
         // Check subscription status
+        const isLimitedTrial =
+          data.plan === "trial" ||
+          data.subscription_status === "pending_payment";
+
         if (
           data.subscription_status &&
           data.subscription_status !== "active" &&
-          data.subscription_status !== "trial"
+          data.subscription_status !== "trial" &&
+          !isLimitedTrial
         ) {
           setShowWarning(true);
         }
@@ -263,6 +268,15 @@ export default function Dashboard() {
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim()) return;
+
+    const isLimitedTrial =
+      userData?.plan === "trial" ||
+      userData?.subscription_status === "pending_payment";
+
+    if (isLimitedTrial && activities.length >= 1) {
+      setShowPlans(true);
+      return;
+    }
 
     const generationId = ++generationRef.current;
     setIsGenerating(true);
@@ -617,7 +631,7 @@ export default function Dashboard() {
         )}
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-12 bg-gray-50/50 pb-96 md:pb-64">
+        <div className="flex-1 overflow-y-auto p-4 md:p-12 bg-gray-50/50 pb-20 md:pb-32">
           <div
             className={`${result ? "max-w-3xl" : "max-w-6xl"} mx-auto space-y-6 pb-20 md:pb-0`}
           >
@@ -775,100 +789,128 @@ export default function Dashboard() {
                   </div>
 
                   {/* Questions */}
-                  <div className="space-y-4 md:space-y-6">
-                    {result.questions?.map((question, i) => (
-                      <div key={i} className="group relative">
-                        <div className="flex items-start gap-4 mb-4">
-                          <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-[10px] md:text-sm shrink-0">
-                            {i + 1}
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="font-bold text-sm md:text-lg text-gray-900 leading-tight">
-                              {(() => {
-                                const cleanText = decodeHtmlEntities(
-                                  question.questionText,
-                                )
-                                  .replace(/^[\s()\[\]-]+/, "") // Remove leading markers
-                                  .replace(/[\s()\[\]-]+$/, ""); // Remove trailing markers
-                                return cleanText;
-                              })()}
-                            </h3>
-                          </div>
-                        </div>
+                  <div className="space-y-4 md:space-y-6 relative">
+                    {(() => {
+                      const isTrial =
+                        userData?.plan === "trial" ||
+                        userData?.subscription_status === "pending_payment";
 
-                        {question.imageUrl && (
-                          <div className="mb-4 max-w-[200px] md:max-w-[300px]">
-                            <img
-                              src={question.imageUrl}
-                              alt={`Ilustração para questão ${question.number}`}
-                              className="rounded-xl border shadow-sm w-full bg-white"
-                            />
-                          </div>
-                        )}
+                      return result.questions?.map((question, i) => {
+                        const isBlurred = isTrial && i > 0;
 
-                        {/* Alternatives (Multiple choice / Selection) */}
-                        {question.alternatives &&
-                          question.alternatives.length > 0 && (
-                            <div className="grid grid-cols-1 gap-2">
-                              {question.alternatives.map((alt, j) => (
-                                <div
-                                  key={j}
-                                  className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50/50"
-                                >
-                                  <span className="w-5 h-5 flex items-center justify-center rounded-full border border-gray-300 text-[10px] text-gray-400">
-                                    {String.fromCharCode(65 + j)}
-                                  </span>
-                                  <p className="text-gray-700 text-sm">
-                                    {decodeHtmlEntities(alt).replace(
-                                      /^[\s()\[\]-]+/,
-                                      "",
-                                    )}
+                        return (
+                          <div
+                            key={i}
+                            className={`group relative transition-all duration-300 ${isBlurred ? "blur-sm opacity-50 select-none cursor-pointer" : ""}`}
+                            onClick={
+                              isBlurred ? () => setShowPlans(true) : undefined
+                            }
+                          >
+                            {isBlurred && (
+                              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/10 rounded-xl">
+                                <div className="bg-white/80 backdrop-blur-md p-3 rounded-2xl shadow-lg border border-white/20 text-center animate-bounce-slow">
+                                  <Lock
+                                    className="text-blue-600 mb-1 mx-auto"
+                                    size={20}
+                                  />
+                                  <p className="text-[10px] md:text-xs font-bold text-gray-800">
+                                    Período de teste: Adquira um plano para
+                                    desbloquear todas as questões.
                                   </p>
                                 </div>
-                              ))}
+                              </div>
+                            )}
+                            <div className="flex items-start gap-4 mb-4">
+                              <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-[10px] md:text-sm shrink-0">
+                                {i + 1}
+                              </div>
+                              <div className="flex-1">
+                                <h3 className="font-bold text-sm md:text-lg text-gray-900 leading-tight">
+                                  {(() => {
+                                    const cleanText = decodeHtmlEntities(
+                                      question.questionText,
+                                    )
+                                      .replace(/^[\s()\[\]-]+/, "")
+                                      .replace(/[\s()\[\]-]+$/, "");
+                                    return cleanText;
+                                  })()}
+                                </h3>
+                              </div>
                             </div>
-                          )}
 
-                        {/* Answer Lines (Writing) */}
-                        {question.answerLines !== undefined &&
-                          question.answerLines > 0 && (
-                            <div className="ml-10 space-y-4">
-                              {Array.from({ length: question.answerLines }).map(
-                                (_, j) => (
-                                  <div
-                                    key={j}
-                                    className={`border-b border-gray-300 w-full h-8 border-dotted ${
-                                      question.answerLines === 1
-                                        ? "max-w-[150px]"
-                                        : ""
-                                    }`}
-                                  ></div>
-                                ),
+                            {question.imageUrl && (
+                              <div className="mb-4 max-w-[200px] md:max-w-[300px]">
+                                <img
+                                  src={question.imageUrl}
+                                  alt={`Ilustração para questão ${question.number}`}
+                                  className="rounded-xl border shadow-sm w-full bg-white"
+                                />
+                              </div>
+                            )}
+
+                            {question.alternatives &&
+                              question.alternatives.length > 0 && (
+                                <div className="grid grid-cols-1 gap-2">
+                                  {question.alternatives.map((alt, j) => (
+                                    <div
+                                      key={j}
+                                      className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50/50"
+                                    >
+                                      <span className="w-5 h-5 flex items-center justify-center rounded-full border border-gray-300 text-[10px] text-gray-400">
+                                        {String.fromCharCode(65 + j)}
+                                      </span>
+                                      <p className="text-gray-700 text-sm">
+                                        {decodeHtmlEntities(alt).replace(
+                                          /^[\s()\[\]-]+/,
+                                          "",
+                                        )}
+                                      </p>
+                                    </div>
+                                  ))}
+                                </div>
                               )}
-                            </div>
-                          )}
 
-                        {/* Counting / Identification (Small circle/box) */}
-                        {(question.type === "counting" ||
-                          question.type === "image_selection") && (
-                          <div className="ml-10 mt-2">
-                            <div className="w-12 h-12 border-2 border-gray-300 rounded-xl flex items-center justify-center text-gray-400 font-mono">
-                              ( )
-                            </div>
-                          </div>
-                        )}
+                            {question.answerLines !== undefined &&
+                              question.answerLines > 0 && (
+                                <div className="ml-10 space-y-4">
+                                  {Array.from({
+                                    length: question.answerLines,
+                                  }).map((_, j) => (
+                                    <div
+                                      key={j}
+                                      className={`border-b border-gray-300 w-full h-8 border-dotted ${
+                                        question.answerLines === 1
+                                          ? "max-w-[150px]"
+                                          : ""
+                                      }`}
+                                    ></div>
+                                  ))}
+                                </div>
+                              )}
 
-                        {/* Matching Pairs Support could go here - simple version for now */}
-                        {question.type === "matching" && (
-                          <div className="ml-10 grid grid-cols-2 gap-8 py-4">
-                            <div className="space-y-4 font-bold">Colunm A</div>
-                            <div className="space-y-4 font-bold text-right">
-                              Colunm B
-                            </div>
+                            {(question.type === "counting" ||
+                              question.type === "image_selection") && (
+                              <div className="ml-10 mt-2">
+                                <div className="w-12 h-12 border-2 border-gray-300 rounded-xl flex items-center justify-center text-gray-400 font-mono">
+                                  ( )
+                                </div>
+                              </div>
+                            )}
+
+                            {question.type === "matching" && (
+                              <div className="ml-10 grid grid-cols-2 gap-8 py-4">
+                                <div className="space-y-4 font-bold">
+                                  Colunm A
+                                </div>
+                                <div className="space-y-4 font-bold text-right">
+                                  Colunm B
+                                </div>
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    ))}
+                        );
+                      });
+                    })()}
                   </div>
 
                   <div className="mt-12 pt-8 border-t flex justify-center">
@@ -884,7 +926,7 @@ export default function Dashboard() {
             )}
 
             {!result && !isGenerating && (
-              <div className="flex-1 flex flex-col items-center justify-start pt-0 pb-96 md:pb-[32rem] px-6 text-center animate-in fade-in zoom-in duration-1000">
+              <div className="flex-1 flex flex-col items-center justify-center min-h-[60vh] px-6 text-center animate-in fade-in zoom-in duration-1000">
                 <div className="relative group mb-1">
                   <div className="absolute inset-0 bg-blue-500 blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 rounded-full" />
                   <div className="relative w-10 h-10 md:w-14 md:h-14 bg-white text-blue-600 rounded-xl md:rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-200 group-hover:scale-110 transition-transform duration-500 border border-slate-50">

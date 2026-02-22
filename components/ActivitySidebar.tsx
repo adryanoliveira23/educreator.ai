@@ -157,9 +157,19 @@ export default function ActivitySidebar({
               <div className="flex justify-between items-center mb-3">
                 <span className="font-bold text-slate-800 text-sm capitalize">
                   {userData.plan === "trial" ? "Teste Grátis" : userData.plan}
+                  {userData.subscription_status === "pending_payment" &&
+                    " (Pendente)"}
                 </span>
-                <span className="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">
-                  Ativo
+                <span
+                  className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                    userData.subscription_status === "pending_payment"
+                      ? "bg-yellow-100 text-yellow-600"
+                      : "bg-blue-100 text-blue-600"
+                  }`}
+                >
+                  {userData.subscription_status === "pending_payment"
+                    ? "Aguardando"
+                    : "Ativo"}
                 </span>
               </div>
               <button
