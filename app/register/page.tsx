@@ -44,6 +44,40 @@ export default function RegisterPage() {
       // Get plan from URL
       const searchParams = new URLSearchParams(window.location.search);
       const plan = searchParams.get("plan") || "normal";
+      const isTrial = plan === "trial";
+
+      // Trial Prevention: Check IP and Cookie
+      let hasUsedTrial = document.cookie.includes("educreator_trial_used=true");
+      let ipAddress = "unknown";
+
+      if (isTrial) {
+        try {
+          const ipRes = await fetch("https://api.ipify.org?format=json");
+          const ipData = await ipRes.json();
+          ipAddress = ipData.ip;
+
+          // Check if this IP has already used trial in Firestore
+          const res = await fetch(`/api/admin/check-trial-ip?ip=${ipAddress}`);
+          const checkData = await res.json();
+          if (checkData.alreadyUsed) {
+            hasUsedTrial = true;
+          }
+        } catch (ipErr) {
+          console.error("Failed to check IP trial status:", ipErr);
+        }
+      }
+
+      if (isTrial && hasUsedTrial) {
+        setError(
+          "Você já utilizou o período de teste gratuito em outro momento. Por favor, escolha um de nossos planos para continuar.",
+        );
+        setLoading(false);
+        // Set cookie just in case it was missing but IP matched
+        const date = new Date();
+        date.setFullYear(date.getFullYear() + 1);
+        document.cookie = `educreator_trial_used=true; expires=${date.toUTCString()}; path=/`;
+        return;
+      }
 
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -53,12 +87,6 @@ export default function RegisterPage() {
       const user = userCredential.user;
 
       // Create user document in Firestore
-      const isTrial = plan === "trial";
-
-      // Check for fraud prevention cookie (client-side check here as well)
-      const hasUsedTrial = document.cookie.includes(
-        "educreator_trial_used=true",
-      );
       const finalStatus =
         isTrial && !hasUsedTrial ? "trial" : "pending_payment";
 
@@ -71,6 +99,7 @@ export default function RegisterPage() {
         subscription_status: finalStatus,
         metadata: {
           trial_cookie_present: hasUsedTrial,
+          ip_address: ipAddress,
           user_agent:
             typeof window !== "undefined"
               ? window.navigator.userAgent
@@ -86,11 +115,8 @@ export default function RegisterPage() {
         document.cookie = `educreator_trial_used=true; expires=${date.toUTCString()}; path=/`;
 
         router.push("/dashboard");
-      } else if (isTrial && hasUsedTrial) {
-        // Already used trial, redirect to checkout/plans (or just dashboard with plans open)
-        router.push("/dashboard?showPlans=true");
       } else {
-        // Paid plans: Direct redirect to Cakto
+        // Paid plans or already used trial: Direct redirect to Cakto
         try {
           const token = await user.getIdToken();
           const res = await fetch("/api/payments/create", {
@@ -239,7 +265,7 @@ export default function RegisterPage() {
                     value={whatsapp}
                     onChange={(e) => setWhatsapp(e.target.value)}
                     className="relative block w-full rounded-lg border-0 py-3 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                    placeholder="Seu WhatsApp (com DDD)"
+                    placeholder="Seu WhatsApp (com DDD) *"
                   />
                 </div>
               </div>

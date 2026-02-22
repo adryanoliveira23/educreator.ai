@@ -7,7 +7,11 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    const { email, plan, role } = await req.json();
+    const { email, plan, role, whatsapp } = await req.json();
+
+    if (!email) {
+      return NextResponse.json({ error: "Email is required" }, { status: 400 });
+    }
 
     if (!adminDb) {
       return NextResponse.json(
@@ -16,18 +20,13 @@ export async function PUT(
       );
     }
 
-    const updateData: Record<string, string> = {};
-
-    if (email) updateData.email = email;
-    if (plan) updateData.plan = plan;
-    if (role) updateData.role = role;
-
-    if (Object.keys(updateData).length === 0) {
-      return NextResponse.json(
-        { error: "No fields to update" },
-        { status: 400 },
-      );
-    }
+    const updateData = {
+      email,
+      plan: plan || "normal",
+      role: role || "user",
+      whatsapp: whatsapp || "",
+      updatedAt: new Date().toISOString(),
+    };
 
     await adminDb.collection("users").doc(id).update(updateData);
 

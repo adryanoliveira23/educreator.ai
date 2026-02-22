@@ -71,6 +71,7 @@ export default function UsersPage() {
     email: "",
     plan: "normal",
     role: "user",
+    whatsapp: "",
   });
   const [newPassword, setNewPassword] = useState("");
 
@@ -206,6 +207,7 @@ export default function UsersPage() {
       email: user.email,
       plan: (user.plan as any) || "normal",
       role: user.role || "user",
+      whatsapp: user.whatsapp || "",
     });
     setShowEditModal(true);
   };
@@ -360,6 +362,9 @@ export default function UsersPage() {
                   Uso
                 </th>
                 <th className="p-3 font-medium border-b border-gray-800">
+                  Criado em
+                </th>
+                <th className="p-3 font-medium border-b border-gray-800">
                   WhatsApp
                 </th>
                 <th className="p-3 font-medium border-b border-gray-800 text-right">
@@ -387,11 +392,6 @@ export default function UsersPage() {
                         <div className="text-[10px] text-gray-500 truncate">
                           ID: {user.id}
                         </div>
-                        {user.metadata?.trial_cookie_present && (
-                          <div className="mt-1 flex items-center gap-1 text-[9px] font-bold text-red-500 bg-red-500/10 px-1 rounded border border-red-500/20 w-fit">
-                            <ShieldCheck size={10} /> FRAUDE TRIAL
-                          </div>
-                        )}
                       </div>
                     </div>
                   </td>
@@ -422,6 +422,15 @@ export default function UsersPage() {
                   </td>
                   <td className="p-3 text-gray-300">
                     {user.pdfs_generated_count || 0}
+                  </td>
+                  <td className="p-3 text-gray-400">
+                    {user.createdAt?._seconds
+                      ? new Date(
+                          user.createdAt._seconds * 1000,
+                        ).toLocaleDateString("pt-BR")
+                      : user.createdAt
+                        ? new Date(user.createdAt).toLocaleDateString("pt-BR")
+                        : "N/A"}
                   </td>
                   <td className="p-3">
                     {user.whatsapp ? (
@@ -501,12 +510,12 @@ export default function UsersPage() {
 
         {/* Paginação */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-gray-800 p-4">
+          <div className="flex flex-col items-center border-t border-gray-800 p-4 space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
             <div className="text-[10px] text-gray-500">
               Mostrando página <span className="text-white">{currentPage}</span>{" "}
               de <span className="text-white">{totalPages}</span>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center justify-center gap-1 w-full sm:w-auto">
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
@@ -611,6 +620,20 @@ export default function UsersPage() {
                   <option value="user">Usuário</option>
                   <option value="admin">Administrador</option>
                 </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-sm text-gray-400">
+                  WhatsApp
+                </label>
+                <input
+                  type="text"
+                  value={editForm.whatsapp}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, whatsapp: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white"
+                  placeholder="WhatsApp com DDD"
+                />
               </div>
             </div>
             <div className="mt-6 flex gap-3">

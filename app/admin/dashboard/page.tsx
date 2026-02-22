@@ -95,9 +95,9 @@ export default function AdminDashboard() {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-8">
         {/* Recent Users List */}
-        <div className="lg:col-span-2 bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-sm">
+        <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-sm">
           <div className="p-6 border-b border-gray-800 flex justify-between items-center">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <Activity className="text-blue-500" size={20} />
@@ -125,60 +125,31 @@ export default function AdminDashboard() {
                     <p className="text-[10px] text-gray-500">ID: {user.id}</p>
                   </div>
                 </div>
-                <span
-                  className={`px-2 py-0.5 rounded-full text-[10px] uppercase font-black ${
-                    user.plan === "pro"
-                      ? "bg-blue-500/20 text-blue-400"
-                      : "bg-gray-800 text-gray-500"
-                  }`}
-                >
-                  {user.plan}
-                </span>
+                <div className="flex items-center gap-4">
+                  <div className="text-right hidden sm:block">
+                    <p className="text-[10px] text-gray-500">Criado em</p>
+                    <p className="text-xs text-gray-300">
+                      {user.createdAt?._seconds
+                        ? new Date(
+                            user.createdAt._seconds * 1000,
+                          ).toLocaleDateString("pt-BR")
+                        : user.createdAt
+                          ? new Date(user.createdAt).toLocaleDateString("pt-BR")
+                          : "N/A"}
+                    </p>
+                  </div>
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[10px] uppercase font-black ${
+                      user.plan === "pro"
+                        ? "bg-blue-500/20 text-blue-400"
+                        : "bg-gray-800 text-gray-500"
+                    }`}
+                  >
+                    {user.plan}
+                  </span>
+                </div>
               </div>
             ))}
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="space-y-6">
-          <div className="bg-linear-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-xl shadow-blue-500/10">
-            <h3 className="font-bold mb-2">Precisa de Ajuda?</h3>
-            <p className="text-blue-100 text-xs mb-4">
-              Acesse a documentação do administrador para entender as métricas.
-            </p>
-            <button className="w-full py-2.5 bg-white text-blue-600 font-bold rounded-xl text-xs hover:bg-blue-50 transition">
-              Ver Docs
-            </button>
-          </div>
-
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-            <h3 className="text-white font-bold mb-4 text-sm">Links Rápidos</h3>
-            <div className="space-y-3">
-              <Link
-                href="/admin/dashboard/users"
-                className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-xl hover:bg-blue-600/10 hover:border-blue-600/30 border border-transparent transition group"
-              >
-                <Users
-                  size={18}
-                  className="text-gray-400 group-hover:text-blue-500"
-                />
-                <span className="text-xs text-gray-300 group-hover:text-white font-medium">
-                  Gerenciar Usuários
-                </span>
-              </Link>
-              <Link
-                href="/admin/dashboard/settings"
-                className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-xl hover:bg-indigo-600/10 hover:border-indigo-600/30 border border-transparent transition group"
-              >
-                <Zap
-                  size={18}
-                  className="text-gray-400 group-hover:text-indigo-500"
-                />
-                <span className="text-xs text-gray-300 group-hover:text-white font-medium">
-                  Configurações
-                </span>
-              </Link>
-            </div>
           </div>
         </div>
       </div>
