@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import {
   Users,
-  MoreHorizontal,
   Search,
   ShieldCheck,
   RefreshCcw,
@@ -11,6 +10,9 @@ import {
   MessageCircle,
   Calendar,
   Filter,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 type User = {
@@ -316,7 +318,6 @@ export default function UsersPage() {
                 className="rounded-lg border border-gray-700 bg-gray-800 py-1.5 px-3 text-[10px] text-white focus:border-blue-500 outline-none"
               >
                 <option value="all">Todos os Planos</option>
-                <option value="paid">Pagantes (Normal/Pro)</option>
                 <option value="trial">Em Teste (Trial)</option>
                 <option value="normal">Plano Normal</option>
                 <option value="pro">Plano Pro</option>
@@ -357,6 +358,9 @@ export default function UsersPage() {
                 </th>
                 <th className="p-3 font-medium border-b border-gray-800">
                   Uso
+                </th>
+                <th className="p-3 font-medium border-b border-gray-800">
+                  WhatsApp
                 </th>
                 <th className="p-3 font-medium border-b border-gray-800 text-right">
                   Ações
@@ -402,7 +406,10 @@ export default function UsersPage() {
                       }`}
                     >
                       {user.plan === "trial"
-                        ? `Teste (${getDaysRemaining(user.renovacao_em)}d)`
+                        ? (() => {
+                            const days = getDaysRemaining(user.renovacao_em);
+                            return days !== null ? `Teste (${days}d)` : "Teste";
+                          })()
                         : user.plan || "Free"}
                     </span>
                   </td>
@@ -410,11 +417,29 @@ export default function UsersPage() {
                     <span
                       className={`px-2 py-0.5 rounded-full text-[10px] ${user.role === "admin" ? "bg-yellow-500/10 text-yellow-500" : "text-gray-400"}`}
                     >
-                      {user.role === "admin" ? "Admin" : "User"}
+                      {user.role === "admin" ? "Admin" : "Usuário"}
                     </span>
                   </td>
                   <td className="p-3 text-gray-300">
                     {user.pdfs_generated_count || 0}
+                  </td>
+                  <td className="p-3">
+                    {user.whatsapp ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-400">{user.whatsapp}</span>
+                        <a
+                          href={`https://wa.me/${user.whatsapp.replace(/\D/g, "")}?text=Olá! Sou o suporte do EduCreator AI. Estou entrando em contato para saber se você precisa de ajuda com seu plano.`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-green-500 hover:text-green-400 font-medium"
+                        >
+                          <MessageCircle size={14} />
+                          <span>Chat</span>
+                        </a>
+                      </div>
+                    ) : (
+                      <span className="text-gray-500 italic">N/A</span>
+                    )}
                   </td>
                   <td className="p-3 text-right">
                     <div className="flex items-center justify-end gap-1">
@@ -443,7 +468,7 @@ export default function UsersPage() {
                         className="p-1.5 text-blue-400 hover:bg-blue-400/10 rounded"
                         title="Editar"
                       >
-                        <MoreHorizontal size={14} />
+                        <RefreshCcw size={14} className="rotate-90" />
                       </button>
                       <button
                         onClick={() => resetTrial(user.id)}
@@ -454,10 +479,17 @@ export default function UsersPage() {
                       </button>
                       <button
                         onClick={() => toggleBan(user.id, user.banned)}
-                        className={`p-1.5 rounded ${user.banned ? "text-green-500" : "text-red-400 hover:bg-red-400/10"}`}
+                        className={`p-1.5 rounded ${user.banned ? "text-green-500 hover:bg-green-500/10" : "text-red-400 hover:bg-red-400/10"}`}
                         title={user.banned ? "Desbanir" : "Banir"}
                       >
-                        <Users size={14} />
+                        <ShieldCheck size={14} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteUser(user.id, user.email)}
+                        className="p-1.5 text-red-500 hover:bg-red-500/10 rounded"
+                        title="Excluir Usuário"
+                      >
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </td>
@@ -466,6 +498,68 @@ export default function UsersPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Paginação */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between border-t border-gray-800 p-4">
+            <div className="text-[10px] text-gray-500">
+              Mostrando página <span className="text-white">{currentPage}</span>{" "}
+              de <span className="text-white">{totalPages}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700 disabled:opacity-50"
+              >
+                <ChevronLeft size={16} />
+              </button>
+
+              {/* Números das páginas */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((page) => {
+                  // Mostrar se for a primeira, última, ou se estiver perto da página atual
+                  return (
+                    page === 1 ||
+                    page === totalPages ||
+                    Math.abs(page - currentPage) <= 1
+                  );
+                })
+                .map((page, index, array) => {
+                  const showEllipsis = index > 0 && page - array[index - 1] > 1;
+                  return (
+                    <div key={page} className="flex items-center">
+                      {showEllipsis && (
+                        <span className="px-2 text-gray-500 text-[10px]">
+                          ...
+                        </span>
+                      )}
+                      <button
+                        onClick={() => setCurrentPage(page)}
+                        className={`h-8 w-8 rounded-lg text-[10px] font-bold transition ${
+                          currentPage === page
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    </div>
+                  );
+                })}
+
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-gray-400 hover:bg-gray-700 disabled:opacity-50"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Modals (logic simplified for brevity, similar to original) */}

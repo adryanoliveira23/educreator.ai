@@ -10,7 +10,10 @@ export async function GET(req: Request) {
       );
     }
 
-    const usersSnapshot = await adminDb.collection("users").get();
+    const usersSnapshot = await adminDb
+      .collection("users")
+      .orderBy("createdAt", "desc")
+      .get();
     const users = usersSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
