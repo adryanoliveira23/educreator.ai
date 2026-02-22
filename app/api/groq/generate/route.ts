@@ -100,7 +100,7 @@ export async function POST(req: Request) {
       1. QUANTIDADE: O array 'questions' DEVE conter EXATAMENTE ${count} objetos de questão.
       2. SINCRONIA MÁXIMA: O 'imagePrompt' DEVE ser uma descrição visual EXATA do que a questão pede. Se a pergunta é "Quantos gatos?", a imagem DEVE conter gatos, e a quantidade DEVE ser a mesma da resposta correta.
       3. COERÊNCIA LÓGICA: 
-         - Em 'multiple_choice', as 4 alternativas devem ser plausíveis, mas apenas uma correta e CLARA.
+         - Em 'multiple_choice', as 4 alternativas devem ser plausíveis, mas apenas uma correta e CLARA. As 'alternatives' devem conter o TEXTO da resposta, NUNCA apenas a letra (A, B, C, D). Se o usuário pedir alternativas específicas, use-as fielmente.
          - Em 'counting', defina o número primeiro, coloque-o no 'imagePrompt' e garanta que ele esteja nas opções.
          - Em 'matching', os itens em 'matchingPairs' devem ter uma relação pedagógica óbvia e correta.
          - Em 'completion', a lacuna deve ser preenchível de forma inequívoca.
@@ -118,7 +118,7 @@ export async function POST(req: Request) {
             "questionText": "...",
             "imagePrompt": "...",
             "imageUrl": "...", // MANTENHA O URL ORIGINAL SE A QUESTÃO NÃO MUDOU
-            "alternatives": ["A", "B", "C", "D"],
+            "alternatives": ["Frase da alternativa 1", "Frase da alternativa 2", "Frase da alternativa 3", "Frase da alternativa 4"],
             "answerLines": 0,
             "matchingPairs": []
           }
