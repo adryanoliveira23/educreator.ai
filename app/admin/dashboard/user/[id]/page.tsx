@@ -26,6 +26,8 @@ type UserData = {
   id: string;
   email: string;
   plan: string;
+  role: string;
+  whatsapp?: string;
   pdfs_generated_count: number;
   createdAt?: string;
 };
@@ -41,11 +43,12 @@ export default function UserDetailsPage({
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const { id } = useReact(params);
+  const decodedId = decodeURIComponent(id);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`/api/admin/users/${id}/history`);
+        const res = await fetch(`/api/admin/users/${decodedId}/history`);
         const json = await res.json();
         setData(json);
       } catch (error) {
@@ -56,7 +59,7 @@ export default function UserDetailsPage({
     };
 
     fetchData();
-  }, [id]);
+  }, [decodedId]);
 
   if (loading)
     return (
@@ -96,7 +99,16 @@ export default function UserDetailsPage({
                 <h2 className="font-bold text-lg truncate max-w-full">
                   {data.user.email}
                 </h2>
-                <p className="text-gray-500 text-xs">ID: {data.user.id}</p>
+                <div className="flex flex-col gap-1 mt-1">
+                  <p className="text-gray-500 text-[10px] break-all">
+                    ID: {data.user.id}
+                  </p>
+                  <span
+                    className={`inline-block px-2 py-0.5 rounded-full text-[10px] self-center ${data.user.role === "admin" ? "bg-yellow-500/10 text-yellow-500" : "bg-gray-500/10 text-gray-400"}`}
+                  >
+                    {data.user.role === "admin" ? "Administrador" : "Usuário"}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -106,10 +118,36 @@ export default function UserDetailsPage({
                   <CreditCard size={16} />
                   <span>Plano</span>
                 </div>
-                <span className="px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 text-xs font-bold uppercase">
+                <span
+                  className={`px-2 py-0.5 rounded-full text-xs font-bold uppercase ${
+                    data.user.plan === "trial"
+                      ? "bg-green-500/10 text-green-400"
+                      : data.user.plan === "pro"
+                        ? "bg-blue-500/10 text-blue-400"
+                        : "bg-gray-500/10 text-gray-400"
+                  }`}
+                >
                   {data.user.plan}
                 </span>
               </div>
+
+              {data.user.whatsapp && (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-gray-400 text-sm">
+                    <Mail size={16} />
+                    <span>WhatsApp</span>
+                  </div>
+                  <a
+                    href={`https://wa.me/${data.user.whatsapp.replace(/\D/g, "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-green-500 text-xs font-bold hover:underline"
+                  >
+                    {data.user.whatsapp}
+                  </a>
+                </div>
+              )}
+
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-gray-400 text-sm">
                   <FileText size={16} />
@@ -124,11 +162,15 @@ export default function UserDetailsPage({
                   <Calendar size={16} />
                   <span>Membro desde</span>
                 </div>
-                <span className="text-white text-xs">
+                <span className="text-white text-xs text-right">
                   {data.user.createdAt
-                    ? format(new Date(data.user.createdAt), "dd/MM/yyyy", {
-                        locale: ptBR,
-                      })
+                    ? format(
+                        new Date(data.user.createdAt),
+                        "dd/MM/yyyy HH:mm",
+                        {
+                          locale: ptBR,
+                        },
+                      )
                     : "-"}
                 </span>
               </div>
@@ -173,7 +215,7 @@ export default function UserDetailsPage({
                       </span>
                     </div>
                     <p className="text-gray-400 text-xs italic line-clamp-2">
-                      "{item.prompt}"
+                      &quot;{item.prompt}&quot;
                     </p>
                   </div>
                 ))

@@ -365,6 +365,9 @@ export default function UsersPage() {
                   Criado em
                 </th>
                 <th className="p-3 font-medium border-b border-gray-800">
+                  Horário
+                </th>
+                <th className="p-3 font-medium border-b border-gray-800">
                   WhatsApp
                 </th>
                 <th className="p-3 font-medium border-b border-gray-800 text-right">
@@ -430,6 +433,21 @@ export default function UsersPage() {
                         ).toLocaleDateString("pt-BR")
                       : user.createdAt
                         ? new Date(user.createdAt).toLocaleDateString("pt-BR")
+                        : "N/A"}
+                  </td>
+                  <td className="p-3 text-gray-400">
+                    {user.createdAt?._seconds
+                      ? new Date(
+                          user.createdAt._seconds * 1000,
+                        ).toLocaleTimeString("pt-BR", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : user.createdAt
+                        ? new Date(user.createdAt).toLocaleTimeString("pt-BR", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
                         : "N/A"}
                   </td>
                   <td className="p-3">
