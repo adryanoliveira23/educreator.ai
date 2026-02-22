@@ -13,6 +13,7 @@ export async function POST(req: Request) {
       layout = "standard",
       includeImages = true,
       wallpaperUrl,
+      isTrial = false,
     } = await req.json();
 
     const doc = new PDFDocument({ size: "A4" });
@@ -119,10 +120,11 @@ export async function POST(req: Request) {
     }
 
     if (Array.isArray(questions)) {
+      const questionsToProcess = isTrial ? questions.slice(0, 1) : questions;
       let questionCountOnPage = 0;
 
-      for (let i = 0; i < questions.length; i++) {
-        const q = questions[i];
+      for (let i = 0; i < questionsToProcess.length; i++) {
+        const q = questionsToProcess[i];
 
         if (layout === "one_per_page" && i > 0) {
           doc.addPage();
@@ -233,6 +235,26 @@ export async function POST(req: Request) {
 
         doc.moveDown(1);
         questionCountOnPage++;
+      }
+
+      if (isTrial && questions.length > 1) {
+        doc.moveDown(2);
+        doc
+          .font("Helvetica-Bold")
+          .fontSize(14)
+          .fillColor("blue")
+          .text("Atividade de Demonstração (Teste Grátis)", {
+            align: "center",
+          });
+        doc.moveDown(0.5);
+        doc
+          .font("Helvetica")
+          .fontSize(10)
+          .fillColor("black")
+          .text(
+            "Esta é uma versão de demonstração. Para baixar a atividade completa com todas as questões e imagens, adquira um plano em educreator-ai.vercel.app/dashboard",
+            { align: "center" },
+          );
       }
     }
 

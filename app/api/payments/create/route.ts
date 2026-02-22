@@ -35,7 +35,10 @@ export async function POST(req: Request) {
     if (plan === "trial") {
       // Trial users go straight to dashboard without a payment link
       return NextResponse.json(
-        { error: "Trial plan does not require payment" },
+        {
+          error:
+            "Neste momento, você já possui um Plano de Teste ou ele não está disponível para seleção manual.",
+        },
         { status: 400 },
       );
     }

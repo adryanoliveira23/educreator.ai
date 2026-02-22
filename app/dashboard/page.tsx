@@ -26,7 +26,6 @@ import {
   Layout,
   ImageIcon,
   Menu,
-  Plus,
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 
@@ -102,9 +101,9 @@ export default function Dashboard() {
   const [selectedTypes, setSelectedTypes] = useState<string[]>([
     "multiple_choice",
   ]);
-  const [layout, setLayout] = useState<
-    "standard" | "one_per_page" | "two_per_page"
-  >("standard");
+  const [layout] = useState<"standard" | "one_per_page" | "two_per_page">(
+    "standard",
+  );
   const [includeImages, setIncludeImages] = useState(true);
 
   // Scarcity logic
@@ -357,17 +356,6 @@ export default function Dashboard() {
     setSelectedTypes(["multiple_choice"]);
   };
 
-  const handleWallpaperUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setSelectedWallpaper(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const [isDownloading, setIsDownloading] = useState(false);
 
   const handleDownloadPDF = async (activityContent: ActivityContent) => {
@@ -376,7 +364,10 @@ export default function Dashboard() {
       const res = await fetch("/api/pdf/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(activityContent),
+        body: JSON.stringify({
+          ...activityContent,
+          isTrial: userData?.plan === "trial",
+        }),
       });
 
       if (!res.ok) throw new Error("Falha ao gerar PDF");
@@ -436,11 +427,11 @@ export default function Dashboard() {
   const limits: Record<string, number> = {
     normal: 10,
     pro: 30,
+    premium: 999999,
     trial: 999999,
   };
-  const limit = limits[userData.plan || "normal"];
+  const limit = limits[userData.plan || "normal"] || 10;
   const usage = userData.pdfs_generated_count || 0;
-  const percentage = Math.min((usage / limit) * 100, 100);
 
   return (
     <div className="flex h-dvh bg-gray-100 font-sans relative overflow-hidden">
@@ -546,8 +537,8 @@ export default function Dashboard() {
               </div>
 
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {/* Trial - Only show if not used or if already on trial */}
-                {(!hasUsedTrial || isTrial) && (
+                {/* Trial - Only show if not used and NOT currently on trial */}
+                {!hasUsedTrial && !isTrial && (
                   <div className="bg-white p-8 rounded-[2rem] shadow-xl border-2 border-green-500/30 relative flex flex-col hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-6 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg whitespace-nowrap">
                       DEGUSTAÇÃO
@@ -843,7 +834,7 @@ export default function Dashboard() {
                       <span className="shrink-0">
                         {(() => {
                           const label = "Aluno";
-                          let val = result.header.studentName?.trim() || "";
+                          let val = result.header?.studentName?.trim() || "";
                           val = val.replace(/^[:\s]+/, "");
                           if (
                             val.toLowerCase().startsWith("nome do aluno") ||
@@ -856,14 +847,14 @@ export default function Dashboard() {
                           }
                           return `${label}: ${val}`;
                         })()}
-                        {(!result.header.studentName ||
-                          result.header.studentName.length < 3) &&
+                        {(!result.header?.studentName ||
+                          result.header?.studentName.length < 3) &&
                           " ________________"}
                       </span>
                       <span className="shrink-0">
                         {(() => {
                           const label = "Escola";
-                          let val = result.header.school?.trim() || "";
+                          let val = result.header?.school?.trim() || "";
                           val = val.replace(/^[:\s]+/, "");
                           if (val.toLowerCase().startsWith("escola")) {
                             val = val
@@ -873,14 +864,14 @@ export default function Dashboard() {
                           }
                           return `${label}: ${val}`;
                         })()}
-                        {(!result.header.school ||
-                          result.header.school.length < 3) &&
+                        {(!result.header?.school ||
+                          result.header?.school.length < 3) &&
                           " ________________"}
                       </span>
                       <span className="shrink-0">
                         {(() => {
                           const label = "Prof.";
-                          let val = result.header.teacherName?.trim() || "";
+                          let val = result.header?.teacherName?.trim() || "";
                           val = val.replace(/^[:\s]+/, "");
                           if (
                             val.toLowerCase().startsWith("nome do professor") ||
@@ -897,8 +888,8 @@ export default function Dashboard() {
                           }
                           return `${label}: ${val}`;
                         })()}
-                        {(!result.header.teacherName ||
-                          result.header.teacherName.length < 3) &&
+                        {(!result.header?.teacherName ||
+                          result.header?.teacherName.length < 3) &&
                           " ________________"}
                       </span>
                     </div>
@@ -954,7 +945,7 @@ export default function Dashboard() {
                               </div>
                             </div>
 
-                            {question.imageUrl && (
+                            {question.imageUrl && (!isTrial || i === 0) && (
                               <div className="mb-4 max-w-[200px] md:max-w-[300px]">
                                 <img
                                   src={question.imageUrl}
