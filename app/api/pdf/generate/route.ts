@@ -99,7 +99,7 @@ export async function POST(req: Request) {
         doc.moveDown(1.5);
       }
 
-      if (title) {
+      if (title && showFields) {
         doc
           .fontSize(18)
           .font("Helvetica-Bold")

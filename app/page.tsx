@@ -8,10 +8,8 @@ import {
   Star,
   ShieldCheck,
   Clock,
-  Sparkles,
   BookOpen,
-  Layout,
-  ChevronRight,
+  Sparkles,
   ArrowRight,
   MousePointer2,
 } from "lucide-react";
@@ -56,12 +54,6 @@ export default function LandingPage() {
               className="hover:text-blue-600 transition-colors"
             >
               A Solução
-            </a>
-            <a
-              href="#templates"
-              className="hover:text-blue-600 transition-colors"
-            >
-              Templates
             </a>
             <a
               href="#como-funciona"
@@ -123,7 +115,7 @@ export default function LandingPage() {
 
               <div className="flex flex-col sm:flex-row justify-center gap-6 animate-in fade-in slide-in-from-bottom-8 duration-1000">
                 <Link
-                  href="/register?plan=trial"
+                  href="#precos"
                   className="group px-10 py-5 text-lg font-bold text-white bg-blue-600 rounded-2xl hover:bg-blue-700 transition-all shadow-2xl shadow-blue-200 hover:shadow-blue-300 transform hover:-translate-y-1 flex items-center justify-center gap-2"
                 >
                   Criar Minha Primeira Atividade
@@ -225,96 +217,6 @@ export default function LandingPage() {
                   </p>
                 </div>
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Templates Section - NEW */}
-        <section
-          id="templates"
-          className="py-24 bg-slate-900 text-white overflow-hidden relative"
-        >
-          <div className="container mx-auto px-6 relative z-10">
-            <div className="flex flex-col lg:flex-row justify-between items-end gap-8 mb-20">
-              <div className="max-w-2xl">
-                <span className="text-blue-400 font-bold tracking-widest uppercase text-sm mb-4 block">
-                  Variedade Infinita
-                </span>
-                <h2 className="text-3xl md:text-5xl font-bold tracking-tight leading-tight">
-                  Templates Prontos <br />
-                  <span className="text-blue-500">Para Qualquer Aula</span>
-                </h2>
-              </div>
-              <p className="text-slate-400 text-lg max-w-md lg:mb-4">
-                De alfabetização à matemática avançada. Escolha um modelo e
-                deixe a IA fazer o resto.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {[
-                {
-                  title: "Matemática",
-                  icon: "🔢",
-                  color: "from-blue-500/20 to-blue-600/20",
-                },
-                {
-                  title: "Colorir",
-                  icon: "🖍️",
-                  color: "from-pink-500/20 to-pink-600/20",
-                },
-                {
-                  title: "Português",
-                  icon: "📚",
-                  color: "from-indigo-500/20 to-indigo-600/20",
-                },
-                {
-                  title: "Alfabeto",
-                  icon: "🔤",
-                  color: "from-amber-500/20 to-amber-600/20",
-                },
-                {
-                  title: "Datas Com.",
-                  icon: "🗓️",
-                  color: "from-emerald-500/20 to-emerald-600/20",
-                },
-                {
-                  title: "Ciências",
-                  icon: "🧪",
-                  color: "from-cyan-500/20 to-cyan-600/20",
-                },
-                {
-                  title: "Geografia",
-                  icon: "🌍",
-                  color: "from-orange-500/20 to-orange-600/20",
-                },
-                {
-                  title: "Provas",
-                  icon: "📝",
-                  color: "from-slate-500/20 to-slate-600/20",
-                },
-              ].map((template, i) => (
-                <div
-                  key={i}
-                  className={`group relative p-8 rounded-3xl bg-linear-to-br ${template.color} border border-white/10 hover:border-white/30 transition-all cursor-pointer overflow-hidden`}
-                >
-                  <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-150 transition-transform duration-700">
-                    <Layout size={80} />
-                  </div>
-                  <div className="text-4xl mb-6">{template.icon}</div>
-                  <h3 className="text-xl font-bold mb-2">{template.title}</h3>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-20 text-center">
-              <Link
-                href="/register?plan=trial"
-                className="inline-flex items-center gap-3 px-10 py-5 bg-white text-slate-900 font-bold rounded-2xl hover:bg-blue-500 hover:text-white transition-all shadow-2xl"
-              >
-                Explorar Todos os Templates
-                <Sparkles size={20} />
-              </Link>
             </div>
           </div>
         </section>
@@ -429,7 +331,7 @@ export default function LandingPage() {
 
                 <Link
                   href="/register?plan=trial"
-                  className="w-full py-5 bg-slate-900 text-white font-black text-center rounded-2xl hover:bg-emerald-600 transition-all shadow-xl shadow-slate-200 hover:shadow-emerald-100"
+                  className="w-full py-5 bg-emerald-600 text-white font-black text-center rounded-2xl hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-200 hover:shadow-emerald-100"
                 >
                   Começar Grátis
                 </Link>
@@ -591,12 +493,6 @@ export default function LandingPage() {
                   className="text-slate-500 hover:text-blue-600 font-bold transition-colors"
                 >
                   Funcionalidades
-                </a>
-                <a
-                  href="#templates"
-                  className="text-slate-500 hover:text-blue-600 font-bold transition-colors"
-                >
-                  Templates
                 </a>
                 <a
                   href="#precos"

@@ -24,19 +24,19 @@ type DemoStep = {
 const DEMO_STEPS: DemoStep[] = [
   {
     type: "user",
-    text: "Crie uma atividade de matemática para o 3º ano sobre frações usando fatias de pizza. Inclua um desenho animado para ilustrar!",
+    text: "Crie uma atividade de alfabetização para o 1º ano sobre animais da floresta. Inclua exercícios de escrita de nomes e uma imagem para colorir!",
   },
   {
     type: "ai_generating",
   },
   {
     type: "ai_result",
-    title: "🍕 Frações Deliciosas: Aprendendo com Pizza",
+    title: "🦊 Animais da Floresta: Uma Aventura Pedagógica",
     description:
-      "EduCreator gerou uma atividade completa alinhada à BNCC (EF03MA09).",
-    imageUrl: "/demo-pizza.svg", // Imagem local (desenho animado)
+      "EduCreator gerou uma atividade completa com exercícios de escrita, identificação e arte para colorir.",
+    imageUrl: "/demo-fox.svg", // We'll assume this exists or use a placeholder
     preview:
-      "1. João pediu uma pizza dividida em 8 fatias iguais. Se ele comeu 3 fatias, qual fração da pizza restou?\n\na) 3/8\nb) 5/8\nc) 8/3\nd) 1/2",
+      "1. Escreva o nome dos animais abaixo seguindo o exemplo:\n\nF _ _ _ (Raposa)\nU _ _ _ (Urso)\nC _ _ _ _ _ (Coelho)\n\n2. Pinte o desenho com capricho!",
   },
 ];
 
@@ -134,10 +134,20 @@ export default function InteractiveDemo() {
 
             <div className="space-y-4 pt-8">
               <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">
-                Histórico
+                Minhas Atividades
               </div>
-              <div className="h-10 w-full bg-slate-100 rounded-xl border border-slate-200/50"></div>
-              <div className="h-10 w-full bg-slate-100 rounded-xl border border-slate-200/50"></div>
+              <div className="h-10 w-full bg-white rounded-xl border border-slate-200/50 shadow-sm flex items-center px-3 gap-2">
+                <div className="w-4 h-4 rounded bg-blue-100 flex items-center justify-center">
+                  <FileText size={10} className="text-blue-600" />
+                </div>
+                <div className="h-2 w-1/2 bg-slate-100 rounded"></div>
+              </div>
+              <div className="h-10 w-full bg-white rounded-xl border border-slate-200/50 shadow-sm flex items-center px-3 gap-2">
+                <div className="w-4 h-4 rounded bg-indigo-100 flex items-center justify-center">
+                  <FileText size={10} className="text-indigo-600" />
+                </div>
+                <div className="h-2 w-2/3 bg-slate-100 rounded"></div>
+              </div>
             </div>
           </div>
 
@@ -166,8 +176,9 @@ export default function InteractiveDemo() {
                       <Zap size={20} fill="white" />
                     </div>
                     <div className="space-y-3 pt-2">
-                      <div className="h-4 w-48 bg-slate-100 rounded-full animate-pulse"></div>
-                      <div className="h-4 w-32 bg-slate-50 rounded-full animate-pulse"></div>
+                      <div className="h-4 w-48 bg-blue-50 rounded-full animate-pulse"></div>
+                      <div className="h-4 w-32 bg-slate-50 rounded-full animate-pulse delay-75"></div>
+                      <div className="h-4 w-40 bg-indigo-50 rounded-full animate-pulse delay-150"></div>
                     </div>
                   </div>
                 </div>
