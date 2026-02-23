@@ -13,6 +13,7 @@ import {
   Trash2,
   ChevronLeft,
   ChevronRight,
+  Key,
 } from "lucide-react";
 
 type User = {
@@ -512,6 +513,16 @@ export default function UsersPage() {
                         <ShieldCheck size={14} />
                       </button>
                       <button
+                        onClick={() => {
+                          setSelectedUser(user);
+                          setShowPasswordModal(true);
+                        }}
+                        className="p-1.5 text-amber-500 hover:bg-amber-500/10 rounded"
+                        title="Alterar Senha"
+                      >
+                        <Key size={14} />
+                      </button>
+                      <button
                         onClick={() => handleDeleteUser(user.id, user.email)}
                         className="p-1.5 text-red-500 hover:bg-red-500/10 rounded"
                         title="Excluir Usuário"
@@ -589,9 +600,137 @@ export default function UsersPage() {
         )}
       </div>
 
-      {/* Modals (logic simplified for brevity, similar to original) */}
+      {/* Modal de Criação */}
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-xl bg-gray-900 p-6 shadow-xl border border-gray-800">
+            <h3 className="mb-4 text-xl font-bold text-white">
+              Criar Novo Usuário
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className="mb-1 block text-sm text-gray-400">
+                  E-mail
+                </label>
+                <input
+                  type="email"
+                  value={createForm.email}
+                  onChange={(e) =>
+                    setCreateForm({ ...createForm, email: e.target.value })
+                  }
+                  placeholder="exemplo@email.com"
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white outline-none focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm text-gray-400">
+                  Senha
+                </label>
+                <input
+                  type="password"
+                  value={createForm.password}
+                  onChange={(e) =>
+                    setCreateForm({ ...createForm, password: e.target.value })
+                  }
+                  placeholder="Min 6 caracteres"
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white outline-none focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm text-gray-400">
+                  Plano
+                </label>
+                <select
+                  value={createForm.plan}
+                  onChange={(e) =>
+                    setCreateForm({ ...createForm, plan: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white outline-none focus:border-blue-500"
+                >
+                  <option value="trial">Trial</option>
+                  <option value="normal">Normal</option>
+                  <option value="pro">Pro</option>
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-sm text-gray-400">Role</label>
+                <select
+                  value={createForm.role}
+                  onChange={(e) =>
+                    setCreateForm({ ...createForm, role: e.target.value })
+                  }
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white outline-none focus:border-blue-500"
+                >
+                  <option value="user">Usuário</option>
+                  <option value="admin">Administrador</option>
+                </select>
+              </div>
+            </div>
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={handleCreateUser}
+                className="flex-1 rounded-lg bg-blue-600 py-2 text-sm font-bold text-white transition hover:bg-blue-700"
+              >
+                Criar
+              </button>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="flex-1 rounded-lg bg-gray-800 py-2 text-sm font-bold text-gray-300 transition hover:bg-gray-700"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Senha */}
+      {showPasswordModal && selectedUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-xl bg-gray-900 p-6 shadow-xl border border-gray-800">
+            <h3 className="mb-1 text-xl font-bold text-white">Alterar Senha</h3>
+            <p className="mb-4 text-xs text-gray-500">
+              Alterando senha para: {selectedUser.email}
+            </p>
+            <div className="space-y-4">
+              <div>
+                <label className="mb-1 block text-sm text-gray-400">
+                  Nova Senha
+                </label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Mínimo 6 caracteres"
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white outline-none focus:border-blue-500"
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={handleChangePassword}
+                className="flex-1 rounded-lg bg-red-600 py-2 text-sm font-bold text-white transition hover:bg-red-700"
+              >
+                Atualizar Senha
+              </button>
+              <button
+                onClick={() => {
+                  setShowPasswordModal(false);
+                  setSelectedUser(null);
+                  setNewPassword("");
+                }}
+                className="flex-1 rounded-lg bg-gray-800 py-2 text-sm font-bold text-gray-300 transition hover:bg-gray-700"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Edição */}
       {showEditModal && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-xl bg-gray-900 p-6 shadow-xl border border-gray-800">
             <h3 className="mb-4 text-xl font-bold text-white">
               Editar Usuário
@@ -661,8 +800,21 @@ export default function UsersPage() {
               >
                 Salvar
               </button>
+              {/* Adicionar botão de trocar senha aqui também por conveniência */}
               <button
-                onClick={() => setShowEditModal(false)}
+                onClick={() => {
+                  setShowEditModal(false);
+                  setShowPasswordModal(true);
+                }}
+                className="flex-1 bg-amber-600 text-white rounded-lg py-2"
+              >
+                Trocar Senha
+              </button>
+              <button
+                onClick={() => {
+                  setShowEditModal(false);
+                  setSelectedUser(null);
+                }}
                 className="flex-1 bg-gray-800 text-gray-300 rounded-lg py-2"
               >
                 Cancelar
