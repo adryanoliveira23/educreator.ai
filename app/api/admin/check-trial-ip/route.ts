@@ -17,6 +17,15 @@ export async function GET(req: Request) {
       );
     }
 
+    // Check if IP is whitelisted
+    const whitelistDoc = await adminDb
+      .collection("whitelisted_ips")
+      .doc(ip)
+      .get();
+    if (whitelistDoc.exists) {
+      return NextResponse.json({ alreadyUsed: false });
+    }
+
     // Search for users with the same IP in trial mode
     const snapshot = await adminDb
       .collection("users")

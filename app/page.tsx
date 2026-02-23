@@ -26,9 +26,35 @@ export default function LandingPage() {
     };
     window.addEventListener("scroll", handleScroll);
 
-    // Check for trial cookie
-    const usedTrial = document.cookie.includes("educreator_trial_used=true");
-    setHasUsedTrial(usedTrial);
+    // Check for trial cookie and IP whitelist
+    const checkTrialStatus = async () => {
+      const usedTrialCookie = document.cookie.includes(
+        "educreator_trial_used=true",
+      );
+
+      try {
+        const ipRes = await fetch("https://api.ipify.org?format=json");
+        const ipData = await ipRes.json();
+        const res = await fetch(`/api/admin/check-trial-ip?ip=${ipData.ip}`);
+        const checkData = await res.json();
+
+        // If IP is NOT alreadyUsed (meaning it's whitelisted or fresh),
+        // we show the trial, even if the cookie is present.
+        // If IP is alreadyUsed, we follow the cookie/IP logic.
+        if (checkData.alreadyUsed) {
+          setHasUsedTrial(true);
+        } else if (usedTrialCookie) {
+          // If IP is fresh/whitelisted but cookie is present,
+          // we might want to still show it if it was whitelisted.
+          // The check-trial-ip API already returns alreadyUsed: false if whitelisted.
+          setHasUsedTrial(false);
+        }
+      } catch (error) {
+        if (usedTrialCookie) setHasUsedTrial(true);
+      }
+    };
+
+    checkTrialStatus();
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -54,7 +80,6 @@ export default function LandingPage() {
           </Link>
 
           <nav className="hidden lg:flex gap-8 text-sm font-semibold text-slate-600">
-            {/* ... navigation links ... */}
             <a
               href="#solucao"
               className="hover:text-blue-600 transition-colors"
@@ -80,7 +105,7 @@ export default function LandingPage() {
               Entrar
             </Link>
             <Link
-              href="/register?plan=trial"
+              href="#precos"
               className="px-3 py-2 text-[10px] sm:text-sm font-black bg-slate-900 text-white rounded-xl sm:rounded-2xl hover:bg-blue-600 transition-all shadow-xl shadow-slate-200 hover:shadow-blue-200 hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap"
             >
               Começar Gratuitamente
@@ -345,7 +370,7 @@ export default function LandingPage() {
                     href="/register?plan=trial"
                     className="w-full py-5 bg-emerald-600 text-white font-black text-center rounded-2xl hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-200 hover:shadow-emerald-100"
                   >
-                    Começar Gratuitamente
+                    Ativar Agora
                   </Link>
                 </div>
               )}

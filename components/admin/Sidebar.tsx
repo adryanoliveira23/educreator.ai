@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { LayoutDashboard, Users, Settings, LogOut } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  Settings,
+  LogOut,
+  ShieldAlert,
+} from "lucide-react";
 
 export default function Sidebar() {
   return (
@@ -31,6 +37,13 @@ export default function Sidebar() {
         >
           <Settings size={20} />
           Configurações
+        </Link>
+        <Link
+          href="/admin/dashboard/blocked-ips"
+          className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-gray-400 transition hover:bg-gray-800 hover:text-white"
+        >
+          <ShieldAlert size={20} />
+          IPs Bloqueados
         </Link>
       </nav>
 

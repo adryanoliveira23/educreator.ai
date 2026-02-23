@@ -6,20 +6,16 @@ import {
   Activity,
   ArrowRight,
   Clock,
-  MousePointer2,
-  Navigation,
-  ExternalLink,
-  Target,
   BarChart3,
-  Map as MapIcon,
+  RefreshCcw,
   AlertCircle,
 } from "lucide-react";
 import StatsCard from "@/components/admin/StatsCard";
-import Link from "next/link";
 import {
   ViewsChart,
   AttentionMap,
-  HeatmapViewer,
+  DeviceChart,
+  DeadClickChart,
 } from "@/components/admin/AnalyticsCharts";
 
 type DashboardStats = {
@@ -41,10 +37,12 @@ type AnalyticsStats = {
   totalVisitors: number;
   heatmap: { x: number; y: number; weight: number }[];
   attentionSegments: number[];
+  devices: { desktop: number; mobile: number };
   behavior: {
     deadClicks: number;
     totalClicks: number;
     confusionRate: number;
+    deadClickInsights: { name: string; value: number }[];
   };
 };
 
@@ -53,7 +51,7 @@ export default function AdminDashboard() {
   const [analytics, setAnalytics] = useState<AnalyticsStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string>("");
-  const [activeTab, setActiveTab] = useState<"stats" | "funnel" | "heatmap">(
+  const [activeTab, setActiveTab] = useState<"stats" | "funnel" | "ux">(
     "stats",
   );
 
@@ -144,6 +142,15 @@ export default function AdminDashboard() {
           >
             Limpar
           </button>
+          <div className="h-4 w-px bg-gray-700 mx-1"></div>
+          <button
+            onClick={() => fetchData(selectedDate)}
+            disabled={loading}
+            className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-gray-700 rounded-lg transition-all disabled:opacity-50"
+            title="Atualizar Dados"
+          >
+            <RefreshCcw size={14} className={loading ? "animate-spin" : ""} />
+          </button>
         </div>
       </div>
 
@@ -162,10 +169,10 @@ export default function AdminDashboard() {
           Funil & Atenção
         </button>
         <button
-          onClick={() => setActiveTab("heatmap")}
-          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === "heatmap" ? "bg-blue-600 text-white shadow-lg" : "text-gray-500 hover:text-gray-300"}`}
+          onClick={() => setActiveTab("ux")}
+          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === "ux" ? "bg-blue-600 text-white shadow-lg" : "text-gray-500 hover:text-gray-300"}`}
         >
-          Heatmap (Cliques)
+          Dispositivos & Micro-UX
         </button>
       </div>
 
@@ -276,23 +283,34 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {activeTab === "heatmap" && (
-        <div className="space-y-6 animate-in zoom-in-95 duration-500">
-          <div className="flex items-center justify-between p-4 bg-gray-900 border border-gray-800 rounded-xl">
-            <div className="flex items-center gap-3">
-              <MapIcon className="text-orange-500" />
-              <div className="text-xs">
-                <p className="text-white font-bold">Heatmap de Cliques</p>
-                <p className="text-gray-500">
-                  Visualizando cliques sobre a Landing Page (Home)
+      {activeTab === "ux" && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in zoom-in-95 duration-500 items-stretch">
+          <DeviceChart data={analytics?.devices || { desktop: 0, mobile: 0 }} />
+          <DeadClickChart
+            insights={analytics?.behavior?.deadClickInsights || []}
+          />
+
+          <div className="lg:col-span-2 p-6 bg-gray-900 border border-gray-800 rounded-2xl">
+            <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">
+              Insight de Navegação
+            </h4>
+            <div className="text-xs text-gray-300 leading-relaxed font-bold">
+              {(analytics?.behavior?.confusionRate || 0) > 15 ? (
+                <p className="flex items-center gap-2 text-amber-400">
+                  <AlertCircle size={14} />A <strong>Taxa de Confusão</strong>{" "}
+                  está alta ({analytics?.behavior.confusionRate}%). Isso indica
+                  que usuários estão clicando em elementos não-interativos.
+                  Considere destacar melhor os botões reais.
                 </p>
-              </div>
-            </div>
-            <div className="text-xs text-gray-400">
-              Total de {analytics?.heatmap.length || 0} interações
+              ) : (
+                <p className="flex items-center gap-2 text-emerald-400">
+                  <Activity size={14} />
+                  Experiência de uso saudável. Os usuários estão encontrando e
+                  clicando nos elementos corretos com boa precisão.
+                </p>
+              )}
             </div>
           </div>
-          <HeatmapViewer clicks={analytics?.heatmap || []} />
         </div>
       )}
     </div>

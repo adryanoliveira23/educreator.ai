@@ -45,6 +45,8 @@ export async function GET(request: Request) {
     > = {};
     const heatmap = [] as { x: number; y: number; weight: number }[];
     const segments = Array(10).fill(0);
+    const devices = { desktop: 0, mobile: 0 };
+    const deadClickInsights: Record<string, number> = {};
     const behavior = {
       deadClicks: 0,
       totalClicks: 0,
@@ -103,6 +105,12 @@ export async function GET(request: Request) {
         }
       }
 
+      // Device Tracking
+      if (data.type === "SESSION_START" && data.metadata?.device) {
+        if (data.metadata.device === "mobile") devices.mobile++;
+        else devices.desktop++;
+      }
+
       // Detailed Funnel
       funnelSteps.visited.add(sid);
       if (data.type === "SECTION_VIEW" && data.metadata?.sectionId === "demo")
@@ -113,7 +121,11 @@ export async function GET(request: Request) {
       if (path.includes("/dashboard")) funnelSteps.reg_success.add(sid);
       if (path.includes("/checkout")) funnelSteps.checkout_start.add(sid);
 
-      if (data.type === "DEAD_CLICK") behavior.deadClicks++;
+      if (data.type === "DEAD_CLICK") {
+        behavior.deadClicks++;
+        const element = data.metadata?.tagName || "UNKNOWN";
+        deadClickInsights[element] = (deadClickInsights[element] || 0) + 1;
+      }
       if (data.type === "CLICK") behavior.totalClicks++;
     });
 
@@ -202,7 +214,12 @@ export async function GET(request: Request) {
         confusionRate: behavior.totalClicks
           ? Math.round((behavior.deadClicks / behavior.totalClicks) * 100)
           : 0,
+        deadClickInsights: Object.entries(deadClickInsights)
+          .map(([name, value]) => ({ name, value }))
+          .sort((a, b) => b.value - a.value)
+          .slice(0, 5),
       },
+      devices,
     });
   } catch (error) {
     console.error("Stats API Error:", error);

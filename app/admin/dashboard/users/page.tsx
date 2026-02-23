@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import {
-  Users,
   Search,
   ShieldCheck,
   RefreshCcw,
@@ -16,6 +15,7 @@ import {
   Key,
   EyeOff,
 } from "lucide-react";
+import { maskWhatsApp, cleanPhone } from "@/lib/utils";
 
 type User = {
   id: string;
@@ -31,6 +31,7 @@ type User = {
     trial_cookie_present: boolean;
     user_agent: string;
     registration_date: string;
+    ip_address?: string;
   };
   whatsapp?: string;
 };
@@ -68,6 +69,7 @@ export default function UsersPage() {
     password: "",
     plan: "normal",
     role: "user",
+    whatsapp: "",
   });
   const [editForm, setEditForm] = useState({
     email: "",
@@ -119,7 +121,10 @@ export default function UsersPage() {
       const res = await fetch("/api/admin/users/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(createForm),
+        body: JSON.stringify({
+          ...createForm,
+          whatsapp: cleanPhone(createForm.whatsapp),
+        }),
       });
       if (res.ok) {
         alert("Usuário criado com sucesso!");
@@ -129,6 +134,7 @@ export default function UsersPage() {
           password: "",
           plan: "normal",
           role: "user",
+          whatsapp: "",
         });
         fetchUsers();
       } else {
@@ -146,7 +152,10 @@ export default function UsersPage() {
       const res = await fetch(`/api/admin/users/${selectedUser.id}/edit`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editForm),
+        body: JSON.stringify({
+          ...editForm,
+          whatsapp: cleanPhone(editForm.whatsapp),
+        }),
       });
       if (res.ok) {
         alert("Usuário atualizado com sucesso!");
@@ -161,19 +170,29 @@ export default function UsersPage() {
     }
   };
 
-  const resetTrial = async (id: string) => {
+  const resetTrial = async (user: User) => {
     if (
       !confirm(
-        "Tem certeza que deseja resetar o trial deste usuário para 7 dias?",
+        `Tem certeza que deseja resetar o trial de ${user.email} para 7 dias? Isso também irá liberar o IP ${user.metadata?.ip_address || "desconhecido"} para novos testes.`,
       )
     )
       return;
     try {
-      const res = await fetch(`/api/admin/users/${id}/reset-trial`, {
+      const res = await fetch(`/api/admin/users/${user.id}/reset-trial`, {
         method: "POST",
       });
+
       if (res.ok) {
-        alert("Trial resetado com sucesso!");
+        // If user has an IP, whitelist it
+        if (user.metadata?.ip_address) {
+          await fetch("/api/admin/whitelist-ip", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ip: user.metadata.ip_address }),
+          });
+        }
+
+        alert("Trial resetado e IP liberado com sucesso!");
         fetchUsers();
       } else {
         alert("Erro ao resetar trial");
@@ -287,27 +306,41 @@ export default function UsersPage() {
               Gerenciamento de Usuários
             </h2>
             <div className="flex gap-2">
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700"
-              >
-                + Criar Usuário
-              </button>
-              <div className="relative">
-                <Search
-                  className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500"
-                  size={14}
-                />
-                <input
-                  type="text"
-                  placeholder="Buscar por email ou ID..."
-                  value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className="w-full rounded-lg border border-gray-700 bg-gray-800 py-1.5 pl-8 pr-3 text-xs text-white focus:border-blue-500 focus:outline-none sm:w-64"
-                />
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={fetchUsers}
+                  disabled={loading}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-gray-800 text-blue-400 hover:text-blue-300 hover:bg-gray-700 border border-gray-700 rounded-lg transition-all disabled:opacity-50 font-bold text-[11px]"
+                  title="Atualizar Tabela"
+                >
+                  <RefreshCcw
+                    size={14}
+                    className={loading ? "animate-spin" : ""}
+                  />
+                  <span>Atualizar</span>
+                </button>
+                <button
+                  onClick={() => setShowCreateModal(true)}
+                  className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700"
+                >
+                  + Criar Usuário
+                </button>
+                <div className="relative">
+                  <Search
+                    className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500"
+                    size={14}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Buscar por email ou ID..."
+                    value={searchTerm}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="w-full rounded-lg border border-gray-700 bg-gray-800 py-1.5 pl-8 pr-3 text-xs text-white focus:border-blue-500 focus:outline-none sm:w-64"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -502,7 +535,7 @@ export default function UsersPage() {
                         <RefreshCcw size={14} className="rotate-90" />
                       </button>
                       <button
-                        onClick={() => resetTrial(user.id)}
+                        onClick={() => resetTrial(user)}
                         className="p-1.5 text-green-400 hover:bg-green-400/10 rounded"
                         title="Resetar Trial"
                       >
@@ -669,6 +702,24 @@ export default function UsersPage() {
                 </select>
               </div>
               <div>
+                <label className="mb-1 block text-sm text-gray-400">
+                  WhatsApp
+                </label>
+                <input
+                  type="text"
+                  value={createForm.whatsapp}
+                  onChange={(e) =>
+                    setCreateForm({
+                      ...createForm,
+                      whatsapp: maskWhatsApp(e.target.value),
+                    })
+                  }
+                  placeholder="(00) 00000-0000"
+                  maxLength={15}
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white outline-none focus:border-blue-500"
+                />
+              </div>
+              <div>
                 <label className="mb-1 block text-sm text-gray-400">Role</label>
                 <select
                   value={createForm.role}
@@ -811,10 +862,14 @@ export default function UsersPage() {
                   type="text"
                   value={editForm.whatsapp}
                   onChange={(e) =>
-                    setEditForm({ ...editForm, whatsapp: e.target.value })
+                    setEditForm({
+                      ...editForm,
+                      whatsapp: maskWhatsApp(e.target.value),
+                    })
                   }
+                  maxLength={15}
                   className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white"
-                  placeholder="WhatsApp com DDD"
+                  placeholder="(00) 00000-0000"
                 />
               </div>
             </div>

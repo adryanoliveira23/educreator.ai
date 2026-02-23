@@ -7,6 +7,7 @@ import {
 } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import { maskWhatsApp, cleanPhone } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -56,14 +57,20 @@ export default function RegisterPage() {
           const ipData = await ipRes.json();
           ipAddress = ipData.ip;
 
-          // Check if this IP has already used trial in Firestore
+          // Check if this IP has already used trial in Firestore (respects whitelist)
           const res = await fetch(`/api/admin/check-trial-ip?ip=${ipAddress}`);
           const checkData = await res.json();
+
+          // The API returns alreadyUsed: false if whitelisted or fresh.
+          // If alreadyUsed is true, we block. If false, we allow even if cookie exists.
           if (checkData.alreadyUsed) {
             hasUsedTrial = true;
+          } else {
+            hasUsedTrial = false;
           }
         } catch (ipErr) {
           console.error("Failed to check IP trial status:", ipErr);
+          // Fallback to cookie if IP check fails
         }
       }
 
@@ -92,7 +99,7 @@ export default function RegisterPage() {
 
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
-        whatsapp: whatsapp,
+        whatsapp: cleanPhone(whatsapp),
         plan: plan,
         pdfs_generated_count: 0,
         createdAt: serverTimestamp(),
@@ -262,8 +269,9 @@ export default function RegisterPage() {
                     name="whatsapp"
                     type="text"
                     required
+                    maxLength={15}
                     value={whatsapp}
-                    onChange={(e) => setWhatsapp(e.target.value)}
+                    onChange={(e) => setWhatsapp(maskWhatsApp(e.target.value))}
                     className="relative block w-full rounded-lg border-0 py-3 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                     placeholder="Seu WhatsApp (com DDD) *"
                   />
