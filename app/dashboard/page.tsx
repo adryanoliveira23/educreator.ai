@@ -1015,33 +1015,31 @@ export default function Dashboard() {
                               Array.isArray(question.matchingPairs) && (
                                 <div className="ml-0 md:ml-10 grid grid-cols-2 gap-4 md:gap-12 py-4">
                                   <div className="space-y-4">
-                                    {question.matchingPairs.map((pair, idx: number) => (
-                                      <div
-                                        key={idx}
-                                        className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100"
-                                      >
-                                        <span className="text-sm font-medium text-gray-700">
-                                          {pair.left}
-                                        </span>
-                                        <div className="w-3 h-3 rounded-full border-2 border-blue-400 shrink-0 ml-2"></div>
-                                      </div>
-                                    ))}
+                                    {question.matchingPairs.map(
+                                      (pair, idx: number) => (
+                                        <div
+                                          key={idx}
+                                          className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100"
+                                        >
+                                          <span className="text-sm font-medium text-gray-700">
+                                            {pair.left}
+                                          </span>
+                                          <div className="w-3 h-3 rounded-full border-2 border-blue-400 shrink-0 ml-2"></div>
+                                        </div>
+                                      ),
+                                    )}
                                   </div>
                                   <div className="space-y-4">
-                                    {question.matchingPairs.map((pair, idx: number) => (
-                                      <div
-                                        key={idx}
-                                        className="flex items-center p-3 bg-gray-50 rounded-xl border border-gray-100"
-                                      >
-                                        <div className="w-3 h-3 rounded-full border-2 border-blue-400 shrink-0 mr-2"></div>
-                                        <span className="text-sm font-medium text-gray-700">
-                                          {pair.right}
-                                        </span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
+                                    {question.matchingPairs.map(
+                                      (pair, idx: number) => (
+                                        <div
+                                          key={idx}
+                                          className="flex items-center p-3 bg-gray-50 rounded-xl border border-gray-100"
+                                        >
+                                          <div className="w-3 h-3 rounded-full border-2 border-blue-400 shrink-0 mr-2"></div>
+                                          <span className="text-sm font-medium text-gray-700">
+                                            {pair.right}
+                                          </span>
                                         </div>
                                       ),
                                     )}
