@@ -14,6 +14,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Key,
+  EyeOff,
 } from "lucide-react";
 
 type User = {
@@ -75,6 +76,8 @@ export default function UsersPage() {
     whatsapp: "",
   });
   const [newPassword, setNewPassword] = useState("");
+  const [showCreatePassword, setShowCreatePassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
   const fetchUsers = async () => {
     try {
@@ -626,15 +629,28 @@ export default function UsersPage() {
                 <label className="mb-1 block text-sm text-gray-400">
                   Senha
                 </label>
-                <input
-                  type="password"
-                  value={createForm.password}
-                  onChange={(e) =>
-                    setCreateForm({ ...createForm, password: e.target.value })
-                  }
-                  placeholder="Min 6 caracteres"
-                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white outline-none focus:border-blue-500"
-                />
+                <div className="relative">
+                  <input
+                    type={showCreatePassword ? "text" : "password"}
+                    value={createForm.password}
+                    onChange={(e) =>
+                      setCreateForm({ ...createForm, password: e.target.value })
+                    }
+                    placeholder="Min 6 caracteres"
+                    className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 pr-10 text-white outline-none focus:border-blue-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCreatePassword(!showCreatePassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                  >
+                    {showCreatePassword ? (
+                      <EyeOff size={16} />
+                    ) : (
+                      <Eye size={16} />
+                    )}
+                  </button>
+                </div>
               </div>
               <div>
                 <label className="mb-1 block text-sm text-gray-400">
@@ -697,13 +713,22 @@ export default function UsersPage() {
                 <label className="mb-1 block text-sm text-gray-400">
                   Nova Senha
                 </label>
-                <input
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Mínimo 6 caracteres"
-                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white outline-none focus:border-blue-500"
-                />
+                <div className="relative">
+                  <input
+                    type={showNewPassword ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Mínimo 6 caracteres"
+                    className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 pr-10 text-white outline-none focus:border-blue-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                  >
+                    {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </div>
             </div>
             <div className="mt-6 flex gap-3">
