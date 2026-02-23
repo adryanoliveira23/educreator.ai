@@ -1131,7 +1131,7 @@ export default function Dashboard() {
         </div>
 
         {/* Floating Input Area */}
-        <div className="fixed bottom-4 md:bottom-10 left-0 right-0 md:left-72 z-40 px-4 md:px-6 pointer-events-none">
+        <div className="fixed bottom-0 left-0 right-0 md:left-72 z-40 px-4 md:px-6 pb-[env(safe-area-inset-bottom,1rem)] pointer-events-none mb-4 md:mb-10">
           <div className="max-w-4xl mx-auto pointer-events-auto">
             <div className="bg-white/90 backdrop-blur-2xl border border-white/50 p-4 md:p-6 rounded-[2rem] md:rounded-4xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] ring-1 ring-black/5">
               <div className="w-full space-y-4 md:space-y-6">

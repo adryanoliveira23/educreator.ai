@@ -199,4 +199,48 @@ export const activityTemplates: ActivityTemplate[] = [
     wallpaperUrl:
       "https://images.unsplash.com/photo-1509228468518-180dd4864904?q=80&w=1000&auto=format&fit=crop",
   },
+  {
+    id: "text-production-toys",
+    title: "Escritor de Brinquedos",
+    description:
+      "Observe a cena, identifique os brinquedos e crie uma história incrível!",
+    icon: "🧸",
+    prompt:
+      "Produção de texto. Apresente uma imagem fofa de crianças brincando. Primeiro, peça para a criança escrever o nome de 4 brinquedos que ela vê. Depois, peça para escrever uma pequena história sobre uma das brincadeiras da imagem.",
+    type: "writing",
+    category: "Português",
+    grade: "1º ao 3º Ano",
+    color: "bg-amber-600",
+    wallpaperUrl:
+      "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?q=80&w=1000&auto=format&fit=crop",
+  },
+  {
+    id: "my-favorite-book",
+    title: "Meu Livro Preferido",
+    description: "Conte para a gente tudo sobre o seu livro favorito!",
+    icon: "📖",
+    prompt:
+      "Atividade 'Meu Livro Preferido'. Perguntas: a) Título do livro? b) Tema do livro? c) Personagem principal? d) Onde se passa a história? e) Parte que mais gostou? f) Como termina a história? Ao final, espaço para um pequeno texto sobre o livro acompanhado de uma ilustração de uma criança lendo.",
+    type: "writing",
+    category: "Português",
+    grade: "1º ao 5º Ano",
+    color: "bg-indigo-600",
+    wallpaperUrl:
+      "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=1000&auto=format&fit=crop",
+  },
+  {
+    id: "text-production-notebook",
+    title: "Diário de Histórias",
+    description:
+      "Um caderno inteirinho para você soltar a imaginação e escrever muito!",
+    icon: "📓",
+    prompt:
+      "Crie uma capa lúdica para um 'Caderno de Produção de Textos' com espaço para nome, professora, data e turma. Inclua um desenho grande para colorir de duas crianças lendo juntas em um banco de jardim com um cachorrinho.",
+    type: "writing",
+    category: "Português",
+    grade: "Todas as idades",
+    color: "bg-slate-700",
+    wallpaperUrl:
+      "https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=1000&auto=format&fit=crop",
+  },
 ];

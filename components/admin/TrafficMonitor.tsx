@@ -125,7 +125,7 @@ export default function TrafficMonitor() {
                         </div>
                         <div>
                           <div className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors">
-                            {log.city}, {log.country}
+                            {decodeURIComponent(log.city)}, {log.country}
                           </div>
                           <div className="text-[10px] text-gray-500 font-mono">
                             {log.ip}
