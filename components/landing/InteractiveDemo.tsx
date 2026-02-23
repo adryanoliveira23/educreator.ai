@@ -209,13 +209,27 @@ export default function InteractiveDemo() {
                           {DEMO_STEPS[2].preview}
                         </div>
                         {DEMO_STEPS[2].imageUrl && (
-                          <div className="lg:w-1/3 aspect-square bg-slate-100 rounded-2xl border border-slate-100 overflow-hidden flex items-center justify-center order-1 lg:order-2">
+                          <div className="lg:w-1/3 aspect-square bg-slate-100 rounded-2xl border border-slate-100 overflow-hidden flex items-center justify-center order-1 lg:order-2 relative group-hover/card:border-blue-200 transition-colors">
                             <Image
                               src={DEMO_STEPS[2].imageUrl}
                               alt="Geração de Imagem IA"
                               width={200}
                               height={200}
                               className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-500"
+                              onError={(e) => {
+                                // Fallback for missing images
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = "none";
+                                const parent = target.parentElement;
+                                if (parent) {
+                                  const fallback =
+                                    document.createElement("div");
+                                  fallback.className =
+                                    "absolute inset-0 bg-linear-to-br from-blue-50 to-indigo-50 flex items-center justify-center";
+                                  fallback.innerHTML = `<div class="bg-white p-4 rounded-2xl shadow-sm text-blue-600"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg></div>`;
+                                  parent.appendChild(fallback);
+                                }
+                              }}
                             />
                           </div>
                         )}

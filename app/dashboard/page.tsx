@@ -953,11 +953,23 @@ export default function Dashboard() {
                             </div>
 
                             {question.imageUrl && (!isTrial || i === 0) && (
-                              <div className="mb-4 max-w-[200px] md:max-w-[300px]">
+                              <div className="mb-4 max-w-[200px] md:max-w-[300px] relative min-h-[100px] bg-slate-50 rounded-xl border flex items-center justify-center">
                                 <img
                                   src={question.imageUrl}
                                   alt={`Ilustração para questão ${question.number}`}
-                                  className="rounded-xl border shadow-sm w-full bg-white"
+                                  className="rounded-xl w-full bg-white relative z-10"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = "none";
+                                    const parent = target.parentElement;
+                                    if (parent) {
+                                      const fallback =
+                                        document.createElement("div");
+                                      fallback.className = "p-8 text-blue-400";
+                                      fallback.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>`;
+                                      parent.appendChild(fallback);
+                                    }
+                                  }}
                                 />
                               </div>
                             )}

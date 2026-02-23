@@ -79,14 +79,12 @@ export default function LandingPage() {
             >
               Entrar
             </Link>
-            {!hasUsedTrial && (
-              <Link
-                href="/register?plan=trial"
-                className="px-3 py-2 text-[10px] sm:text-sm font-black bg-slate-900 text-white rounded-xl sm:rounded-2xl hover:bg-blue-600 transition-all shadow-xl shadow-slate-200 hover:shadow-blue-200 hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap"
-              >
-                Experimentar Grátis
-              </Link>
-            )}
+            <Link
+              href="/register?plan=trial"
+              className="px-3 py-2 text-[10px] sm:text-sm font-black bg-slate-900 text-white rounded-xl sm:rounded-2xl hover:bg-blue-600 transition-all shadow-xl shadow-slate-200 hover:shadow-blue-200 hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap"
+            >
+              Começar Gratuitamente
+            </Link>
           </div>
         </div>
       </header>
@@ -131,7 +129,7 @@ export default function LandingPage() {
                 >
                   {hasUsedTrial
                     ? "Ver Planos Disponíveis"
-                    : "Criar Atividade Grátis"}
+                    : "Começar Gratuitamente"}
                   <ArrowRight
                     size={20}
                     className="group-hover:translate-x-1 transition-transform"
@@ -347,7 +345,7 @@ export default function LandingPage() {
                     href="/register?plan=trial"
                     className="w-full py-5 bg-emerald-600 text-white font-black text-center rounded-2xl hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-200 hover:shadow-emerald-100"
                   >
-                    Começar Grátis
+                    Começar Gratuitamente
                   </Link>
                 </div>
               )}
