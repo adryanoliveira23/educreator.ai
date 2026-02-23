@@ -93,7 +93,10 @@ export default function LandingPage() {
 
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+        <section
+          id="hero"
+          className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden"
+        >
           {/* Background Decorations */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 pointer-events-none">
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-400/10 rounded-full blur-[120px]"></div>
@@ -479,7 +482,10 @@ export default function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-slate-50 py-20 border-t border-slate-200">
+      <footer
+        id="footer"
+        className="bg-slate-50 py-20 border-t border-slate-200"
+      >
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-12">
             <div>
