@@ -52,6 +52,16 @@ export default function AnalyticsTracker() {
       sessionId: sessionIdRef.current!,
     });
 
+    // Track Traffic (IP/City)
+    fetch("/api/traffic", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        path: pathname,
+        sessionId: sessionIdRef.current!,
+      }),
+    }).catch((err) => console.error("Traffic log failed", err));
+
     // 1. Scroll & Segment Dwell Tracking
     const handleScroll = () => {
       const winHeight = window.innerHeight;

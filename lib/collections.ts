@@ -16,6 +16,7 @@ export const COLLECTIONS = {
   APPOINTMENTS: "appointments",
   ANALYTICS: "analytics_events",
   SESSIONS: "sessions",
+  TRAFFIC: "traffic_monitor",
 };
 
 // Typed Helpers (Generic for now, can be strictly typed later)

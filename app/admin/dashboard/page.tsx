@@ -17,6 +17,7 @@ import {
   DeviceChart,
   DeadClickChart,
 } from "@/components/admin/AnalyticsCharts";
+import TrafficMonitor from "@/components/admin/TrafficMonitor";
 
 type DashboardStats = {
   totalUsers: number;
@@ -51,9 +52,9 @@ export default function AdminDashboard() {
   const [analytics, setAnalytics] = useState<AnalyticsStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string>("");
-  const [activeTab, setActiveTab] = useState<"stats" | "funnel" | "ux">(
-    "stats",
-  );
+  const [activeTab, setActiveTab] = useState<
+    "stats" | "funnel" | "ux" | "traffic"
+  >("stats");
 
   const fetchData = async (date?: string) => {
     try {
@@ -173,6 +174,12 @@ export default function AdminDashboard() {
           className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === "ux" ? "bg-blue-600 text-white shadow-lg" : "text-gray-500 hover:text-gray-300"}`}
         >
           Dispositivos & Micro-UX
+        </button>
+        <button
+          onClick={() => setActiveTab("traffic")}
+          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === "traffic" ? "bg-blue-600 text-white shadow-lg" : "text-gray-500 hover:text-gray-300"}`}
+        >
+          Tráfego Real
         </button>
       </div>
 
@@ -313,6 +320,8 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+
+      {activeTab === "traffic" && <TrafficMonitor />}
     </div>
   );
 }
