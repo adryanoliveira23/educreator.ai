@@ -185,20 +185,21 @@ export async function POST(req: Request) {
                 const isPintar =
                   q.type === "pintar" ||
                   q.questionText?.toLowerCase().includes("pinte");
+
                 const imgWidth = isPintar
                   ? pageWidth - pageMargins.left - pageMargins.right
                   : layout === "two_per_page"
                     ? 300
                     : 400;
-                const imgHeight = isPintar
-                  ? 500
-                  : layout === "two_per_page"
-                    ? 200
-                    : 300;
+
+                // Height will be calculated after placement
                 const xPos = (pageWidth - imgWidth) / 2;
 
+                // Simple height estimation for overflow check (safe side)
+                const estimatedHeight = imgWidth;
+
                 if (
-                  doc.y + imgHeight >
+                  doc.y + estimatedHeight >
                   doc.page.height - doc.page.margins.bottom
                 ) {
                   doc.addPage();
@@ -206,14 +207,14 @@ export async function POST(req: Request) {
                   drawHeader(false);
                 }
 
-                const base64Image = imageBuffer.toString("base64");
-                const contentType =
-                  imageRes.headers.get("content-type") || "image/png";
-                const dataUri = `data:${contentType};base64,${base64Image}`;
-
-                doc.image(dataUri, xPos, doc.y, { width: imgWidth });
-                doc.y += imgHeight;
-                doc.moveDown(1.5);
+                const img = doc.image(imageBuffer, xPos, doc.y, {
+                  width: imgWidth,
+                });
+                // PDFKit returns the image object, we can use its scaled height
+                // @ts-expect-error - PDFKit types might not expose the scaled height directly in all versions
+                const actualHeight = img.height || estimatedHeight;
+                doc.y += actualHeight;
+                doc.moveDown(0.5);
               }
             } catch (err) {
               console.error(err);

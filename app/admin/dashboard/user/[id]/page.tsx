@@ -30,6 +30,10 @@ type UserData = {
   whatsapp?: string;
   pdfs_generated_count: number;
   createdAt?: string;
+  metadata?: {
+    last_ip?: string;
+    whitelisted_ips?: string[];
+  };
 };
 
 export default function UserDetailsPage({

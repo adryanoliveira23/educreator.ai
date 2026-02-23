@@ -58,6 +58,19 @@ export async function POST(req: Request) {
 
     const { prompt, activityTypes, questionCount, context } = await req.json();
 
+    // IP Tracking
+    const forwarded = req.headers.get("x-forwarded-for");
+    const clientIp = forwarded ? forwarded.split(",")[0] : "unknown";
+
+    // Update last IP in background
+    try {
+      await adminDb.collection("users").doc(uid).update({
+        "metadata.last_ip": clientIp,
+      });
+    } catch (e) {
+      console.warn("Failed to update last_ip:", e);
+    }
+
     // Logic to detect page/question counts from natural language
     let detectedCount = questionCount || 5;
     const lowerPrompt = prompt.toLowerCase();
@@ -117,7 +130,7 @@ export async function POST(req: Request) {
             "type": "tipo_escolhido",
             "questionText": "...",
             "imagePrompt": "...",
-            "imageUrl": "...", // MANTENHA O URL ORIGINAL SE A QUESTÃO NÃO MUDOU
+            "imageUrl": "", // DEIXE VAZIO SE FOR NOVA, OU MANTENHA O URL ORIGINAL SE A QUESTÃO NÃO MUDOU
             "alternatives": ["Frase da alternativa 1", "Frase da alternativa 2", "Frase da alternativa 3", "Frase da alternativa 4"],
             "answerLines": 0,
             "matchingPairs": [ { "left": "Item 1", "right": "Correspondente 1" } ]
@@ -204,9 +217,9 @@ export async function POST(req: Request) {
             }
 
             const imageUrl = await generateImage(finalPrompt);
-            return { ...q, imageUrl };
+            return { ...q, imageUrl: imageUrl || "" };
           }
-          return q;
+          return { ...q, imageUrl: q.imageUrl || "" };
         },
       );
 
