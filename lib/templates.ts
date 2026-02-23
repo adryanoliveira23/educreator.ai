@@ -127,4 +127,76 @@ export const activityTemplates: ActivityTemplate[] = [
     previewUrl:
       "https://images.unsplash.com/photo-1588072432836-e10032774350?q=80&w=1000&auto=format&fit=crop",
   },
+  {
+    id: "matching-letters",
+    title: "Ligar Letras Iniciais",
+    description: "Ligue os desenhos às suas letras iniciais correspondentes!",
+    icon: "🔗",
+    prompt:
+      "Atividade de ligar (matching). De um lado, desenhos de objetos simples (Abelha, Bola, Casa, Dado, Elefante). Do outro, as letras iniciais (A, B, C, D, E) embaralhadas para ligar.",
+    type: "matching",
+    category: "Português",
+    grade: "Educação Infantil",
+    color: "bg-indigo-500",
+    wallpaperUrl:
+      "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=1000&auto=format&fit=crop",
+  },
+  {
+    id: "count-letters",
+    title: "Contagem de Letras",
+    description: "Conte quantas letras tem cada palavra e escreva o número!",
+    icon: "🔢",
+    prompt:
+      "Atividade de contagem de letras. Apresente figuras de animais simples (Gato, Cachorro, Peixe) com o nome escrito ao lado. A criança deve contar as letras e colocar o total em um quadradinho.",
+    type: "counting",
+    category: "Português",
+    grade: "Educação Infantil",
+    color: "bg-emerald-500",
+    wallpaperUrl:
+      "https://images.unsplash.com/photo-1502086223501-7ea244305481?q=80&w=1000&auto=format&fit=crop",
+  },
+  {
+    id: "word-completion",
+    title: "Completar Palavras",
+    description:
+      "Descubra a letra que falta para completar o nome das figuras!",
+    icon: "✏️",
+    prompt:
+      "Atividade de completar palavras (completion). Figuras simples como BOLA, CASA, DADO, FADA, GATO. Algumas letras devem estar faltando (ex: B _ L A) para a criança preencher.",
+    type: "completion",
+    category: "Português",
+    grade: "Educação Infantil",
+    color: "bg-cyan-500",
+    wallpaperUrl:
+      "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=1000&auto=format&fit=crop",
+  },
+  {
+    id: "syllable-challenge",
+    title: "Desafio Silábico",
+    description:
+      "Separe as palavras em pedacinhos (sílabas) e aprenda brincando!",
+    icon: "📦",
+    prompt:
+      "Atividade de divisão silábica. Apresente figuras e peça para separar as sílabas com tracinhos (ex: CA-SA, BO-NE-CA). Use palavras simples de 2 e 3 sílabas.",
+    type: "writing",
+    category: "Português",
+    grade: "1º Ano",
+    color: "bg-teal-500",
+    wallpaperUrl:
+      "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=1000&auto=format&fit=crop",
+  },
+  {
+    id: "kid-addition",
+    title: "Adição Divertida",
+    description: "Vamos somar as figuras e descobrir o resultado final!",
+    icon: "➕",
+    prompt:
+      "Atividade de adição simples usando desenhos. Ex: 2 maçãs + 3 maçãs = ?. Represente visualmente com desenhos fofos para facilitar a contagem.",
+    type: "counting",
+    category: "Matemática",
+    grade: "Educação Infantil",
+    color: "bg-rose-500",
+    wallpaperUrl:
+      "https://images.unsplash.com/photo-1509228468518-180dd4864904?q=80&w=1000&auto=format&fit=crop",
+  },
 ];

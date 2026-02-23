@@ -256,6 +256,45 @@ export async function POST(req: Request) {
             }
           }
 
+          if (q.type === "matching" && Array.isArray(q.matchingPairs)) {
+            const startY = doc.y;
+            const colWidth =
+              (pageWidth - pageMargins.left - pageMargins.right) / 2;
+
+            q.matchingPairs.forEach(
+              (pair: { left: string; right: string }, idx: number) => {
+                doc.fontSize(10).font("Helvetica");
+
+                // Left item
+                doc.text(pair.left, pageMargins.left, doc.y, {
+                  width: colWidth - 40,
+                });
+                const leftTextEnd = doc.y;
+                doc
+                  .circle(pageMargins.left + colWidth - 20, leftTextEnd - 5, 4)
+                  .stroke();
+
+                // Right item
+                doc.text(
+                  pair.right,
+                  pageMargins.left + colWidth + 20,
+                  startY + idx * 30,
+                  { width: colWidth - 40 },
+                );
+                doc
+                  .circle(
+                    pageMargins.left + colWidth + 5,
+                    startY + idx * 30 + 5,
+                    4,
+                  )
+                  .stroke();
+
+                doc.y = Math.max(leftTextEnd, startY + idx * 30 + 20) + 10;
+              },
+            );
+            doc.moveDown(1);
+          }
+
           if (q.type === "counting") {
             doc.circle(doc.page.width - 100, doc.y - 20, 15).stroke();
           }

@@ -101,9 +101,9 @@ export async function POST(req: Request) {
       2. SINCRONIA MÁXIMA: O 'imagePrompt' DEVE ser uma descrição visual EXATA do que a questão pede. Se a pergunta é "Quantos gatos?", a imagem DEVE conter gatos, e a quantidade DEVE ser a mesma da resposta correta.
       3. COERÊNCIA LÓGICA: 
          - Em 'multiple_choice', as 4 alternativas devem ser plausíveis, mas apenas uma correta e CLARA. As 'alternatives' devem conter o TEXTO da resposta, NUNCA apenas a letra (A, B, C, D). Se o usuário pedir alternativas específicas, use-as fielmente.
-         - Em 'counting', defina o número primeiro, coloque-o no 'imagePrompt' e garanta que ele esteja nas opções.
-         - Em 'matching', os itens em 'matchingPairs' devem ter uma relação pedagógica óbvia e correta.
-         - Em 'completion', a lacuna deve ser preenchível de forma inequívoca.
+         - Em 'counting', defina o número primeiro, coloque-o no 'imagePrompt' e garanta que ele esteja nas opções. Se for matemática (ex: 2+3), o 'questionText' deve ser a conta e a imagem deve mostrar os elementos para contar.
+         - Em 'matching', os itens em 'matchingPairs' devem ser uma lista de objetos { "left": "...", "right": "..." }. Ex: { "left": "Desenho de Abelha", "right": "Letra A" }.
+         - Em 'completion', a lacuna deve ser preenchível de forma inequívoca usando o caractere '_'. Ex: 'B _ L A' para BOLA.
       4. PERSONA PEDAGÓGICA: Use linguagem acolhedora, clara e gramaticalmente correta em Português.
       5. QUALIDADE VISUAL: O 'imagePrompt' (em Inglês) deve focar em 'Pedagogical clipart, clean lines, white background'. Nada de fundos complexos ou sombras que confundam a criança.
       
@@ -120,16 +120,16 @@ export async function POST(req: Request) {
             "imageUrl": "...", // MANTENHA O URL ORIGINAL SE A QUESTÃO NÃO MUDOU
             "alternatives": ["Frase da alternativa 1", "Frase da alternativa 2", "Frase da alternativa 3", "Frase da alternativa 4"],
             "answerLines": 0,
-            "matchingPairs": []
+            "matchingPairs": [ { "left": "Item 1", "right": "Correspondente 1" } ]
           }
         ]
       }
       
       DIRETRIZES POR FORMATO:
-      - counting: Foco total na quantidade. A imagem é o suporte da contagem.
-      - writing: Use 'answerLines: 1-2' para nomes, ou 3 para frases.
-      - matching: Gere pares lógicos (ex: Letra 'A' com 'Abacaxi').
-      - completion: Ex: 'C _ S _' para 'CASA'.
+      - counting: Foco total na quantidade ou operação matemática simples. A imagem é o suporte.
+      - writing: Use 'answerLines: 1-2' para nomes/palavras, ou 3+ para frases/textos.
+      - matching: Gere pares lógicos e pedagógicos (ex: 'Cachorro' com 'Osso', ou 'Letra A' com 'Avião').
+      - completion: Foco em alfabetização. Ex: 'C _ S _' para 'CASA'.
       - pintar: Comando deve ser "Pinte o/a...". Estilo LINE ART estrito.
     `;
 
