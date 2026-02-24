@@ -10,7 +10,14 @@ function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const plan = searchParams.get("plan") || "normal";
+  const isTrial = plan === "trial";
   const [isProcessing, setIsProcessing] = useState(false);
+
+  useEffect(() => {
+    if (isTrial) {
+      router.replace("/dashboard");
+    }
+  }, [isTrial, router]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -94,13 +101,6 @@ function CheckoutContent() {
   };
 
   const selectedPlan = planDetails[plan] || planDetails.normal;
-  const isTrial = plan === "trial";
-
-  useEffect(() => {
-    if (isTrial) {
-      router.replace("/dashboard");
-    }
-  }, [isTrial, router]);
 
   if (isTrial) {
     return null;
@@ -157,10 +157,7 @@ function CheckoutContent() {
 
             <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg shadow-sm">
               <div className="flex gap-3">
-                <ShieldCheck
-                  className="text-blue-600 flex-shrink-0"
-                  size={24}
-                />
+                <ShieldCheck className="text-blue-600 shrink-0" size={24} />
                 <div>
                   <p className="font-bold text-blue-800 text-lg mb-1">
                     Garantia de Satisfação
@@ -206,7 +203,7 @@ function CheckoutContent() {
                     >
                       <Check
                         size={16}
-                        className="text-green-500 mt-0.5 flex-shrink-0"
+                        className="text-green-500 mt-0.5 shrink-0"
                       />
                       <span>{feature}</span>
                     </li>
@@ -215,10 +212,7 @@ function CheckoutContent() {
               </div>
 
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-6 flex gap-3">
-                <ShieldCheck
-                  className="text-yellow-600 flex-shrink-0"
-                  size={20}
-                />
+                <ShieldCheck className="text-yellow-600 shrink-0" size={20} />
                 <div className="text-xs text-yellow-800">
                   <p className="font-bold">Compra Segura</p>
                   <p>

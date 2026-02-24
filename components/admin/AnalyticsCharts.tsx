@@ -23,7 +23,11 @@ const DEVICE_COLORS = {
   mobile: "#6366f1",
 };
 
-export function ViewsChart({ data }: { data: any[] }) {
+export function ViewsChart({
+  data,
+}: {
+  data: Array<{ date: string; views: number; visitors: number }>;
+}) {
   return (
     <div className="h-[350px] w-full bg-gray-900/50 p-6 rounded-2xl border border-gray-800">
       <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
@@ -95,7 +99,7 @@ export function DeviceChart({
         <Monitor size={16} className="text-blue-500" />
         Distribuição por Dispositivo
       </h3>
-      <div className="flex-grow">
+      <div className="grow">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -110,7 +114,7 @@ export function DeviceChart({
               {chartData.map((entry) => (
                 <Cell
                   key={entry.key}
-                  fill={(DEVICE_COLORS as any)[entry.key]}
+                  fill={DEVICE_COLORS[entry.key as keyof typeof DEVICE_COLORS]}
                 />
               ))}
             </Pie>

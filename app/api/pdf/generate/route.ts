@@ -177,7 +177,12 @@ export async function POST(req: Request) {
 
           if (includeImages && q.imageUrl) {
             try {
-              const imageRes = await fetch(q.imageUrl);
+              const fullImageUrl =
+                q.imageUrl.startsWith("http") || q.imageUrl.startsWith("data:")
+                  ? q.imageUrl
+                  : `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}${q.imageUrl}`;
+
+              const imageRes = await fetch(fullImageUrl);
               if (imageRes.ok) {
                 const arrayBuffer = await imageRes.arrayBuffer();
                 const imageBuffer = Buffer.from(arrayBuffer);
