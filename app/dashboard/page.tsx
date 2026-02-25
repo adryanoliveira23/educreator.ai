@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { db } from "@/lib/firebase";
 import {
   doc,
@@ -16,16 +17,19 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import {
-  Send,
-  FileText,
-  Loader2,
-  Lock,
+  Search,
   Zap,
-  Check,
+  Sparkles,
+  Send,
+  Loader2,
   X,
-  Layout,
-  ImageIcon,
   Menu,
+  Lock,
+  Check,
+  FileText,
+  ImageIcon,
+  PlusCircle,
+  ChevronRight,
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 
@@ -33,6 +37,8 @@ import { signOut } from "firebase/auth";
 import { decodeHtmlEntities } from "@/lib/utils";
 import { activityTemplates, type ActivityTemplate } from "@/lib/templates";
 import ActivitySidebar from "@/components/ActivitySidebar";
+
+// Categories are handled in ActivitySidebar context
 
 interface Question {
   number: number;
@@ -75,7 +81,9 @@ interface Activity {
 }
 
 interface UserData {
+  name?: string;
   plan: "normal" | "pro" | "premium" | "trial";
+  credits?: number;
   pdfs_generated_count: number;
   subscription_status?: string;
   metadata?: {
@@ -121,11 +129,28 @@ export default function Dashboard() {
     return Math.max(0, 7 - diffDays);
   };
   const daysLeft = getTrialDaysLeft();
+
   const [selectedWallpaper, setSelectedWallpaper] = useState<string | null>(
     null,
   );
   const [customWallpaper, setCustomWallpaper] = useState<string | null>(null);
   const [questionCount, setQuestionCount] = useState(5);
+  const [toolSearch, setToolSearch] = useState("");
+
+  // Guided Wizard State
+  // Modal states
+  const [showWizard, setShowWizard] = useState(false);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [selectedTool, setSelectedTool] = useState<any>(null);
+  const [wizardStep, setWizardStep] = useState(1);
+  const [wizardData, setWizardData] = useState({
+    topic: "",
+    grade: "",
+    bncc: "",
+    methodology: "",
+    discipline: "",
+    context: "",
+  });
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -146,15 +171,17 @@ export default function Dashboard() {
 
   const applyTemplate = useCallback((template: ActivityTemplate) => {
     setPrompt(template.prompt);
-    setSelectedTypes([template.type]);
+    setSelectedTool(template);
     if (template.wallpaperUrl) {
       setSelectedWallpaper(template.wallpaperUrl);
     }
-    // Force prompt update in textarea if needed
-    const textarea = document.querySelector("textarea");
-    if (textarea) textarea.value = template.prompt;
 
-    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    // Smooth scroll to prompt bar
+    const promptElement = document.querySelector("textarea");
+    if (promptElement) {
+      promptElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      promptElement.focus();
+    }
   }, []);
 
   useEffect(() => {
@@ -360,6 +387,11 @@ export default function Dashboard() {
   const [isDownloading, setIsDownloading] = useState(false);
 
   const handleDownloadPDF = async (activityContent: ActivityContent) => {
+    if (userData?.plan === "trial" && !showDownloadModal) {
+      setShowDownloadModal(true);
+      return;
+    }
+
     setIsDownloading(true);
     try {
       const res = await fetch("/api/pdf/generate", {
@@ -381,6 +413,7 @@ export default function Dashboard() {
       document.body.appendChild(a);
       a.click();
       a.remove();
+      setShowDownloadModal(false);
     } catch (err) {
       console.error(err);
       const message = err instanceof Error ? err.message : "Erro desconhecido";
@@ -432,15 +465,19 @@ export default function Dashboard() {
     trial: 999999,
   };
   const limit = limits[userData.plan || "normal"] || 10;
-  const usage = userData.pdfs_generated_count || 0;
 
   return (
     <div className="flex h-dvh bg-gray-100 font-sans relative overflow-hidden">
       {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between p-4 bg-white border-b fixed top-0 left-0 right-0 z-40">
-        <h1 className="text-xl font-bold text-blue-600 flex items-center gap-2">
-          <span className="bg-blue-100 p-1 rounded">⚡</span> EduCreator
-        </h1>
+      <div className="md:hidden flex items-center justify-between p-4 bg-white/80 backdrop-blur-md border-b border-slate-100 fixed top-0 left-0 right-0 z-40">
+        <Link href="/dashboard" className="flex items-center gap-2 group">
+          <div className="bg-indigo-600 p-1.5 rounded-lg shadow-sm">
+            <Zap size={18} className="text-white fill-white" />
+          </div>
+          <h1 className="text-lg font-black text-slate-800 tracking-tight font-display">
+            Edu<span className="text-indigo-600">Creator</span>
+          </h1>
+        </Link>
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
@@ -461,7 +498,7 @@ export default function Dashboard() {
       />
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col relative pt-12 md:pt-0 h-full overflow-hidden">
+      <main className="flex-1 flex flex-col relative pt-20 md:pt-0 h-full overflow-hidden">
         {/* Scarcity Banner for Trial Users */}
         {isTrial && (
           <div className="bg-linear-to-r from-blue-600 to-indigo-700 text-white px-4 py-2 flex items-center justify-between shadow-md z-30">
@@ -540,7 +577,7 @@ export default function Dashboard() {
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {/* Trial - Only show if not used and NOT currently on trial */}
                 {!hasUsedTrial && !isTrial && (
-                  <div className="bg-white p-8 rounded-[2rem] shadow-xl border-2 border-green-500/30 relative flex flex-col hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                  <div className="bg-white p-8 rounded-4xl shadow-xl border-2 border-green-500/30 relative flex flex-col hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-6 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg whitespace-nowrap">
                       DEGUSTAÇÃO
                     </div>
@@ -601,7 +638,7 @@ export default function Dashboard() {
                 )}
 
                 {/* Pro */}
-                <div className="bg-slate-900 p-8 rounded-[2rem] shadow-2xl border-2 border-blue-600 relative flex flex-col transform md:-translate-y-4 hover:shadow-blue-900/10 transition-all duration-300">
+                <div className="bg-slate-900 p-8 rounded-4xl shadow-2xl border-2 border-blue-600 relative flex flex-col transform md:-translate-y-4 hover:shadow-blue-900/10 transition-all duration-300">
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white px-6 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg whitespace-nowrap">
                     RECOMENDADO
                   </div>
@@ -668,7 +705,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Normal */}
-                <div className="bg-white p-8 rounded-[2rem] shadow-xl border border-slate-200 relative flex flex-col hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                <div className="bg-white p-8 rounded-4xl shadow-xl border border-slate-200 relative flex flex-col hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-200 text-slate-600 px-6 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm whitespace-nowrap">
                     PLANILHA BÁSICA
                   </div>
@@ -738,532 +775,588 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-12 bg-gray-50/50 pb-20 md:pb-32">
+        <div className="flex-1 overflow-y-auto p-4 md:p-12 bg-gray-50/50 pb-32 md:pb-32">
           <div
             className={`${result ? "max-w-3xl" : "max-w-6xl"} mx-auto space-y-6 pb-20 md:pb-0`}
           >
-            {currentPrompt && (
+            {!result && !isGenerating && (
+              <div className="space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                  <div>
+                    <h1 className="text-3xl font-black text-slate-800">
+                      Olá, {user?.displayName?.split(" ")[0] || "Professor"}! 👋
+                    </h1>
+                    <p className="text-slate-500 font-medium">
+                      O que vamos criar de incrível hoje?
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <Search
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                        size={18}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Buscar ferramentas..."
+                        className="bg-white border-2 border-slate-100 rounded-2xl py-2.5 pl-10 pr-4 font-bold text-sm outline-none focus:border-indigo-600 transition-all w-full md:w-64"
+                        value={toolSearch}
+                        onChange={(e) => setToolSearch(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Original Style Banner */}
+                <div className="bg-indigo-600 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-12 text-white relative overflow-hidden mb-8 md:mb-10 shadow-2xl shadow-indigo-200">
+                  <div className="relative z-10 space-y-3 md:space-y-4">
+                    <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest border border-white/20">
+                      <Sparkles
+                        size={10}
+                        className="fill-white md:w-[12px] md:h-[12px]"
+                      />
+                      <span>Inteligência Artificial</span>
+                    </div>
+                    <h2 className="text-2xl md:text-5xl font-black leading-tight tracking-tight">
+                      Crie materiais incríveis <br />
+                      em poucos{" "}
+                      <span className="text-yellow-300">segundos.</span>
+                    </h2>
+                    <p className="text-indigo-100 font-bold max-w-lg text-xs md:text-lg">
+                      Transforme suas ideias em planos de aula, atividades e
+                      avaliações completas com o poder da IA.
+                    </p>
+                  </div>
+                  <div className="absolute top-0 right-0 w-1/3 h-full bg-linear-to-l from-white/10 to-transparent pointer-events-none"></div>
+                  <Zap
+                    size={200}
+                    className="absolute -bottom-10 -right-10 text-white/5 rotate-12"
+                  />
+                </div>
+
+                {/* Original Prompt Bar Style */}
+                <div className="mb-10 md:mb-12 relative group max-w-4xl mx-auto">
+                  <div className="absolute -inset-1 bg-linear-to-r from-indigo-600 to-blue-600 rounded-[2rem] blur-xl opacity-20 group-focus-within:opacity-40 transition-opacity duration-500"></div>
+                  <form
+                    onSubmit={handleGenerate}
+                    className="relative bg-white border-2 border-slate-100 rounded-3xl p-2 shadow-xl shadow-slate-200/50 flex flex-col md:flex-row gap-2 transition-all group-focus-within:border-indigo-600"
+                  >
+                    <div className="flex-1 flex items-center px-4 gap-3 min-h-[80px] md:min-h-0">
+                      <Sparkles
+                        size={24}
+                        className={`text-indigo-600 shrink-0 ${isGenerating ? "animate-spin" : ""}`}
+                      />
+                      <textarea
+                        value={prompt}
+                        onChange={(e) => setPrompt(e.target.value)}
+                        placeholder="O que vamos criar hoje? Ex: Um plano de aula sobre fotossíntese..."
+                        className="w-full min-h-[60px] md:min-h-0 h-full py-3 md:py-4 font-bold text-slate-700 outline-none resize-none placeholder:text-slate-400 bg-transparent text-sm md:text-base"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleGenerate(e as any);
+                          }
+                        }}
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={isGenerating || !prompt.trim()}
+                      className="bg-indigo-600 text-white px-8 py-4 md:py-0 rounded-2xl font-black shadow-lg shadow-indigo-100 hover:bg-indigo-700 hover:scale-[1.02] md:hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100 flex items-center justify-center gap-2"
+                    >
+                      {isGenerating ? (
+                        <Loader2 className="animate-spin" size={18} />
+                      ) : (
+                        <Send size={18} />
+                      )}
+                      <span>Gerar</span>
+                    </button>
+                  </form>
+                </div>
+
+                {/* Big Action Buttons */}
+                <div className="flex flex-wrap gap-4 mb-16 px-2">
+                  <button
+                    onClick={() => {
+                      const template =
+                        activityTemplates.find((t) => t.id === "evaluation") ||
+                        activityTemplates[0];
+                      applyTemplate(template);
+                    }}
+                    className="flex-1 min-w-[240px] bg-white border-2 border-slate-100 p-6 rounded-2xl flex items-center justify-between hover:border-indigo-600 transition-all group shadow-sm hover:shadow-md"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="text-2xl">🖍️</div>
+                      <span className="font-black text-slate-800">
+                        Criar avaliações
+                      </span>
+                    </div>
+                    <ChevronRight
+                      size={20}
+                      className="text-slate-300 group-hover:translate-x-1 transition-transform"
+                    />
+                  </button>
+                  <button
+                    onClick={() => {
+                      const template =
+                        activityTemplates.find((t) => t.id === "correction") ||
+                        activityTemplates[1];
+                      applyTemplate(template);
+                    }}
+                    className="flex-1 min-w-[240px] bg-white border-2 border-slate-100 p-6 rounded-2xl flex items-center justify-between hover:border-indigo-600 transition-all group shadow-sm hover:shadow-md"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="text-2xl">📋</div>
+                      <span className="font-black text-slate-800">
+                        Corrigir avaliações
+                      </span>
+                    </div>
+                    <ChevronRight
+                      size={20}
+                      className="text-slate-300 group-hover:translate-x-1 transition-transform"
+                    />
+                  </button>
+                </div>
+
+                {/* Minhas Aulas Section */}
+                <div className="space-y-6 px-1 md:px-2">
+                  <h3 className="text-xl font-black text-slate-900">
+                    Minhas aulas
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+                    <button
+                      onClick={startNewActivity}
+                      className="aspect-square bg-slate-50 rounded-3xl md:rounded-[2.5rem] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-2 md:gap-4 text-slate-400 hover:bg-white hover:border-indigo-200 hover:text-indigo-600 transition-all group"
+                    >
+                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-current flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <PlusCircle size={20} className="md:w-6 md:h-6" />
+                      </div>
+                      <span className="font-black text-xs md:text-sm">
+                        Criar
+                      </span>
+                    </button>
+                    {activities.map((act) => (
+                      <div
+                        key={act.id}
+                        onClick={() => setResult(act.result)}
+                        className="aspect-square bg-white rounded-3xl md:rounded-[2.5rem] border-2 border-slate-50 p-4 md:p-6 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between group cursor-pointer hover:-translate-y-1 transform"
+                      >
+                        <div className="w-10 h-10 md:w-12 md:h-12 bg-indigo-50 rounded-xl md:rounded-2xl flex items-center justify-center text-lg md:text-xl">
+                          {activityTemplates.find((t) => t.id === act.id)
+                            ?.icon || "📝"}
+                        </div>
+                        <div className="mt-2 md:mt-4">
+                          <p className="font-black text-slate-900 text-[10px] md:text-sm mb-0.5 md:mb-1 line-clamp-2 leading-tight">
+                            {act.result?.title || act.prompt}
+                          </p>
+                          <p className="text-[8px] md:text-[10px] font-bold text-slate-400">
+                            Sem turma
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {currentPrompt && (result || isGenerating) && (
               <div className="flex justify-end animate-in slide-in-from-right-4 duration-300">
-                <div className="bg-blue-600 text-white p-4 rounded-2xl rounded-tr-none shadow-sm max-w-[80%]">
-                  <p className="text-sm font-medium">{currentPrompt}</p>
+                <div className="bg-indigo-600 text-white p-4 rounded-2xl rounded-tr-none shadow-sm max-w-[80%] shadow-lg shadow-indigo-100">
+                  <p className="text-sm font-bold">{currentPrompt}</p>
                 </div>
               </div>
             )}
 
             {isGenerating && !result && (
               <div className="flex justify-start animate-pulse">
-                <div className="bg-white border p-4 rounded-2xl rounded-tl-none shadow-sm space-y-2">
-                  <div className="h-4 w-48 bg-gray-200 rounded"></div>
-                  <div className="h-4 w-32 bg-gray-100 rounded"></div>
+                <div className="bg-white border-2 border-slate-50 p-6 rounded-4xl rounded-tl-none shadow-xl shadow-slate-100 space-y-3">
+                  <div className="h-4 w-48 bg-slate-100 rounded-full"></div>
+                  <div className="h-4 w-32 bg-slate-50 rounded-full"></div>
                 </div>
               </div>
             )}
 
             {result && (
-              <div className="bg-white rounded-2xl shadow-md border overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="p-4 md:p-6 border-b bg-white flex justify-between items-center sticky top-0 z-10 gap-2">
-                  <h2 className="text-base md:text-xl font-bold text-gray-900 truncate">
+              <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border-2 border-white overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="p-6 md:p-10 border-b bg-white/80 backdrop-blur-md flex justify-between items-center sticky top-0 z-10 gap-4">
+                  <h2 className="text-xl md:text-3xl font-display font-black text-slate-900 truncate">
                     {result.title}
                   </h2>
-                  <div className="flex gap-2 shrink-0">
+                  <div className="flex gap-3 shrink-0">
                     <button
                       onClick={() =>
+                        result &&
                         handleDownloadPDF({
                           ...result,
+                          title: result.title || "atividade",
                           layout,
                           includeImages,
                           wallpaperUrl: selectedWallpaper,
                         })
                       }
                       disabled={isDownloading}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-[10px] md:text-xs font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex items-center gap-2 px-8 py-4 bg-indigo-600 text-white rounded-2xl hover:bg-indigo-700 transition font-black shadow-xl shadow-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isDownloading ? (
                         <>
-                          <Loader2 className="animate-spin" size={12} />{" "}
+                          <Loader2 className="animate-spin" size={18} />{" "}
                           Gerando...
                         </>
                       ) : (
                         <>
-                          <FileText size={12} /> Baixar PDF
+                          <FileText size={18} /> Baixar PDF
                         </>
                       )}
                     </button>
                     <button
                       onClick={startNewActivity}
-                      className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"
+                      className="p-4 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-2xl transition-all"
                       title="Nova Atividade"
                     >
-                      <X size={18} />
+                      <X size={24} />
                     </button>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
-                      <ImageIcon size={20} />
+                <div className="p-6 md:p-10">
+                  {/* Options Bar */}
+                  <div className="flex items-center justify-between p-6 bg-slate-50 rounded-4xl border-2 border-white mb-10 shadow-sm">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-white rounded-2xl text-indigo-600 shadow-sm">
+                        <ImageIcon size={24} />
+                      </div>
+                      <div>
+                        <p className="font-black text-slate-900">
+                          Incluir Ilustrações
+                        </p>
+                        <p className="text-xs text-slate-400 font-bold">
+                          Gerar imagens para as questões
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-bold text-sm text-gray-900">
-                        Incluir Ilustrações
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Gerar imagens para as questões
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setIncludeImages(!includeImages)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ring-2 ring-offset-2 ring-transparent ${
-                      includeImages ? "bg-blue-600" : "bg-gray-200"
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        includeImages ? "translate-x-6" : "translate-x-1"
+                    <button
+                      onClick={() => setIncludeImages(!includeImages)}
+                      className={`relative inline-flex h-8 w-14 items-center rounded-full transition-all focus:outline-none ring-4 ring-offset-2 ring-transparent ${
+                        includeImages ? "bg-indigo-600" : "bg-slate-200"
                       }`}
-                    />
-                  </button>
-                </div>
-
-                <div className="px-4 md:px-8 py-4 md:py-6">
-                  {/* Activity Placeholder Header */}
-                  <div className="mb-4 space-y-2 p-3 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] md:text-xs text-gray-500 italic">
-                      <span className="shrink-0">
-                        {(() => {
-                          const label = "Aluno";
-                          let val = result.header?.studentName?.trim() || "";
-                          val = val.replace(/^[:\s]+/, "");
-                          if (
-                            val.toLowerCase().startsWith("nome do aluno") ||
-                            val.toLowerCase().startsWith("aluno")
-                          ) {
-                            val = val
-                              .replace(/^(nome do aluno|aluno)/i, "")
-                              .replace(/^[:\s]+/, "")
-                              .trim();
-                          }
-                          return `${label}: ${val}`;
-                        })()}
-                        {(!result.header?.studentName ||
-                          result.header?.studentName.length < 3) &&
-                          " ________________"}
-                      </span>
-                      <span className="shrink-0">
-                        {(() => {
-                          const label = "Escola";
-                          let val = result.header?.school?.trim() || "";
-                          val = val.replace(/^[:\s]+/, "");
-                          if (val.toLowerCase().startsWith("escola")) {
-                            val = val
-                              .replace(/^escola/i, "")
-                              .replace(/^[:\s]+/, "")
-                              .trim();
-                          }
-                          return `${label}: ${val}`;
-                        })()}
-                        {(!result.header?.school ||
-                          result.header?.school.length < 3) &&
-                          " ________________"}
-                      </span>
-                      <span className="shrink-0">
-                        {(() => {
-                          const label = "Prof.";
-                          let val = result.header?.teacherName?.trim() || "";
-                          val = val.replace(/^[:\s]+/, "");
-                          if (
-                            val.toLowerCase().startsWith("nome do professor") ||
-                            val.toLowerCase().startsWith("professor") ||
-                            val.toLowerCase().startsWith("prof")
-                          ) {
-                            val = val
-                              .replace(
-                                /^(nome do professor\(a\)|nome do professor|professor|prof)/i,
-                                "",
-                              )
-                              .replace(/^[:\s]+/, "")
-                              .trim();
-                          }
-                          return `${label}: ${val}`;
-                        })()}
-                        {(!result.header?.teacherName ||
-                          result.header?.teacherName.length < 3) &&
-                          " ________________"}
-                      </span>
-                    </div>
+                    >
+                      <span
+                        className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform shadow-md ${
+                          includeImages ? "translate-x-7" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
                   </div>
 
-                  {/* Questions */}
-                  <div className="space-y-4 md:space-y-6 relative">
-                    {(() => {
-                      const isTrial =
-                        userData?.plan === "trial" ||
-                        userData?.subscription_status === "pending_payment";
-
-                      return result.questions?.map((question, i) => {
-                        const isBlurred = isTrial && i > 0;
-
-                        return (
-                          <div
-                            key={i}
-                            className={`group relative transition-all duration-300 ${isBlurred ? "blur-sm opacity-50 select-none cursor-pointer touch-none" : ""}`}
-                            style={
-                              isBlurred ? { WebkitTouchCallout: "none" } : {}
-                            }
-                            onClick={
-                              isBlurred ? () => setShowPlans(true) : undefined
-                            }
-                            onContextMenu={
-                              isBlurred ? (e) => e.preventDefault() : undefined
-                            }
-                          >
-                            {isBlurred && (
-                              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/10 rounded-xl">
-                                <div className="bg-white/80 backdrop-blur-md p-3 rounded-2xl shadow-lg border border-white/20 text-center animate-bounce-slow">
-                                  <Lock
-                                    className="text-blue-600 mb-1 mx-auto"
-                                    size={20}
-                                  />
-                                  <p className="text-[10px] md:text-xs font-bold text-gray-800">
-                                    Período de teste: Adquira um plano para
-                                    desbloquear todas as questões.
-                                  </p>
-                                </div>
-                              </div>
-                            )}
-                            <div className="flex items-start gap-4 mb-4">
-                              <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-[10px] md:text-sm shrink-0">
-                                {i + 1}
-                              </div>
-                              <div className="flex-1">
-                                <h3 className="font-bold text-sm md:text-lg text-gray-900 leading-tight">
-                                  {(() => {
-                                    const cleanText = decodeHtmlEntities(
-                                      question.questionText,
-                                    )
-                                      .replace(/^[\s()\[\]-]+/, "")
-                                      .replace(/[\s()\[\]-]+$/, "");
-                                    return cleanText;
-                                  })()}
-                                </h3>
-                              </div>
-                            </div>
-
-                            {question.imageUrl &&
-                              (question.imageUrl.startsWith("http") ||
-                                question.imageUrl.startsWith("data:")) &&
-                              (!isTrial || i === 0) && (
-                                <div className="mb-4 max-w-[200px] md:max-w-[300px] relative min-h-[100px] bg-slate-50 rounded-xl border flex items-center justify-center">
-                                  <img
-                                    src={question.imageUrl}
-                                    alt={`Ilustração para questão ${question.number}`}
-                                    className="rounded-xl w-full bg-white relative z-10"
-                                    onError={(e) => {
-                                      const target =
-                                        e.target as HTMLImageElement;
-                                      target.style.display = "none";
-                                      const parent = target.parentElement;
-                                      if (parent) {
-                                        const fallback =
-                                          document.createElement("div");
-                                        fallback.className =
-                                          "p-8 text-blue-400";
-                                        fallback.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>`;
-                                        parent.appendChild(fallback);
-                                      }
-                                    }}
-                                  />
-                                </div>
-                              )}
-
-                            {question.alternatives &&
-                              question.alternatives.length > 0 && (
-                                <div className="grid grid-cols-1 gap-2">
-                                  {question.alternatives.map((alt, j) => (
-                                    <div
-                                      key={j}
-                                      className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50/50"
-                                    >
-                                      <span className="w-5 h-5 flex items-center justify-center rounded-full border border-gray-300 text-[10px] text-gray-400">
-                                        {String.fromCharCode(65 + j)}
-                                      </span>
-                                      <p className="text-gray-700 text-sm">
-                                        {decodeHtmlEntities(alt).replace(
-                                          /^[\s()\[\]-]+/,
-                                          "",
-                                        )}
-                                      </p>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-
-                            {question.answerLines !== undefined &&
-                              question.answerLines > 0 && (
-                                <div className="ml-10 space-y-4">
-                                  {Array.from({
-                                    length: question.answerLines,
-                                  }).map((_, j) => (
-                                    <div
-                                      key={j}
-                                      className={`border-b border-gray-300 w-full h-8 border-dotted ${
-                                        question.answerLines === 1
-                                          ? "max-w-[150px]"
-                                          : ""
-                                      }`}
-                                    ></div>
-                                  ))}
-                                </div>
-                              )}
-
-                            {(question.type === "counting" ||
-                              question.type === "image_selection") && (
-                              <div className="ml-10 mt-2">
-                                <div className="w-12 h-12 border-2 border-gray-300 rounded-xl flex items-center justify-center text-gray-400 font-mono">
-                                  ( )
-                                </div>
-                              </div>
-                            )}
-
-                            {question.type === "matching" &&
-                              Array.isArray(question.matchingPairs) && (
-                                <div className="ml-0 md:ml-10 grid grid-cols-2 gap-4 md:gap-12 py-4">
-                                  <div className="space-y-4">
-                                    {question.matchingPairs.map(
-                                      (pair, idx: number) => (
-                                        <div
-                                          key={idx}
-                                          className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100"
-                                        >
-                                          <span className="text-sm font-medium text-gray-700">
-                                            {pair.left}
-                                          </span>
-                                          <div className="w-3 h-3 rounded-full border-2 border-blue-400 shrink-0 ml-2"></div>
-                                        </div>
-                                      ),
-                                    )}
-                                  </div>
-                                  <div className="space-y-4">
-                                    {question.matchingPairs.map(
-                                      (pair, idx: number) => (
-                                        <div
-                                          key={idx}
-                                          className="flex items-center p-3 bg-gray-50 rounded-xl border border-gray-100"
-                                        >
-                                          <div className="w-3 h-3 rounded-full border-2 border-blue-400 shrink-0 mr-2"></div>
-                                          <span className="text-sm font-medium text-gray-700">
-                                            {pair.right}
-                                          </span>
-                                        </div>
-                                      ),
-                                    )}
-                                  </div>
-                                </div>
-                              )}
+                  {/* Activity Content */}
+                  <div className="space-y-12">
+                    {/* Questions are rendered here as before but styled */}
+                    {result.questions?.map((question, i) => (
+                      <div key={i} className="space-y-6">
+                        <div className="flex items-start gap-6">
+                          <div className="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center font-black text-lg shrink-0 shadow-lg shadow-indigo-100">
+                            {i + 1}
                           </div>
-                        );
-                      });
-                    })()}
+                          <div className="flex-1 pt-2">
+                            <h3 className="font-black text-xl text-slate-900 leading-tight font-display">
+                              {decodeHtmlEntities(question.questionText)}
+                            </h3>
+                          </div>
+                        </div>
+
+                        {question.imageUrl && (
+                          <div className="ml-18 max-w-xl">
+                            <img
+                              src={question.imageUrl}
+                              className="rounded-3xl border-4 border-slate-50 w-full shadow-lg"
+                              alt="Ilustração"
+                            />
+                          </div>
+                        )}
+
+                        {question.alternatives && (
+                          <div className="ml-18 grid gap-3">
+                            {question.alternatives.map((alt, j) => (
+                              <div
+                                key={j}
+                                className="flex items-center gap-4 p-5 bg-slate-50/50 rounded-2xl border-2 border-white hover:border-indigo-100 transition-colors"
+                              >
+                                <span className="w-8 h-8 flex items-center justify-center rounded-xl bg-white border border-slate-100 font-black text-slate-400 text-xs">
+                                  {String.fromCharCode(65 + j)}
+                                </span>
+                                <p className="font-bold text-slate-700">
+                                  {decodeHtmlEntities(alt)}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
 
-                  <div className="mt-12 pt-8 border-t flex justify-center">
+                  <div className="mt-20 pt-10 border-t border-slate-100 flex justify-center">
                     <button
                       onClick={startNewActivity}
-                      className="text-gray-400 hover:text-blue-600 transition flex items-center gap-2 text-sm font-medium"
+                      className="px-10 py-5 bg-slate-900 text-white font-black rounded-3xl hover:bg-indigo-600 transition-all flex items-center gap-3 shadow-2xl shadow-slate-200"
                     >
-                      <Zap size={14} /> Começar uma nova atividade do zero
+                      <Zap size={20} /> Nova atividade do zero
                     </button>
                   </div>
                 </div>
               </div>
             )}
-
-            {!result && !isGenerating && (
-              <div className="flex-1 flex flex-col items-center justify-center min-h-[60vh] px-6 text-center animate-in fade-in zoom-in duration-1000">
-                <div className="relative group mb-1">
-                  <div className="absolute inset-0 bg-blue-500 blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 rounded-full" />
-                  <div className="relative w-10 h-10 md:w-14 md:h-14 bg-white text-blue-600 rounded-xl md:rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-200 group-hover:scale-110 transition-transform duration-500 border border-slate-50">
-                    <Zap
-                      className="w-5 h-5 md:w-7 md:h-7"
-                      fill="currentColor"
-                    />
-                  </div>
-                </div>
-
-                <div className="max-w-2xl space-y-0.5">
-                  <h2 className="text-xl md:text-2xl font-black text-slate-800 tracking-tight leading-tight">
-                    O que vamos <span className="text-blue-600">criar</span>{" "}
-                    hoje?
-                  </h2>
-                  <p className="text-[10px] md:text-xs text-slate-500 font-medium max-w-lg mx-auto leading-relaxed italic">
-                    &quot;A educação é a arma mais poderosa que você pode usar
-                    para mudar o mundo.&quot;
-                  </p>
-                </div>
-
-                <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-3 w-full max-w-5xl">
-                  {activityTemplates.slice(0, 4).map((template) => (
-                    <button
-                      key={template.id}
-                      onClick={() => applyTemplate(template)}
-                      className="group relative p-6 bg-white border border-slate-100 rounded-3xl hover:border-blue-500 hover:shadow-2xl hover:shadow-blue-900/10 hover:-translate-y-2 transition-all duration-500 text-left flex flex-col"
-                    >
-                      <div
-                        className={`w-12 h-12 ${template.color} text-white rounded-2xl flex items-center justify-center text-2xl mb-4 shadow-lg shadow-blue-900/10 group-hover:rotate-12 transition-transform`}
-                      >
-                        {template.icon}
-                      </div>
-                      <h4 className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
-                        {template.title}
-                      </h4>
-                      <p className="text-[10px] text-slate-400 mt-2 font-medium uppercase tracking-wider">
-                        {template.category}
-                      </p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Floating Input Area */}
-        <div className="fixed bottom-0 left-0 right-0 md:left-72 z-40 px-4 md:px-6 pb-[env(safe-area-inset-bottom,1rem)] pointer-events-none mb-4 md:mb-10">
-          <div className="max-w-4xl mx-auto pointer-events-auto">
-            <div className="bg-white/90 backdrop-blur-2xl border border-white/50 p-4 md:p-6 rounded-[2rem] md:rounded-4xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] ring-1 ring-black/5">
-              <div className="w-full space-y-4 md:space-y-6">
-                {error && (
-                  <p className="text-red-500 text-sm mb-2 text-center animate-bounce">
-                    {error}
-                  </p>
-                )}
-
-                <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
-                  <div className="hidden">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
-                      Número de Questões (1-20)
-                    </span>
-                    <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl">
-                      <input
-                        type="range"
-                        min="1"
-                        max="20"
-                        value={questionCount}
-                        onChange={(e) =>
-                          setQuestionCount(parseInt(e.target.value))
-                        }
-                        className="w-32 md:w-48 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                      />
-                      <div className="bg-white px-3 py-1 rounded-xl text-xs font-black text-blue-600 shadow-sm border border-slate-200 min-w-12 text-center">
-                        {questionCount}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Activity Types - Simple Wrap Layout */}
-                  {!result && !isGenerating && (
-                    <div className="flex-1 w-full flex flex-wrap items-center gap-1.5 md:gap-2">
-                      {[
-                        {
-                          id: "multiple_choice",
-                          label: "Marcar X",
-                          icon: <Check size={14} />,
-                        },
-                        {
-                          id: "writing",
-                          label: "Escrever",
-                          icon: <FileText size={14} />,
-                        },
-                        {
-                          id: "counting",
-                          label: "Contar",
-                          icon: <Zap size={14} />,
-                        },
-                        {
-                          id: "matching",
-                          label: "Ligar",
-                          icon: <Layout size={14} />,
-                        },
-                        {
-                          id: "image_selection",
-                          label: "Circular",
-                          icon: <ImageIcon size={14} />,
-                        },
-                        {
-                          id: "completion",
-                          label: "Completar",
-                          icon: <FileText size={14} />,
-                        },
-                        {
-                          id: "pintar",
-                          label: "Pintar",
-                          icon: <ImageIcon size={14} />,
-                        },
-                      ].map((type) => {
-                        const isSelected = selectedTypes.includes(type.id);
-                        return (
-                          <button
-                            key={type.id}
-                            onClick={() => {
-                              setSelectedTypes((prev) =>
-                                prev.includes(type.id)
-                                  ? prev.length > 1
-                                    ? prev.filter((t) => t !== type.id)
-                                    : prev
-                                  : [...prev, type.id],
-                              );
-                            }}
-                            className={`flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1.5 rounded-xl md:rounded-2xl text-[10px] md:text-[11px] font-bold transition-all border whitespace-nowrap ${
-                              isSelected
-                                ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200"
-                                : "bg-white border-slate-200 text-slate-500 hover:border-blue-300 hover:text-blue-600"
-                            }`}
-                          >
-                            {type.icon}
-                            {type.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-
-                <form onSubmit={handleGenerate} className="relative group">
-                  <div className="absolute inset-0 bg-blue-600/5 blur-xl group-focus-within:bg-blue-600/10 transition-colors rounded-3xl" />
-                  <div className="relative flex items-center bg-slate-50 border-2 border-slate-100 rounded-4xl overflow-hidden focus-within:border-blue-500/50 focus-within:bg-white focus-within:ring-8 focus-within:ring-blue-50 transition-all duration-500">
-                    <input
-                      type="text"
-                      value={prompt}
-                      onChange={(e) => setPrompt(e.target.value)}
-                      placeholder="Ex: Quero uma atividade do 5º ano sobre Carnaval..."
-                      className="w-full p-5 pr-16 outline-none bg-transparent text-slate-800 placeholder-slate-400 font-medium"
-                      disabled={isGenerating}
-                    />
-                    <button
-                      type="submit"
-                      disabled={isGenerating || !prompt.trim()}
-                      className="absolute right-3 w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center hover:bg-blue-700 hover:scale-105 active:scale-95 disabled:bg-slate-200 disabled:scale-100 disabled:cursor-not-allowed transition-all shadow-xl shadow-blue-200 duration-300"
-                    >
-                      {isGenerating ? (
-                        <Loader2 className="animate-spin" size={20} />
-                      ) : (
-                        <Send size={20} />
-                      )}
-                    </button>
-                  </div>
-                </form>
-
-                <p className="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  A IA pode cometer erros. Revise antes de imprimir.
-                </p>
-              </div>
-            </div>
           </div>
         </div>
       </main>
+
+      {/* Guided Wizard Modal */}
+      {showWizard && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white rounded-[2.5rem] shadow-3xl max-w-2xl w-full overflow-hidden animate-in fade-in zoom-in duration-300 flex flex-col max-h-[90vh]">
+            <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-white sticky top-0 z-10">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-2xl">
+                  {selectedTool?.icon || "📝"}
+                </div>
+                <div>
+                  <h2 className="text-xl font-black text-slate-900 leading-tight">
+                    {selectedTool?.title}
+                  </h2>
+                  <p className="text-xs font-bold text-slate-400">
+                    Passo {wizardStep} de 2
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowWizard(false)}
+                className="p-3 hover:bg-slate-50 rounded-2xl transition-colors text-slate-400"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-8 space-y-8">
+              {wizardStep === 1 ? (
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">
+                      Assunto da aula
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ex: Ciclo da Água, Revolução Francesa..."
+                      className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 font-bold text-slate-900 outline-none focus:border-indigo-600 focus:bg-white transition-all shadow-sm"
+                      value={wizardData.topic}
+                      onChange={(e) =>
+                        setWizardData({ ...wizardData, topic: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">
+                        Ano Escolar
+                      </label>
+                      <select
+                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 font-bold text-slate-900 outline-none focus:border-indigo-600 focus:bg-white transition-all shadow-sm"
+                        value={wizardData.grade}
+                        onChange={(e) =>
+                          setWizardData({
+                            ...wizardData,
+                            grade: e.target.value,
+                          })
+                        }
+                      >
+                        <option value="">Selecione...</option>
+                        <option value="1ano">1º Ano</option>
+                        <option value="2ano">2º Ano</option>
+                        <option value="3ano">3º Ano</option>
+                        <option value="4ano">4º Ano</option>
+                        <option value="5ano">5º Ano</option>
+                        <option value="6ano">6º Ano</option>
+                        <option value="7ano">7º Ano</option>
+                        <option value="8ano">8º Ano</option>
+                        <option value="9ano">9º Ano</option>
+                        <option value="em1">Ensino Médio - 1ª Série</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">
+                        Disciplina
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Ex: Ciências, História..."
+                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 font-bold text-slate-900 outline-none focus:border-indigo-600 focus:bg-white transition-all shadow-sm"
+                        value={wizardData.discipline}
+                        onChange={(e) =>
+                          setWizardData({
+                            ...wizardData,
+                            discipline: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">
+                      Habilidade BNCC (Opcional)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ex: EF05CI02..."
+                      className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 font-bold text-slate-900 outline-none focus:border-indigo-600 focus:bg-white transition-all shadow-sm"
+                      value={wizardData.bncc}
+                      onChange={(e) =>
+                        setWizardData({ ...wizardData, bncc: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">
+                      Metodologia
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {["Tradicional", "Ativa", "Gamificação", "Inclusiva"].map(
+                        (m) => (
+                          <button
+                            key={m}
+                            onClick={() =>
+                              setWizardData({ ...wizardData, methodology: m })
+                            }
+                            className={`px-4 py-2 rounded-xl text-xs font-bold border-2 transition-all ${wizardData.methodology === m ? "bg-indigo-600 border-indigo-600 text-white" : "bg-white border-slate-100 text-slate-500 hover:border-indigo-200"}`}
+                          >
+                            {m}
+                          </button>
+                        ),
+                      )}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">
+                      Contexto Adicional
+                    </label>
+                    <textarea
+                      placeholder="Algum detalhe específico para esta turma?"
+                      className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 font-bold text-slate-900 outline-none focus:border-indigo-600 focus:bg-white transition-all shadow-sm min-h-[100px]"
+                      value={wizardData.context}
+                      onChange={(e) =>
+                        setWizardData({
+                          ...wizardData,
+                          context: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="p-8 bg-slate-50/50 border-t border-slate-50 flex items-center justify-between gap-4">
+              {wizardStep === 2 && (
+                <button
+                  onClick={() => setWizardStep(1)}
+                  className="px-8 py-4 bg-white border-2 border-slate-100 text-slate-600 rounded-2xl font-black text-sm hover:bg-slate-50 transition-all flex items-center gap-2"
+                >
+                  Voltar
+                </button>
+              )}
+              <div className="flex-1" />
+              {wizardStep === 1 ? (
+                <button
+                  onClick={() => setWizardStep(2)}
+                  disabled={!wizardData.topic}
+                  className="px-10 py-4 bg-indigo-600 text-white rounded-2xl font-black text-sm hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 disabled:opacity-50 flex items-center gap-2"
+                >
+                  Continuar
+                  <ChevronRight size={18} />
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    const finalPrompt = `Gere uma atividade de ${selectedTool?.title} sobre ${wizardData.topic} para o ${wizardData.grade}. Disciplina: ${wizardData.discipline}. BNCC: ${wizardData.bncc}. Metodologia: ${wizardData.methodology}. Contexto: ${wizardData.context}.`;
+                    setPrompt(finalPrompt);
+                    setShowWizard(false);
+                    // Use a synthetic event to trigger generation
+                    const form = document.createElement("form");
+                    handleGenerate({
+                      preventDefault: () => {},
+                    } as React.FormEvent);
+                  }}
+                  className="px-10 py-4 bg-slate-900 text-white rounded-2xl font-black text-sm hover:bg-indigo-600 transition-all shadow-xl shadow-slate-200 flex items-center gap-2"
+                >
+                  <Sparkles size={18} className="fill-white" />
+                  Gerar agora
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Download Options Modal (Trial) */}
+      {showDownloadModal && (
+        <div className="fixed inset-0 z-60 bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white rounded-[2.5rem] shadow-3xl max-w-lg w-full p-8 md:p-10 text-center animate-in fade-in zoom-in duration-300 border border-white/20">
+            <div className="w-20 h-20 bg-linear-to-tr from-indigo-500 to-blue-600 text-white rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-xl">
+              <FileText size={40} />
+            </div>
+            <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">
+              Como deseja baixar?
+            </h2>
+            <p className="text-slate-600 mb-10 leading-relaxed font-medium">
+              Você está no{" "}
+              <span className="text-indigo-600 font-bold">Modo Grátis</span>.
+              Escolha uma das opções abaixo para continuar:
+            </p>
+
+            <div className="space-y-4">
+              <button
+                onClick={() => result && handleDownloadPDF(result)}
+                className="w-full py-5 bg-slate-100 text-slate-700 font-bold rounded-2xl hover:bg-slate-200 transition duration-200 flex items-center justify-center gap-2 group"
+              >
+                <span className="opacity-70 group-hover:opacity-100 transition-opacity">
+                  Baixar apenas 1 questão no modo grátis
+                </span>
+              </button>
+
+              <div className="relative py-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-slate-100"></div>
+                </div>
+                <div className="relative flex justify-center text-xs uppercase tracking-widest font-black text-slate-300">
+                  <span className="bg-white px-4">OU</span>
+                </div>
+              </div>
+
+              <button
+                onClick={() => handleUpgrade("normal")}
+                className="w-full py-6 bg-indigo-600 text-white font-black rounded-2xl shadow-xl shadow-indigo-100 hover:bg-indigo-700 hover:scale-[1.02] active:scale-95 transition-all text-lg flex flex-col items-center justify-center leading-tight"
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <Zap size={20} className="text-yellow-300 fill-yellow-300" />
+                  <span>Baixar 10 questões agora</span>
+                </div>
+                <span className="text-indigo-200 text-xs font-bold">
+                  Por apenas R$ 21,90 — menos que uma pizza!
+                </span>
+              </button>
+
+              <button
+                onClick={() => setShowDownloadModal(false)}
+                className="w-full py-4 text-slate-400 font-bold text-sm hover:text-slate-600 transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

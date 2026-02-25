@@ -12,6 +12,7 @@ import {
   Sparkles,
   ArrowRight,
   MousePointer2,
+  Zap,
 } from "lucide-react";
 import SupportMenu from "@/components/SupportMenu";
 import InteractiveDemo from "@/components/landing/InteractiveDemo";
@@ -65,50 +66,53 @@ export default function LandingPage() {
       <header
         className={`fixed w-full z-50 transition-all duration-300 ${
           scrolled
-            ? "bg-white/80 backdrop-blur-xl shadow-sm py-3"
-            : "bg-transparent py-5"
+            ? "bg-white/90 backdrop-blur-md shadow-sm py-4"
+            : "bg-transparent py-6"
         }`}
       >
-        <div className="container mx-auto px-4 sm:px-6 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-1.5 sm:gap-2 group">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-linear-to-tr from-blue-600 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center text-white shadow-lg group-hover:rotate-6 transition-transform">
-              <Sparkles size={18} className="sm:w-6 sm:h-6" fill="white" />
+        <div className="container mx-auto px-6 flex justify-between items-center">
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 group-hover:scale-105 transition-transform">
+              <Sparkles size={24} fill="white" />
             </div>
-            <span className="text-lg sm:text-xl font-bold tracking-tight text-slate-900">
-              EduCreator<span className="text-blue-600">AI</span>
+            <span className="text-xl font-display font-black tracking-tight text-slate-900">
+              EduCreator<span className="text-indigo-600">AI</span>
             </span>
           </Link>
 
-          <nav className="hidden lg:flex gap-8 text-sm font-semibold text-slate-600">
+          <nav className="hidden lg:flex gap-10 text-sm font-bold text-slate-600">
             <a
               href="#solucao"
-              className="hover:text-blue-600 transition-colors"
+              className="hover:text-indigo-600 transition-colors"
             >
-              A Solução
+              Solução
             </a>
             <a
               href="#como-funciona"
-              className="hover:text-blue-600 transition-colors"
+              className="hover:text-indigo-600 transition-colors"
             >
               Como Funciona
             </a>
-            <a href="#precos" className="hover:text-blue-600 transition-colors">
+            <a
+              href="#precos"
+              className="hover:text-indigo-600 transition-colors"
+            >
               Preços
             </a>
           </nav>
 
-          <div className="flex gap-2 sm:gap-4 items-center">
+          <div className="flex gap-4 items-center">
             <Link
               href="/login"
-              className="px-2 py-2 text-[11px] sm:text-sm font-extrabold text-slate-700 hover:text-blue-600 transition-colors whitespace-nowrap"
+              className="px-6 py-3 text-sm font-bold text-slate-700 hover:text-indigo-600 transition-colors"
             >
               Entrar
             </Link>
             <Link
               href="#precos"
-              className="px-3 py-2 text-[10px] sm:text-sm font-black bg-slate-900 text-white rounded-xl sm:rounded-2xl hover:bg-blue-600 transition-all shadow-xl shadow-slate-200 hover:shadow-blue-200 hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap"
+              className="px-6 py-3 text-sm font-black bg-slate-900 text-white rounded-2xl hover:bg-indigo-600 transition-all shadow-xl shadow-slate-100 hover:shadow-indigo-100 hover:-translate-y-0.5"
             >
-              Começar Gratuitamente
+              Começar Grátis
             </Link>
           </div>
         </div>
@@ -118,69 +122,69 @@ export default function LandingPage() {
         {/* Hero Section */}
         <section
           id="hero"
-          className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden"
+          className="relative pt-32 pb-20 lg:pt-56 lg:pb-36 overflow-hidden"
         >
           {/* Background Decorations */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 pointer-events-none">
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-400/10 rounded-full blur-[120px]"></div>
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-400/10 rounded-full blur-[120px]"></div>
+            <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-indigo-100/50 rounded-full blur-[140px]"></div>
+            <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-blue-100/40 rounded-full blur-[140px]"></div>
           </div>
 
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 text-xs font-bold tracking-wider text-blue-700 uppercase bg-blue-50 rounded-full border border-blue-100 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                <span className="flex h-2 w-2 rounded-full bg-blue-600"></span>
-                Revolucionando o Planejamento Escolar
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 mb-10 text-xs font-black tracking-widest text-indigo-700 uppercase bg-indigo-50 rounded-full border border-indigo-100/50 animate-in fade-in slide-in-from-bottom-2 duration-700">
+                <span className="flex h-2 w-2 rounded-full bg-indigo-600 animate-pulse"></span>
+                A IA nº 1 para Professores no Brasil
               </div>
 
-              <h1 className="text-4xl md:text-6xl font-extrabold mb-8 leading-[1.1] tracking-tight text-slate-900 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                Crie Atividades <br />
-                <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 via-indigo-600 to-blue-500">
-                  Pedagógicas Inéditas
-                </span>{" "}
-                em Segundos
+              <h1 className="text-5xl md:text-7xl font-display font-black mb-10 leading-[1.05] tracking-tight text-slate-900 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                Ganhe até <span className="text-indigo-600">15 horas</span> por
+                semana com IA
               </h1>
 
-              <p className="text-xl text-slate-600 mb-12 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-1000">
-                A IA do EduCreator gera exercícios, textos e avaliações
-                completas alinhadas à BNCC. Baixe em PDF pronto para imprimir e
-                recupere seu tempo livre.
+              <p className="text-xl md:text-2xl text-slate-600 mb-14 max-w-2xl mx-auto leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-6 duration-1000">
+                Crie materiais personalizados baseados na BNCC em segundos. De
+                planos de aula a atividades inéditas e correções instantâneas.
               </p>
 
               <div className="flex flex-col sm:flex-row justify-center gap-6 animate-in fade-in slide-in-from-bottom-8 duration-1000">
                 <Link
                   href={hasUsedTrial ? "#precos" : "/register?plan=trial"}
-                  className="group px-10 py-5 text-lg font-bold text-white bg-blue-600 rounded-2xl hover:bg-blue-700 transition-all shadow-2xl shadow-blue-200 hover:shadow-blue-300 transform hover:-translate-y-1 flex items-center justify-center gap-2"
+                  className="group px-10 py-6 text-xl font-black text-white bg-indigo-600 rounded-3xl hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 hover:shadow-indigo-200 transform hover:-translate-y-1 flex items-center justify-center gap-2"
                 >
                   {hasUsedTrial
                     ? "Ver Planos Disponíveis"
                     : "Começar Gratuitamente"}
                   <ArrowRight
-                    size={20}
+                    size={22}
                     className="group-hover:translate-x-1 transition-transform"
                   />
                 </Link>
                 <Link
                   href="#demo"
-                  className="px-8 py-5 text-lg font-bold text-slate-700 bg-white border border-slate-200 rounded-2xl hover:bg-slate-50 transition-all shadow-sm flex items-center justify-center gap-2"
+                  className="px-10 py-6 text-xl font-black text-slate-700 bg-white border-2 border-slate-100 rounded-3xl hover:bg-slate-50 transition-all shadow-sm flex items-center justify-center gap-2"
                 >
-                  <MousePointer2 size={20} className="text-blue-600" />
+                  <MousePointer2 size={22} className="text-indigo-600" />
                   Ver Demonstração
                 </Link>
               </div>
 
-              <div className="mt-16 flex flex-wrap justify-center items-center gap-8 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-                <div className="flex items-center gap-2 font-bold text-slate-400">
-                  <ShieldCheck size={20} />
+              <div className="mt-20 flex flex-wrap justify-center items-center gap-10 opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
+                <div className="flex items-center gap-2.5 font-black text-slate-500 text-sm tracking-tight">
+                  <ShieldCheck size={22} className="text-indigo-600" />
                   <span>Seguro & Confiável</span>
                 </div>
-                <div className="flex items-center gap-2 font-bold text-slate-400">
-                  <Check size={20} />
+                <div className="flex items-center gap-2.5 font-black text-slate-500 text-sm tracking-tight">
+                  <Check size={22} className="text-emerald-600" />
                   <span>Alinhado à BNCC</span>
                 </div>
-                <div className="flex items-center gap-2 font-bold text-slate-400">
-                  <Star size={20} />
-                  <span>5 Estrelas por Professores</span>
+                <div className="flex items-center gap-2.5 font-black text-slate-500 text-sm tracking-tight">
+                  <Star
+                    size={22}
+                    className="text-amber-500"
+                    fill="currentColor"
+                  />
+                  <span>Favorito dos Professores</span>
                 </div>
               </div>
             </div>
@@ -202,53 +206,53 @@ export default function LandingPage() {
           <InteractiveDemo />
         </section>
 
+        {/* Solução Section */}
         <section id="solucao" className="py-24 bg-white relative">
           <div className="container mx-auto px-6">
             <div className="text-center max-w-3xl mx-auto mb-20">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-slate-900 tracking-tight">
-                O que você ganha com o{" "}
-                <span className="text-blue-600 underline decoration-blue-200 underline-offset-8">
-                  EduCreatorAI
-                </span>
+              <h2 className="text-4xl md:text-5xl font-display font-black mb-6 text-slate-900 tracking-tight">
+                Sua aula pronta em{" "}
+                <span className="text-indigo-600">um clique</span>
               </h2>
-              <p className="text-lg text-slate-600 leading-relaxed">
-                Desenvolvido por quem entende as dificuldades do cotidiano
-                escolar. Mais que uma ferramenta, um assistente pedagógico 24h.
+              <p className="text-xl text-slate-600 leading-relaxed font-medium">
+                Desenvolvemos ferramentas específicas para cada etapa do seu
+                dia. Da BNCC à correção, o EduCreator é seu assistente
+                pedagógico completo.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-3 gap-10">
               {[
                 {
-                  icon: <Clock className="w-8 h-8 text-blue-600" />,
-                  title: "Recupere seu Tempo",
-                  desc: "Reduza o tempo de planejamento de horas para minutos. Tenha mais tempo para você e sua família.",
-                  color: "bg-blue-50",
+                  icon: <Clock className="w-10 h-10 text-indigo-600" />,
+                  title: "Recupere seu tempo livre",
+                  desc: "Pare de levar trabalho para casa. Gere materiais completos que levariam horas em poucos segundos.",
+                  color: "bg-indigo-50/50",
                 },
                 {
-                  icon: <BookOpen className="w-8 h-8 text-indigo-600" />,
-                  title: "Conteúdo Inédito",
-                  desc: "Pare de usar as mesmas atividades de sempre. Gere questões novas, personalizadas para a sua turma.",
-                  color: "bg-indigo-50",
+                  icon: <BookOpen className="w-10 h-10 text-blue-600" />,
+                  title: "Conteúdo 100% Inédito",
+                  desc: "Nossa IA gera questões e textos originais, evitando o plágio e garantindo materiais exclusivos para sua turma.",
+                  color: "bg-blue-50/50",
                 },
                 {
-                  icon: <Sparkles className="w-8 h-8 text-amber-500" />,
-                  title: "Engajamento Total",
-                  desc: "Atividades visuais, lúdicas e interessantes que fazem seus alunos amarem aprender.",
-                  color: "bg-amber-50",
+                  icon: <Sparkles className="w-10 h-10 text-amber-500" />,
+                  title: "Engajamento que Encanta",
+                  desc: "Atividades lúdicas e visuais que fazem os alunos se interessarem pelo conteúdo de forma natural.",
+                  color: "bg-amber-50/50",
                 },
               ].map((benefit, i) => (
                 <div
                   key={i}
-                  className={`p-10 rounded-4xl ${benefit.color} border border-white transition-all hover:scale-105 duration-300`}
+                  className={`p-10 rounded-[2.5rem] ${benefit.color} border border-white transition-all hover:scale-[1.02] duration-500 shadow-sm hover:shadow-xl hover:shadow-indigo-100/20`}
                 >
-                  <div className="bg-white w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm mb-8">
+                  <div className="bg-white w-20 h-20 rounded-3xl flex items-center justify-center shadow-md shadow-slate-100 mb-8 transform -rotate-3 group-hover:rotate-0 transition-transform">
                     {benefit.icon}
                   </div>
-                  <h3 className="text-2xl font-bold mb-4 text-slate-900">
+                  <h3 className="text-2xl font-black mb-4 text-slate-900">
                     {benefit.title}
                   </h3>
-                  <p className="text-slate-600 leading-relaxed">
+                  <p className="text-slate-600 leading-relaxed font-medium">
                     {benefit.desc}
                   </p>
                 </div>
@@ -260,53 +264,58 @@ export default function LandingPage() {
         {/* How IT Works */}
         <section
           id="como-funciona"
-          className="py-32 bg-slate-50 relative overflow-hidden"
+          className="py-32 bg-slate-50/50 relative overflow-hidden"
         >
           <div className="container mx-auto px-6">
             <div className="text-center max-w-3xl mx-auto mb-20">
-              <h2 className="text-3xl font-bold mb-6 text-slate-900">
-                Magia em 3 Passos
+              <h2 className="text-4xl font-display font-black mb-6 text-slate-900">
+                Como Funciona
               </h2>
+              <p className="text-xl text-slate-600 font-medium">
+                Simples, rápido e intuitivo. Do jeito que o professor precisa.
+              </p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-12 relative">
-              {/* Connector Line */}
-              <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-slate-200 -translate-y-1/2 -z-10"></div>
+              {/* Connector Line (visible on desktop) */}
+              <div className="hidden md:block absolute top-[40%] left-0 w-full h-0.5 border-t-2 border-dashed border-slate-200 -z-10"></div>
 
               {[
                 {
                   step: "01",
-                  title: "Defina o Tema",
-                  desc: "Diga qual assunto, série e objetivos você deseja trabalhar.",
-                  icon: <MousePointer2 className="w-8 h-8 text-blue-600" />,
+                  title: "Defina o Objetivo",
+                  desc: "Escolha o tema, a série e os objetivos da BNCC que deseja trabalhar.",
+                  icon: <MousePointer2 className="w-10 h-10 text-indigo-600" />,
                 },
                 {
                   step: "02",
-                  title: "Gerar & Editar",
-                  desc: "Nossa IA cria tudo na hora. Você pode ajustar o texto ou incluir imagens.",
-                  icon: <Sparkles className="w-8 h-8 text-indigo-600" />,
+                  title: "IA Geradora",
+                  desc: "Em segundos, nossa IA cria o material completo: textos, questões e imagens.",
+                  icon: <Zap className="w-10 h-10 text-blue-600" />,
                 },
                 {
                   step: "03",
-                  title: "Imprimir",
-                  desc: "Baixe o PDF formatado, pronto para aplicar aos seus alunos.",
-                  icon: <Download className="w-8 h-8 text-emerald-600" />,
+                  title: "Pronto para Imprimir",
+                  desc: "Baixe o PDF formatado e profissional, pronto para aplicar em sala.",
+                  icon: <Download className="w-10 h-10 text-emerald-600" />,
                 },
               ].map((item, i) => (
                 <div
                   key={i}
-                  className="bg-white p-10 rounded-4xl shadow-xl shadow-slate-200/50 border border-slate-100 text-center hover:-translate-y-2 transition-transform duration-500"
+                  className="bg-white p-12 rounded-[2.5rem] shadow-xl shadow-slate-200/40 border border-white text-center hover:-translate-y-2 transition-all duration-500"
                 >
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white flex items-center justify-center rounded-full text-blue-600 font-bold border-4 border-slate-50 shadow-md">
+                  <div className="bg-indigo-600 w-12 h-12 flex items-center justify-center rounded-2xl text-white font-black text-sm mb-10 mx-auto shadow-lg shadow-indigo-100">
                     {item.step}
                   </div>
-                  <div className="bg-slate-50 w-20 h-20 rounded-4xl flex items-center justify-center mx-auto mb-8">
+                  <div className="bg-slate-50 w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-10 border border-slate-100">
                     {item.icon}
                   </div>
-                  <h3 className="text-2xl font-bold mb-4 text-slate-900">
+                  <h3 className="text-2xl font-black mb-4 text-slate-900">
                     {item.title}
                   </h3>
-                  <p className="text-slate-600 font-medium">{item.desc}</p>
+                  <p className="text-slate-600 font-medium leading-relaxed">
+                    {item.desc}
+                  </p>
                 </div>
               ))}
             </div>
@@ -317,37 +326,40 @@ export default function LandingPage() {
         <section id="precos" className="py-32 bg-white">
           <div className="container mx-auto px-6">
             <div className="text-center max-w-3xl mx-auto mb-20">
-              <span className="text-blue-600 font-bold uppercase tracking-widest text-sm mb-4 block">
+              <span className="text-indigo-600 font-black uppercase tracking-[0.2em] text-sm mb-4 block">
                 Planos & Preços
               </span>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-slate-900">
-                O Investimento com Maior ROI para o seu Tempo
+              <h2 className="text-4xl md:text-5xl font-display font-black mb-6 text-slate-900">
+                O maior retorno para o seu{" "}
+                <span className="text-indigo-600">precioso tempo</span>
               </h2>
-              <p className="text-slate-600 font-medium">
-                Testar não custa nada. Cancele quando quiser.
+              <p className="text-xl text-slate-600 font-medium">
+                Escolha o plano que melhor se adapta à sua rotina escolar.
               </p>
             </div>
 
-            <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto items-stretch">
+            <div className="grid lg:grid-cols-3 gap-10 max-w-6xl mx-auto items-stretch">
               {/* Trial */}
               {!hasUsedTrial && (
-                <div className="bg-white p-12 rounded-4xl shadow-xl shadow-slate-100 border-2 border-slate-100 transition-all hover:border-blue-200 flex flex-col group">
-                  <div className="mb-8">
-                    <div className="inline-block px-4 py-1.5 mb-6 text-xs font-bold tracking-widest text-emerald-600 uppercase bg-emerald-50 rounded-full">
-                      DEGUSTAÇÃO
+                <div className="bg-white p-12 rounded-[2.5rem] shadow-xl shadow-slate-100/50 border-2 border-slate-50 transition-all hover:border-indigo-100 flex flex-col group relative overflow-hidden">
+                  <div className="absolute -top-12 -right-12 w-24 h-24 bg-emerald-50 rounded-full blur-2xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
+
+                  <div className="mb-8 relative z-10">
+                    <div className="inline-block px-4 py-1.5 mb-6 text-[10px] font-black tracking-widest text-emerald-600 uppercase bg-emerald-50 rounded-full border border-emerald-100/50">
+                      CORTESIA
                     </div>
-                    <h3 className="text-3xl font-bold text-slate-900 mb-2">
-                      Teste Gratuito
+                    <h3 className="text-3xl font-black text-slate-900 mb-2 font-display">
+                      Degustação
                     </h3>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-4xl font-bold text-slate-900 leading-none">
-                        R$0
+                      <span className="text-5xl font-black text-slate-900 leading-none font-display">
+                        Grátis
                       </span>
                       <span className="text-slate-400 font-bold">/7 dias</span>
                     </div>
                   </div>
 
-                  <ul className="space-y-4 mb-10 grow">
+                  <ul className="space-y-4 mb-10 grow relative z-10">
                     {[
                       "Acesso total à ferramenta",
                       "Crie qualquer atividade",
@@ -356,10 +368,10 @@ export default function LandingPage() {
                     ].map((item, i) => (
                       <li
                         key={i}
-                        className="flex items-center gap-3 text-slate-600 font-bold text-sm"
+                        className="flex items-center gap-3 text-slate-600 font-black text-sm"
                       >
-                        <div className="w-5 h-5 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center shrink-0">
-                          <Check size={12} strokeWidth={4} />
+                        <div className="w-6 h-6 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center shrink-0 border border-emerald-100">
+                          <Check size={14} strokeWidth={4} />
                         </div>
                         {item}
                       </li>
@@ -368,7 +380,7 @@ export default function LandingPage() {
 
                   <Link
                     href="/register?plan=trial"
-                    className="w-full py-5 bg-emerald-600 text-white font-black text-center rounded-2xl hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-200 hover:shadow-emerald-100"
+                    className="w-full py-6 bg-emerald-600 text-white font-black text-center rounded-[1.5rem] hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-100 hover:shadow-emerald-200"
                   >
                     Ativar Agora
                   </Link>
@@ -376,40 +388,44 @@ export default function LandingPage() {
               )}
 
               {/* Pro - Featured */}
-              <div className="bg-slate-900 p-12 rounded-4xl shadow-[0_30px_60px_-15px_rgba(37,99,235,0.3)] border-4 border-blue-600 relative transform lg:-translate-y-8 flex flex-col scale-105 z-10">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white px-6 py-2 rounded-full text-xs font-black tracking-widest shadow-xl whitespace-nowrap uppercase">
-                  MAIS ESCOLHIDO
+              <div className="bg-slate-900 p-12 rounded-[2.5rem] shadow-[0_40px_80px_-15px_rgba(79,70,229,0.3)] border-[3px] border-indigo-600 relative transform lg:-translate-y-8 flex flex-col scale-105 z-10 overflow-hidden">
+                <div className="absolute top-0 right-0 p-12 opacity-5 -rotate-12 translate-x-12 -translate-y-12">
+                  <Sparkles size={160} fill="white" />
                 </div>
 
-                <div className="mb-8">
-                  <div className="inline-block px-4 py-1.5 mb-6 text-xs font-bold tracking-widest text-blue-400 uppercase bg-blue-500/10 rounded-full">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-600 text-white px-8 py-2.5 rounded-full text-[10px] font-black tracking-[0.2em] shadow-xl whitespace-nowrap uppercase">
+                  RECOMENDADO
+                </div>
+
+                <div className="mb-8 relative z-10">
+                  <div className="inline-block px-4 py-1.5 mb-6 text-[10px] font-black tracking-widest text-indigo-400 uppercase bg-indigo-500/10 rounded-full border border-indigo-500/20">
                     PROFISSIONAL
                   </div>
-                  <h3 className="text-3xl font-bold text-white mb-2">
+                  <h3 className="text-3xl font-black text-white mb-2 font-display">
                     Plano Pro
                   </h3>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold text-white leading-none">
+                    <span className="text-5xl font-black text-white leading-none font-display">
                       R$45,90
                     </span>
                     <span className="text-slate-400 font-bold">/mês</span>
                   </div>
                 </div>
 
-                <ul className="space-y-4 mb-10 grow">
+                <ul className="space-y-4 mb-10 grow relative z-10">
                   {[
                     "Geração ultra-rápida",
                     "Suporte VIP via WhatsApp",
-                    "Ideal para 2+ turmas",
                     "Templates exclusivos",
-                    "PDFs ilimitados",
+                    "PDFs Ilimitados",
+                    "Uso em múltiplas turmas",
                   ].map((item, i) => (
                     <li
                       key={i}
-                      className="flex items-center gap-3 text-slate-300 font-bold text-sm"
+                      className="flex items-center gap-3 text-slate-300 font-black text-sm"
                     >
-                      <div className="w-5 h-5 bg-blue-600 text-white rounded-full flex items-center justify-center shrink-0">
-                        <Check size={12} strokeWidth={4} />
+                      <div className="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center shrink-0 shadow-lg shadow-indigo-900">
+                        <Check size={14} strokeWidth={4} />
                       </div>
                       {item}
                     </li>
@@ -418,43 +434,45 @@ export default function LandingPage() {
 
                 <Link
                   href="/register?plan=pro"
-                  className="w-full py-5 bg-blue-600 text-white font-black text-center rounded-2xl hover:bg-blue-500 transition-all shadow-2xl shadow-blue-500/20"
+                  className="w-full py-6 bg-indigo-600 text-white font-black text-center rounded-[1.5rem] hover:bg-indigo-500 transition-all shadow-2xl shadow-indigo-600/30 font-display"
                 >
                   Assinar Agora
                 </Link>
               </div>
 
               {/* Normal */}
-              <div className="bg-white p-12 rounded-4xl shadow-2xl shadow-slate-100 border-2 border-slate-100 hover:border-slate-200 transition-all flex flex-col">
-                <div className="mb-8">
-                  <div className="inline-block px-4 py-1.5 mb-6 text-xs font-bold tracking-widest text-slate-600 uppercase bg-slate-100 rounded-full">
+              <div className="bg-white p-12 rounded-[2.5rem] shadow-2xl shadow-slate-100/50 border-2 border-slate-50 hover:border-slate-100 transition-all flex flex-col group overflow-hidden">
+                <div className="absolute -top-12 -right-12 w-24 h-24 bg-slate-50 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
+                <div className="mb-8 relative z-10">
+                  <div className="inline-block px-4 py-1.5 mb-6 text-[10px] font-black tracking-widest text-slate-600 uppercase bg-slate-100 rounded-full border border-slate-200/50">
                     BÁSICO
                   </div>
-                  <h3 className="text-3xl font-bold text-slate-900 mb-2">
-                    Plano Normal
+                  <h3 className="text-3xl font-black text-slate-900 mb-2 font-display">
+                    Plano Essencial
                   </h3>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold text-slate-900 leading-none">
+                    <span className="text-5xl font-black text-slate-900 leading-none font-display">
                       R$21,90
                     </span>
                     <span className="text-slate-400 font-bold">/mês</span>
                   </div>
                 </div>
 
-                <ul className="space-y-4 mb-10 grow">
+                <ul className="space-y-4 mb-10 grow relative z-10">
                   {[
                     "IA de alta qualidade",
-                    "Histórico 30 dias",
                     "Até 10 atividades/semana",
                     "PDFs para impressão",
+                    "Histórico 30 dias",
                     "Uso individual",
                   ].map((item, i) => (
                     <li
                       key={i}
-                      className="flex items-center gap-3 text-slate-600 font-bold text-sm"
+                      className="flex items-center gap-3 text-slate-600 font-black text-sm"
                     >
-                      <div className="w-5 h-5 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center shrink-0">
-                        <Check size={12} strokeWidth={4} />
+                      <div className="w-6 h-6 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center shrink-0 border border-slate-200">
+                        <Check size={14} strokeWidth={4} />
                       </div>
                       {item}
                     </li>
@@ -463,7 +481,7 @@ export default function LandingPage() {
 
                 <Link
                   href="/register?plan=normal"
-                  className="w-full py-5 bg-white border-2 border-slate-900 text-slate-900 font-black text-center rounded-2xl hover:bg-slate-900 hover:text-white transition-all shadow-sm"
+                  className="w-full py-6 bg-white border-2 border-slate-900 text-slate-900 font-black text-center rounded-[1.5rem] hover:bg-slate-900 hover:text-white transition-all shadow-sm"
                 >
                   Assinar Básico
                 </Link>
@@ -474,91 +492,112 @@ export default function LandingPage() {
 
         {/* Final CTA */}
         <section className="py-24 container mx-auto px-6">
-          <div className="bg-linear-to-r from-blue-600 to-indigo-700 rounded-4xl p-12 md:p-24 text-center text-white relative overflow-hidden shadow-2xl">
-            <div className="absolute top-0 right-0 p-12 opacity-10">
-              <Sparkles size={200} />
+          <div className="bg-indigo-600 rounded-[3rem] p-12 md:p-24 text-center text-white relative overflow-hidden shadow-2xl shadow-indigo-200">
+            <div className="absolute top-0 right-0 p-12 opacity-15 -rotate-12 translate-x-12">
+              <Sparkles size={250} fill="white" />
             </div>
 
-            <h2 className="text-3xl md:text-5xl font-bold mb-8 relative z-10 leading-tight">
-              Diga Adeus às Noites <br />
-              em Claro Planejando.
+            <h2 className="text-4xl md:text-6xl font-display font-black mb-10 relative z-10 leading-[1.1]">
+              Economize horas de <br className="hidden md:block" />
+              planejamento hoje mesmo.
             </h2>
-            <p className="text-xl md:text-2xl text-blue-100 mb-12 max-w-2xl mx-auto relative z-10 font-medium">
-              A ferramenta de IA mais amada pelos professores do Brasil. Comece
-              a criar hoje mesmo.
+            <p className="text-xl md:text-2xl text-indigo-100 mb-12 max-w-2xl mx-auto relative z-10 font-bold">
+              Junte-se aos milhares de professores que já usam IA para criar
+              atividades incríveis em segundos.
             </p>
 
             <div className="flex flex-col sm:flex-row justify-center gap-6 relative z-10">
               <Link
                 href={hasUsedTrial ? "#precos" : "/register?plan=trial"}
-                className="px-10 py-5 bg-white text-blue-700 font-black rounded-2xl hover:bg-blue-50 transition-all shadow-2xl hover:scale-105"
+                className="px-12 py-6 bg-white text-indigo-700 font-black rounded-2xl hover:bg-indigo-50 transition-all shadow-2xl hover:scale-105 font-display text-xl"
               >
-                {hasUsedTrial ? "Escolher Meu Plano" : "Começar Grátis Agora"}
+                {hasUsedTrial ? "Assinar Agora" : "Começar Grátis Agora"}
               </Link>
             </div>
 
-            <p className="mt-8 text-blue-200 text-sm font-bold relative z-10">
-              🚀 Já são mais de 10.000 atividades geradas!
+            <p className="mt-10 text-indigo-200 text-xs font-black tracking-widest uppercase relative z-10">
+              🚀 +15.000 atividades geradas este mês
             </p>
           </div>
         </section>
       </main>
 
       {/* Footer */}
-      <footer
-        id="footer"
-        className="bg-slate-50 py-20 border-t border-slate-200"
-      >
+      <footer id="footer" className="bg-white py-24 border-t border-slate-100">
         <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-12">
-            <div>
-              <Link href="/" className="flex items-center gap-2 mb-6">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
+          <div className="flex flex-col md:flex-row justify-between items-start gap-16">
+            <div className="max-w-xs">
+              <Link href="/" className="flex items-center gap-2 mb-8">
+                <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-indigo-100">
                   E
                 </div>
-                <span className="text-xl font-black tracking-tight text-slate-900">
+                <span className="text-2xl font-display font-black tracking-tight text-slate-900">
                   EduCreator AI
                 </span>
               </Link>
-              <p className="text-slate-500 text-sm max-w-xs font-medium">
-                Sua aliada favorita na jornada de educar. Inteligência
-                Artificial a serviço da pedagogia.
+              <p className="text-slate-500 text-sm font-bold leading-relaxed mb-8">
+                Sua parceira na missão de educar. Inteligência Artificial a
+                serviço da excelência pedagógica brasileira.
               </p>
+              <div className="flex gap-4">
+                {/* Social links could go here */}
+              </div>
             </div>
 
-            <div className="flex gap-12 text-sm">
-              <div className="flex flex-col gap-4">
-                <span className="font-black text-slate-900">Produto</span>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-16 text-sm">
+              <div className="flex flex-col gap-5">
+                <span className="font-black text-slate-900 uppercase tracking-widest text-[10px]">
+                  Produto
+                </span>
                 <a
                   href="#solucao"
-                  className="text-slate-500 hover:text-blue-600 font-bold transition-colors"
+                  className="text-slate-500 hover:text-indigo-600 font-bold transition-colors"
                 >
                   Funcionalidades
                 </a>
                 <a
-                  href="#precos"
-                  className="text-slate-500 hover:text-blue-600 font-bold transition-colors"
+                  href="#demo"
+                  className="text-slate-500 hover:text-indigo-600 font-bold transition-colors"
                 >
-                  Preços
+                  Demonstração
+                </a>
+                <a
+                  href="#precos"
+                  className="text-slate-500 hover:text-indigo-600 font-bold transition-colors"
+                >
+                  Planos
                 </a>
               </div>
-              <div className="flex flex-col gap-4">
-                <span className="font-black text-slate-900">Suporte</span>
+              <div className="flex flex-col gap-5">
+                <span className="font-black text-slate-900 uppercase tracking-widest text-[10px]">
+                  Suporte
+                </span>
                 <Link
                   href="/login"
-                  className="text-slate-500 hover:text-blue-600 font-bold transition-colors"
+                  className="text-slate-500 hover:text-indigo-600 font-bold transition-colors"
                 >
-                  Área do Aluno
+                  Área do Professor
                 </Link>
                 <a
                   href="#"
-                  className="text-slate-500 hover:text-blue-600 font-bold transition-colors"
+                  className="text-slate-500 hover:text-indigo-600 font-bold transition-colors"
                 >
-                  Termos de Uso
+                  WhatsApp
+                </a>
+              </div>
+              <div className="flex flex-col gap-5">
+                <span className="font-black text-slate-900 uppercase tracking-widest text-[10px]">
+                  Legal
+                </span>
+                <a
+                  href="#"
+                  className="text-slate-500 hover:text-indigo-600 font-bold transition-colors"
+                >
+                  Termos
                 </a>
                 <a
                   href="#"
-                  className="text-slate-500 hover:text-blue-600 font-bold transition-colors"
+                  className="text-slate-500 hover:text-indigo-600 font-bold transition-colors"
                 >
                   Privacidade
                 </a>
@@ -566,10 +605,13 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="mt-20 pt-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-bold text-slate-400">
-            <span>© 2026 EduCreator AI. Todos os direitos reservados.</span>
-            <div className="flex gap-6">
-              <span>Feito com ❤️ por educadores para educadores</span>
+          <div className="mt-24 pt-10 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] font-black tracking-widest text-slate-400 uppercase">
+            <span>© 2026 EduCreator AI. Feito com amor por educadores.</span>
+            <div className="flex gap-8">
+              <span className="flex items-center gap-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>{" "}
+                Servidores Online
+              </span>
             </div>
           </div>
         </div>

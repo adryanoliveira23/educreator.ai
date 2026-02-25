@@ -18,10 +18,15 @@ import {
   Eye,
   EyeOff,
   Phone,
+  Sparkles,
 } from "lucide-react";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 export default function RegisterPage() {
+  const [step, setStep] = useState(1);
+  const [accountType, setAccountType] = useState("");
+  const [subjects, setSubjects] = useState<string[]>([]);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
@@ -30,6 +35,14 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   const router = useRouter();
+
+  const toggleSubject = (subject: string) => {
+    setSubjects((prev) =>
+      prev.includes(subject)
+        ? prev.filter((s) => s !== subject)
+        : [...prev, subject],
+    );
+  };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,12 +70,9 @@ export default function RegisterPage() {
           const ipData = await ipRes.json();
           ipAddress = ipData.ip;
 
-          // Check if this IP has already used trial in Firestore (respects whitelist)
           const res = await fetch(`/api/admin/check-trial-ip?ip=${ipAddress}`);
           const checkData = await res.json();
 
-          // The API returns alreadyUsed: false if whitelisted or fresh.
-          // If alreadyUsed is true, we block. If false, we allow even if cookie exists.
           if (checkData.alreadyUsed) {
             hasUsedTrial = true;
           } else {
@@ -70,7 +80,6 @@ export default function RegisterPage() {
           }
         } catch (ipErr) {
           console.error("Failed to check IP trial status:", ipErr);
-          // Fallback to cookie if IP check fails
         }
       }
 
@@ -79,7 +88,6 @@ export default function RegisterPage() {
           "Você já utilizou o período de teste gratuito em outro momento. Por favor, escolha um de nossos planos para continuar.",
         );
         setLoading(false);
-        // Set cookie just in case it was missing but IP matched
         const date = new Date();
         date.setFullYear(date.getFullYear() + 1);
         document.cookie = `educreator_trial_used=true; expires=${date.toUTCString()}; path=/`;
@@ -93,7 +101,6 @@ export default function RegisterPage() {
       );
       const user = userCredential.user;
 
-      // Create user document in Firestore
       const finalStatus =
         isTrial && !hasUsedTrial ? "trial" : "pending_payment";
 
@@ -101,6 +108,8 @@ export default function RegisterPage() {
         email: user.email,
         whatsapp: cleanPhone(whatsapp),
         plan: plan,
+        accountType,
+        subjects,
         pdfs_generated_count: 0,
         createdAt: serverTimestamp(),
         subscription_status: finalStatus,
@@ -116,14 +125,11 @@ export default function RegisterPage() {
       });
 
       if (isTrial && !hasUsedTrial) {
-        // Set fraud prevention cookie
         const date = new Date();
         date.setFullYear(date.getFullYear() + 1);
         document.cookie = `educreator_trial_used=true; expires=${date.toUTCString()}; path=/`;
-
         router.push("/dashboard");
       } else {
-        // Paid plans or already used trial: Direct redirect to Cakto
         try {
           const token = await user.getIdToken();
           const res = await fetch("/api/payments/create", {
@@ -142,25 +148,18 @@ export default function RegisterPage() {
         } catch (paymentErr) {
           console.error("Failed to redirect to Cakto:", paymentErr);
         }
-        // Fallback or if already used trial
         router.push(`/dashboard?plan=${plan}`);
       }
     } catch (err: unknown) {
-      // Basic mapping for common codes if available on the error object
       const firebaseError = err as { code: string; message: string };
-
       if (firebaseError.code === "auth/email-already-in-use") {
         try {
-          // Try to login and continue
           await signInWithEmailAndPassword(auth, email, password);
           const searchParams = new URLSearchParams(window.location.search);
           const plan = searchParams.get("plan") || "normal";
-
           router.push(`/checkout?plan=${plan}`);
-          return; // Success, don't show error
+          return;
         } catch (loginErr) {
-          console.error("Auto-login failed:", loginErr);
-          // If login fails, default to showing the original error or a generic one
           setError("Este email já está em uso. Tente fazer login.");
         }
       } else if (firebaseError.code === "auth/weak-password") {
@@ -170,186 +169,231 @@ export default function RegisterPage() {
           firebaseError.message || "Erro ao registrar. Tente novamente.",
         );
       }
-
-      console.error(err);
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
-      {/* Left Panel - Branding */}
-      <div className="hidden lg:flex w-1/2 bg-linear-to-br from-blue-600 to-indigo-900 text-white p-12 flex-col justify-between relative overflow-hidden">
-        <div className="z-10">
-          <div className="flex items-center gap-2 mb-8">
-            <Image
-              src="/logo.png"
-              alt="Logo"
-              width={40}
-              height={40}
-              className="brightness-0 invert object-contain"
-            />
-            <h1 className="text-2xl font-bold">EduCreator AI</h1>
+    <div className="min-h-screen flex flex-col bg-white">
+      {/* Dynamic Header */}
+      <header className="p-8 flex justify-between items-center bg-white border-b border-slate-50">
+        <Link href="/" className="flex items-center gap-2">
+          <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
+            <Sparkles size={24} fill="white" />
           </div>
-          <h2 className="text-4xl font-bold max-w-md leading-tight mb-4">
-            Junte-se a milhares de educadores inovadores.
-          </h2>
-          <p className="text-blue-100 max-w-sm text-lg">
-            Comece a criar conteúdo educacional de alta qualidade hoje mesmo.
-          </p>
-        </div>
+          <span className="text-2xl font-display font-black tracking-tight text-slate-900">
+            EduCreator AI
+          </span>
+        </Link>
+        <Link
+          href="/login"
+          className="text-sm font-black text-slate-500 hover:text-indigo-600 transition-colors flex items-center gap-1"
+        >
+          Sair <ArrowRight size={14} />
+        </Link>
+      </header>
 
-        <div className="z-10 text-sm text-blue-200">
-          © {new Date().getFullYear()} EduCreator AI. Todos os direitos
-          reservados.
-        </div>
-
-        {/* Abstract shapes */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 translate-y-1/2 -translate-x-1/2"></div>
-      </div>
-
-      {/* Right Panel - Register Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
-        <div className="w-full max-w-md space-y-8">
-          <div className="text-center lg:text-left">
-            <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
-              Crie sua conta
-            </h2>
-            <p className="mt-2 text-sm text-gray-600">
-              É rápido, fácil e gratuito para começar.
-            </p>
-          </div>
-
-          <form className="mt-8 space-y-6" onSubmit={handleRegister}>
-            {error && (
-              <div className="bg-red-50 text-red-500 p-3 rounded-lg text-sm text-center border border-red-100">
-                {error}
-              </div>
-            )}
-
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="email-address" className="sr-only">
-                  Email
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail
-                      className="h-5 w-5 text-gray-400"
-                      aria-hidden="true"
-                    />
-                  </div>
-                  <input
-                    id="email-address"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="relative block w-full rounded-lg border-0 py-3 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                    placeholder="Seu endereço de email"
-                  />
-                </div>
-              </div>
-              <div>
-                <label htmlFor="whatsapp" className="sr-only">
-                  WhatsApp
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Phone
-                      className="h-5 w-5 text-gray-400"
-                      aria-hidden="true"
-                    />
-                  </div>
-                  <input
-                    id="whatsapp"
-                    name="whatsapp"
-                    type="text"
-                    required
-                    maxLength={15}
-                    value={whatsapp}
-                    onChange={(e) => setWhatsapp(maskWhatsApp(e.target.value))}
-                    className="relative block w-full rounded-lg border-0 py-3 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                    placeholder="Seu WhatsApp (com DDD) *"
-                  />
-                </div>
-              </div>
-              <div>
-                <label htmlFor="password" className="sr-only">
-                  Senha
-                </label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock
-                      className="h-5 w-5 text-gray-400 group-focus-within:text-blue-600 transition-colors"
-                      aria-hidden="true"
-                    />
-                  </div>
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="new-password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="relative block w-full rounded-lg border-0 py-3 pl-10 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 transition-all"
-                    placeholder="Crie uma senha segura"
-                  />
+      <div className="flex-grow flex items-center justify-center p-6 bg-slate-50/30">
+        <div className="w-full max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+          {/* Step 1: Account Type */}
+          {step === 1 && (
+            <div className="space-y-12 text-center">
+              <h2 className="text-4xl md:text-5xl font-display font-black text-slate-900">
+                Qual será seu tipo de conta?
+              </h2>
+              <div className="grid md:grid-cols-3 gap-6">
+                {[
+                  { id: "teacher", label: "Professor", icon: "👨‍🏫" },
+                  { id: "student", label: "Aluno", icon: "🎓" },
+                  { id: "admin", label: "Administrador da escola", icon: "🏫" },
+                ].map((type) => (
                   <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-blue-600 focus:outline-none transition-colors"
-                    onClick={() => setShowPassword(!showPassword)}
+                    key={type.id}
+                    onClick={() => {
+                      setAccountType(type.id);
+                      setStep(type.id === "teacher" ? 2 : 3);
+                    }}
+                    className="p-10 bg-white border-2 border-slate-100 rounded-[2.5rem] text-left hover:border-indigo-600 hover:shadow-2xl hover:shadow-indigo-100/30 transition-all group"
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" aria-hidden="true" />
-                    ) : (
-                      <Eye className="h-5 w-5" aria-hidden="true" />
-                    )}
+                    <div className="text-4xl mb-6 transform group-hover:scale-110 transition-transform">
+                      {type.icon}
+                    </div>
+                    <span className="text-xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors">
+                      {type.label}
+                    </span>
                   </button>
-                </div>
+                ))}
               </div>
             </div>
+          )}
 
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="group relative flex w-full justify-center rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-70 disabled:cursor-not-allowed transition-all"
-              >
-                {loading ? (
-                  <Loader2 className="animate-spin h-5 w-5 text-white" />
-                ) : (
-                  <span className="flex items-center gap-2">
-                    Criar conta <ArrowRight className="h-4 w-4" />
-                  </span>
+          {/* Step 2: Subjects Selection */}
+          {step === 2 && (
+            <div className="space-y-12">
+              <div className="flex justify-between items-center">
+                <h2 className="text-4xl font-display font-black text-slate-900">
+                  Você leciona quais disciplinas?
+                </h2>
+                <span className="text-slate-400 font-bold tracking-widest text-sm">
+                  2 / 5
+                </span>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                {[
+                  "Artes",
+                  "Biologia",
+                  "Ciências",
+                  "Educação Física",
+                  "Educação Infantil",
+                  "Espanhol",
+                  "Filosofia",
+                  "Física",
+                  "Geografia",
+                  "História",
+                  "Inglês",
+                  "Matemática",
+                  "Português",
+                  "Química",
+                  "Sociologia",
+                  "Outra",
+                ].map((sub) => (
+                  <button
+                    key={sub}
+                    onClick={() => toggleSubject(sub)}
+                    className={`px-6 py-3 rounded-full border-2 font-bold text-sm transition-all flex items-center gap-2 ${
+                      subjects.includes(sub)
+                        ? "bg-indigo-600 border-indigo-600 text-white shadow-xl shadow-indigo-100"
+                        : "bg-white border-slate-100 text-slate-600 hover:border-indigo-200"
+                    }`}
+                  >
+                    {sub}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex justify-between items-center pt-8">
+                <button
+                  onClick={() => setStep(1)}
+                  className="text-slate-400 font-black hover:text-slate-600"
+                >
+                  Voltar
+                </button>
+                <button
+                  onClick={() => setStep(3)}
+                  className="px-12 py-5 bg-indigo-600 text-white font-black rounded-3xl hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100"
+                >
+                  Continuar
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Registration Form */}
+          {step === 3 && (
+            <div className="max-w-md mx-auto space-y-8">
+              <div className="text-center">
+                <h2 className="text-4xl font-display font-black text-slate-900 mb-4">
+                  Quase lá!
+                </h2>
+                <p className="text-slate-500 font-bold">
+                  Crie seu acesso para começar a usar a IA.
+                </p>
+              </div>
+
+              <form onSubmit={handleRegister} className="space-y-5">
+                {error && (
+                  <div className="bg-red-50 text-red-500 p-4 rounded-2xl text-sm font-bold border border-red-100 animate-in shake duration-500">
+                    {error}
+                  </div>
                 )}
-              </button>
-            </div>
-          </form>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-2 text-gray-500">Já é membro?</span>
-            </div>
-          </div>
+                <div className="space-y-4">
+                  <div className="relative">
+                    <Mail
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                      size={18}
+                    />
+                    <input
+                      type="email"
+                      required
+                      placeholder="Seu melhor e-mail"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 font-bold text-slate-900 focus:border-indigo-600 outline-none transition-all"
+                    />
+                  </div>
 
-          <div className="text-center">
-            <Link
-              href="/login"
-              className="font-medium text-blue-600 hover:text-blue-500"
-            >
-              Entrar na sua conta
-            </Link>
-          </div>
+                  <div className="relative">
+                    <Phone
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                      size={18}
+                    />
+                    <input
+                      type="text"
+                      required
+                      placeholder="WhatsApp (com DDD)"
+                      value={whatsapp}
+                      onChange={(e) =>
+                        setWhatsapp(maskWhatsApp(e.target.value))
+                      }
+                      className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 font-bold text-slate-900 focus:border-indigo-600 outline-none transition-all"
+                    />
+                  </div>
+
+                  <div className="relative">
+                    <Lock
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                      size={18}
+                    />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      required
+                      placeholder="Crie uma senha"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-12 font-bold text-slate-900 focus:border-indigo-600 outline-none transition-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-5 bg-indigo-600 text-white font-black rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {loading ? (
+                    <Loader2 className="animate-spin" size={20} />
+                  ) : (
+                    <>
+                      Criar minha conta <ArrowRight size={18} />
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setStep(accountType === "teacher" ? 2 : 1)}
+                  className="w-full text-slate-400 font-black text-sm py-2 hover:text-slate-600"
+                >
+                  Voltar para o passo anterior
+                </button>
+              </form>
+            </div>
+          )}
         </div>
       </div>
+
+      <footer className="p-8 text-center text-[10px] font-black tracking-widest text-slate-400 uppercase">
+        © {new Date().getFullYear()} EduCreator AI. Segurança garantida.
+      </footer>
     </div>
   );
 }

@@ -40,11 +40,20 @@ export async function POST(req: Request) {
           imageBuffer = Buffer.from(base64Data, "base64");
         } else {
           // Resolve relative URLs for local wallpapers
+          const baseUrl =
+            process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
           const fullUrl = wallpaperUrl.startsWith("http")
             ? wallpaperUrl
-            : `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}${wallpaperUrl}`;
+            : `${baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl}${wallpaperUrl}`;
+
+          console.log("Fetching background:", fullUrl);
           const res = await fetch(fullUrl);
-          if (!res.ok) return;
+          if (!res.ok) {
+            console.error(
+              `Failed to fetch background: ${res.status} ${res.statusText}`,
+            );
+            return;
+          }
           imageBuffer = Buffer.from(await res.arrayBuffer());
         }
 
@@ -177,11 +186,17 @@ export async function POST(req: Request) {
 
           if (includeImages && q.imageUrl) {
             try {
+              const baseUrl =
+                process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
               const fullImageUrl =
                 q.imageUrl.startsWith("http") || q.imageUrl.startsWith("data:")
                   ? q.imageUrl
-                  : `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}${q.imageUrl}`;
+                  : `${baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl}${q.imageUrl}`;
 
+              console.log(
+                `Fetching image for question ${q.number}:`,
+                fullImageUrl,
+              );
               const imageRes = await fetch(fullImageUrl);
               if (imageRes.ok) {
                 const arrayBuffer = await imageRes.arrayBuffer();
