@@ -95,7 +95,7 @@ export default function LandingPage() {
               href="#precos"
               className="px-6 py-3 text-sm font-black bg-slate-900 text-white rounded-2xl hover:bg-indigo-600 transition-all shadow-xl shadow-slate-100 hover:shadow-indigo-100 hover:-translate-y-0.5"
             >
-              Começar Gratuitamente
+              Gerar atividades
             </Link>
           </div>
         </div>
@@ -136,18 +136,13 @@ export default function LandingPage() {
                <div className="flex flex-col sm:flex-row justify-center gap-6 animate-in fade-in slide-in-from-bottom-8 duration-1000">
                 <Link
                   href="#precos"
-                  className="group px-10 py-6 text-xl font-black text-white bg-indigo-600 rounded-3xl hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 hover:shadow-indigo-200 transform hover:-translate-y-1 flex items-center justify-center gap-4"
+                  className="group px-10 py-6 text-xl font-black text-white bg-indigo-600 rounded-3xl hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 hover:shadow-indigo-200 transform hover:-translate-y-1 flex items-center justify-center gap-2"
                 >
-                  Começar Gratuitamente
-                  <div className="flex items-center gap-1.5">
-                    <ArrowRight
-                      size={22}
-                      className="group-hover:translate-x-1 transition-transform"
-                    />
-                    <div className="w-8 h-8 rounded-full border-2 border-white/30 flex items-center justify-center">
-                      <Zap size={16} className="fill-white" />
-                    </div>
-                  </div>
+                  Gerar atividades
+                  <ArrowRight
+                    size={22}
+                    className="group-hover:translate-x-1 transition-transform"
+                  />
                 </Link>
                 <Link
                   href="#demo"
@@ -425,7 +420,7 @@ export default function LandingPage() {
                   href="https://pay.cakto.com.br/9m78gio_761861"
                   className="w-full py-6 bg-slate-900 text-white font-black text-center rounded-[1.5rem] hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 font-display"
                 >
-                  Começar com Essencial
+                  Gerar atividades
                 </a>
               </div>
             </div>
