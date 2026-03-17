@@ -95,7 +95,7 @@ export default function LandingPage() {
               href="#precos"
               className="px-6 py-3 text-sm font-black bg-slate-900 text-white rounded-2xl hover:bg-indigo-600 transition-all shadow-xl shadow-slate-100 hover:shadow-indigo-100 hover:-translate-y-0.5"
             >
-              Gerar atividades
+              Começar Gratuitamente
             </Link>
           </div>
         </div>
@@ -115,15 +115,15 @@ export default function LandingPage() {
 
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto text-center">
-              <div className="inline-flex items-center gap-2 px-5 py-2.5 mb-10 text-xs font-black tracking-widest text-indigo-700 uppercase bg-indigo-50 rounded-full border border-indigo-100/50 animate-in fade-in slide-in-from-bottom-2 duration-700">
+              <div className="inline-flex items-center gap-2 px-6 py-2 mb-10 text-[10px] font-black tracking-[0.2em] text-indigo-700 uppercase bg-indigo-50/50 rounded-full border border-indigo-100/50 animate-in fade-in slide-in-from-bottom-2 duration-700">
                 <span className="flex h-2 w-2 rounded-full bg-indigo-600 animate-pulse"></span>
                 REVOLUCIONANDO O PLANEJAMENTO ESCOLAR
               </div>
 
-               <h1 className="text-5xl md:text-7xl font-display font-black mb-10 leading-[1.05] tracking-tight text-slate-900 animate-in fade-in slide-in-from-bottom-4 duration-700">
+               <h1 className="text-6xl md:text-8xl font-display font-black mb-10 leading-[1] tracking-tight text-slate-900 animate-in fade-in slide-in-from-bottom-4 duration-700">
                 Crie Atividades <br />
-                <span className="text-indigo-600">Pedagógicas</span> <br />
-                <span className="text-indigo-600">Inéditas</span> em <br />
+                <span className="bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Pedagógicas <br />
+                Inéditas</span> em <br />
                 Segundos
               </h1>
 
@@ -133,16 +133,21 @@ export default function LandingPage() {
                 recupere seu tempo livre.
               </p>
 
-              <div className="flex flex-col sm:flex-row justify-center gap-6 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+               <div className="flex flex-col sm:flex-row justify-center gap-6 animate-in fade-in slide-in-from-bottom-8 duration-1000">
                 <Link
                   href="#precos"
-                  className="group px-10 py-6 text-xl font-black text-white bg-indigo-600 rounded-3xl hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 hover:shadow-indigo-200 transform hover:-translate-y-1 flex items-center justify-center gap-2"
+                  className="group px-10 py-6 text-xl font-black text-white bg-indigo-600 rounded-3xl hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 hover:shadow-indigo-200 transform hover:-translate-y-1 flex items-center justify-center gap-4"
                 >
-                  Gerar atividades
-                  <ArrowRight
-                    size={22}
-                    className="group-hover:translate-x-1 transition-transform"
-                  />
+                  Começar Gratuitamente
+                  <div className="flex items-center gap-1.5">
+                    <ArrowRight
+                      size={22}
+                      className="group-hover:translate-x-1 transition-transform"
+                    />
+                    <div className="w-8 h-8 rounded-full border-2 border-white/30 flex items-center justify-center">
+                      <Zap size={16} className="fill-white" />
+                    </div>
+                  </div>
                 </Link>
                 <Link
                   href="#demo"
