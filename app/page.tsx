@@ -309,7 +309,7 @@ export default function LandingPage() {
         {/* Pricing */}
         <section id="precos" className="py-32 bg-white">
           <div className="container mx-auto px-6">
-            <div className="text-center max-w-3xl mx-auto mb-20">
+            <div className="text-center max-w-3xl mx-auto mb-32">
               <span className="text-indigo-600 font-black uppercase tracking-[0.2em] text-sm mb-4 block">
                 Planos & Preços
               </span>
@@ -325,7 +325,7 @@ export default function LandingPage() {
             <div className="grid lg:grid-cols-2 gap-10 max-w-4xl mx-auto items-stretch">
 
               {/* Pro - Featured */}
-              <div className="bg-slate-900 p-12 rounded-[2.5rem] shadow-[0_40px_80px_-15px_rgba(79,70,229,0.3)] border-[3px] border-indigo-600 relative transform lg:-translate-y-8 flex flex-col z-10 overflow-hidden">
+              <div className="bg-slate-900 p-12 rounded-[2.5rem] shadow-[0_40px_80px_-15px_rgba(79,70,229,0.3)] border-[3px] border-indigo-600 relative flex flex-col z-10 overflow-hidden hover:scale-[1.02] transition-transform duration-500">
                 <div className="absolute top-0 right-0 p-12 opacity-5 -rotate-12 translate-x-12 -translate-y-12">
                   <Sparkles size={160} fill="white" />
                 </div>
@@ -378,7 +378,7 @@ export default function LandingPage() {
               </div>
 
               {/* Normal */}
-              <div className="bg-white p-12 rounded-[2.5rem] shadow-2xl shadow-slate-100/50 border-2 border-slate-50 hover:border-slate-100 transition-all flex flex-col group overflow-hidden">
+              <div className="bg-white p-12 rounded-[2.5rem] shadow-2xl shadow-indigo-100/20 border-[3px] border-slate-100 hover:border-indigo-100 transition-all flex flex-col group overflow-hidden hover:scale-[1.02] duration-500">
                 <div className="absolute -top-12 -right-12 w-24 h-24 bg-slate-50 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
                 <div className="mb-8 relative z-10">
@@ -408,7 +408,7 @@ export default function LandingPage() {
                       key={i}
                       className="flex items-center gap-3 text-slate-600 font-black text-sm"
                     >
-                      <div className="w-6 h-6 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center shrink-0 border border-slate-200">
+                      <div className="w-6 h-6 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center shrink-0 border border-indigo-100">
                         <Check size={14} strokeWidth={4} />
                       </div>
                       {item}
@@ -418,9 +418,9 @@ export default function LandingPage() {
 
                 <a
                   href="https://pay.cakto.com.br/9m78gio_761861"
-                  className="w-full py-6 bg-white border-2 border-slate-900 text-slate-900 font-black text-center rounded-[1.5rem] hover:bg-slate-900 hover:text-white transition-all shadow-sm"
+                  className="w-full py-6 bg-slate-900 text-white font-black text-center rounded-[1.5rem] hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 font-display"
                 >
-                  Assinar Básico
+                  Começar com Essencial
                 </a>
               </div>
             </div>

@@ -235,7 +235,7 @@ export default function LoginPage() {
               href="/register"
               className="font-medium text-green-600 hover:text-green-500"
             >
-              Criar conta gratuitamente
+              Criar minha conta
             </Link>
           </div>
         </div>
