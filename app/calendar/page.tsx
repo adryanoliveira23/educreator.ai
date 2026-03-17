@@ -8,16 +8,47 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import Link from "next/link";
 import ActivitySidebar from "@/components/ActivitySidebar";
 
+interface Question {
+  number: number;
+  questionText: string;
+  type:
+    | "multiple_choice"
+    | "check_box"
+    | "true_false"
+    | "writing"
+    | "matching"
+    | "image_selection"
+    | "counting"
+    | "completion"
+    | "pintar";
+  alternatives: string[];
+}
+
 interface Activity {
   id: string;
   userId: string;
   prompt: string;
   result: {
     title: string;
-    questions?: any[];
+    header: {
+      studentName: string;
+      school: string;
+      teacherName: string;
+    };
+    questions: Question[];
   };
-  createdAt: any;
-  date?: string; // Standardized ISO string for calendar mapping
+  createdAt: {
+    seconds: number;
+    nanoseconds: number;
+    toDate?: () => Date;
+  };
+  date?: string;
+}
+
+interface UserData {
+  plan: string;
+  pdfs_generated_count: number;
+  subscription_status?: string;
 }
 
 export default function CalendarPage() {
@@ -25,7 +56,7 @@ export default function CalendarPage() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [view, setView] = useState<"week" | "month">("week");
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Fetch activities from Firestore
@@ -38,7 +69,7 @@ export default function CalendarPage() {
         query(collection(db, "users"), where("__name__", "==", user.uid)),
       );
       if (!userRes.empty) {
-        setUserData(userRes.docs[0].data());
+        setUserData(userRes.docs[0].data() as UserData);
       }
 
       // Fetch activities
@@ -97,7 +128,7 @@ export default function CalendarPage() {
         setIsSidebarOpen={setIsSidebarOpen}
         startNewActivity={() => {}}
         userData={userData}
-        activities={activities as any}
+        activities={activities}
         setResult={() => {}}
         setShowPlans={() => {}}
         handleLogout={() => {}}

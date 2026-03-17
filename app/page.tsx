@@ -309,7 +309,7 @@ export default function LandingPage() {
         {/* Pricing */}
         <section id="precos" className="py-32 bg-white">
           <div className="container mx-auto px-6">
-            <div className="text-center max-w-3xl mx-auto mb-32">
+            <div className="text-center max-w-3xl mx-auto mb-48">
               <span className="text-indigo-600 font-black uppercase tracking-[0.2em] text-sm mb-4 block">
                 Planos & Preços
               </span>
@@ -325,12 +325,12 @@ export default function LandingPage() {
             <div className="grid lg:grid-cols-2 gap-10 max-w-4xl mx-auto items-stretch">
 
               {/* Pro - Featured */}
-              <div className="bg-slate-900 p-12 rounded-[2.5rem] shadow-[0_40px_80px_-15px_rgba(79,70,229,0.3)] border-[3px] border-indigo-600 relative flex flex-col z-10 overflow-hidden hover:scale-[1.02] transition-transform duration-500">
-                <div className="absolute top-0 right-0 p-12 opacity-5 -rotate-12 translate-x-12 -translate-y-12">
+              <div className="bg-slate-900 p-12 pt-24 rounded-[2.5rem] shadow-[0_40px_80px_-15px_rgba(79,70,229,0.3)] border-[3px] border-indigo-600 relative flex flex-col z-10 hover:scale-[1.02] transition-transform duration-500">
+                <div className="absolute top-0 right-0 p-12 opacity-5 -rotate-12 translate-x-12 -translate-y-12 overflow-hidden pointer-events-none">
                   <Sparkles size={160} fill="white" />
                 </div>
 
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-600 text-white px-8 py-2.5 rounded-full text-[10px] font-black tracking-[0.2em] shadow-xl whitespace-nowrap uppercase">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-600 text-white px-8 py-2.5 rounded-full text-[10px] font-black tracking-[0.2em] shadow-xl whitespace-nowrap uppercase z-20">
                   RECOMENDADO
                 </div>
 
