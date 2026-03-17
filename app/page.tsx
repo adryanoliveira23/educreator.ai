@@ -54,11 +54,11 @@ export default function LandingPage() {
         } ${showNavbar ? "top-0" : "-top-24"}`}
       >
         <div className="container mx-auto px-6 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 group-hover:scale-105 transition-transform">
-              <Sparkles size={24} fill="white" />
+          <Link href="/" className="flex items-center gap-2 group shrink-0">
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 group-hover:scale-105 transition-transform">
+              <Sparkles className="w-5 h-5 md:w-6 md:h-6" fill="white" />
             </div>
-            <span className="text-xl font-display font-black tracking-tight text-slate-900">
+            <span className="text-lg md:text-xl font-display font-black tracking-tight text-slate-900">
               EduCreator<span className="text-indigo-600">AI</span>
             </span>
           </Link>
@@ -84,16 +84,16 @@ export default function LandingPage() {
             </a>
           </nav>
 
-          <div className="flex gap-4 items-center">
+          <div className="flex gap-2 md:gap-4 items-center">
             <Link
               href="/login"
-              className="px-6 py-3 text-sm font-bold text-slate-700 hover:text-indigo-600 transition-colors"
+              className="px-3 md:px-6 py-3 text-xs md:text-sm font-bold text-slate-700 hover:text-indigo-600 transition-colors"
             >
               Entrar
             </Link>
             <Link
               href="#precos"
-              className="px-6 py-3 text-sm font-black bg-slate-900 text-white rounded-2xl hover:bg-indigo-600 transition-all shadow-xl shadow-slate-100 hover:shadow-indigo-100 hover:-translate-y-0.5"
+              className="px-4 md:px-6 py-2.5 md:py-3 text-xs md:text-sm font-black bg-slate-900 text-white rounded-xl md:rounded-2xl hover:bg-indigo-600 transition-all shadow-xl shadow-slate-100 hover:shadow-indigo-100 hover:-translate-y-0.5 whitespace-nowrap"
             >
               Gerar atividades
             </Link>
@@ -120,14 +120,14 @@ export default function LandingPage() {
                 REVOLUCIONANDO O PLANEJAMENTO ESCOLAR
               </div>
 
-               <h1 className="text-6xl md:text-8xl font-display font-black mb-10 leading-[1] tracking-tight text-slate-900 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                Crie Atividades <br />
-                <span className="bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Pedagógicas <br />
-                Inéditas</span> em <br />
+                <h1 className="text-5xl sm:text-7xl md:text-9xl font-display font-black mb-10 leading-[1.1] md:leading-[1] tracking-tight text-slate-900 animate-in fade-in slide-in-from-bottom-4 duration-700 px-4">
+                Crie Atividades <br className="hidden sm:block" />
+                <span className="bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Pedagógicas <br className="hidden sm:block" />
+                Inéditas</span> em <br className="hidden sm:block" />
                 Segundos
               </h1>
 
-              <p className="text-xl md:text-2xl text-slate-600 mb-14 max-w-2xl mx-auto leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-6 duration-1000">
+              <p className="text-lg sm:text-2xl md:text-4xl text-slate-600 mb-14 max-w-3xl mx-auto leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-6 duration-1000 px-4">
                 A IA do EduCreator gera exercícios, textos e avaliações
                 completas alinhadas à BNCC. Baixe em PDF pronto para imprimir e
                 recupere seu tempo livre.
