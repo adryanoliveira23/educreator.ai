@@ -91,12 +91,12 @@ export default function LandingPage() {
             >
               Entrar
             </Link>
-            <Link
+            <a
               href="#precos"
               className="px-4 md:px-6 py-2.5 md:py-3 text-xs md:text-sm font-black bg-slate-900 text-white rounded-xl md:rounded-2xl hover:bg-indigo-600 transition-all shadow-xl shadow-slate-100 hover:shadow-indigo-100 hover:-translate-y-0.5 whitespace-nowrap"
             >
               Gerar atividades
-            </Link>
+            </a>
           </div>
         </div>
       </header>
@@ -131,23 +131,23 @@ export default function LandingPage() {
               </p>
 
                <div className="flex flex-col sm:flex-row justify-center gap-6 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-                <Link
-                  href="#precos"
-                  className="group px-10 py-6 text-xl font-black text-white bg-indigo-600 rounded-3xl hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 hover:shadow-indigo-200 transform hover:-translate-y-1 flex items-center justify-center gap-2"
-                >
-                  Gerar atividades
-                  <ArrowRight
-                    size={22}
-                    className="group-hover:translate-x-1 transition-transform"
-                  />
-                </Link>
-                <Link
-                  href="#demo"
-                  className="px-10 py-6 text-xl font-black text-slate-700 bg-white border-2 border-slate-100 rounded-3xl hover:bg-slate-50 transition-all shadow-sm flex items-center justify-center gap-2"
-                >
-                  <MousePointer2 size={22} className="text-indigo-600" />
-                  Ver Demonstração
-                </Link>
+                 <a
+                   href="#precos"
+                   className="group px-10 py-6 text-xl font-black text-white bg-indigo-600 rounded-3xl hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 hover:shadow-indigo-200 transform hover:-translate-y-1 flex items-center justify-center gap-2"
+                 >
+                   Gerar atividades
+                   <ArrowRight
+                     size={22}
+                     className="group-hover:translate-x-1 transition-transform"
+                   />
+                 </a>
+                 <a
+                   href="#demo"
+                   className="px-10 py-6 text-xl font-black text-slate-700 bg-white border-2 border-slate-100 rounded-3xl hover:bg-slate-50 transition-all shadow-sm flex items-center justify-center gap-2"
+                 >
+                   <MousePointer2 size={22} className="text-indigo-600" />
+                   Ver Demonstração
+                 </a>
               </div>
 
               <div className="mt-20 flex flex-wrap justify-center items-center gap-10 opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
@@ -441,12 +441,12 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row justify-center gap-6 relative z-10">
-              <Link
+              <a
                 href="#precos"
                 className="px-12 py-6 bg-white text-indigo-700 font-black rounded-2xl hover:bg-indigo-50 transition-all shadow-2xl hover:scale-105 font-display text-xl"
               >
                 Gerar atividades
-              </Link>
+              </a>
             </div>
 
             <p className="mt-10 text-indigo-200 text-xs font-black tracking-widest uppercase relative z-10">
