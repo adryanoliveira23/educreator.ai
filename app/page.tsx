@@ -81,7 +81,7 @@ export default function LandingPage() {
               href="#precos"
               className="px-6 py-3 text-sm font-black bg-slate-900 text-white rounded-2xl hover:bg-indigo-600 transition-all shadow-xl shadow-slate-100 hover:shadow-indigo-100 hover:-translate-y-0.5"
             >
-              Gerar atividades
+              Começar Gratuitamente
             </Link>
           </div>
         </div>
@@ -103,17 +103,19 @@ export default function LandingPage() {
             <div className="max-w-4xl mx-auto text-center">
               <div className="inline-flex items-center gap-2 px-5 py-2.5 mb-10 text-xs font-black tracking-widest text-indigo-700 uppercase bg-indigo-50 rounded-full border border-indigo-100/50 animate-in fade-in slide-in-from-bottom-2 duration-700">
                 <span className="flex h-2 w-2 rounded-full bg-indigo-600 animate-pulse"></span>
-                A IA nº 1 para Professores no Brasil
+                REVOLUCIONANDO O PLANEJAMENTO ESCOLAR
               </div>
 
-              <h1 className="text-5xl md:text-7xl font-display font-black mb-10 leading-[1.05] tracking-tight text-slate-900 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                Ganhe até <span className="text-indigo-600">15 horas</span> por
-                semana com IA
+               <h1 className="text-5xl md:text-7xl font-display font-black mb-10 leading-[1.05] tracking-tight text-slate-900 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                Crie Atividades <br />
+                <span className="text-indigo-600">Pedagógicas</span> Inéditas
+                em Segundos
               </h1>
 
               <p className="text-xl md:text-2xl text-slate-600 mb-14 max-w-2xl mx-auto leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-6 duration-1000">
-                Crie materiais personalizados baseados na BNCC em segundos. De
-                planos de aula a atividades inéditas e correções instantâneas.
+                A IA do EduCreator gera exercícios, textos e avaliações
+                completas alinhadas à BNCC. Baixe em PDF pronto para imprimir e
+                recupere seu tempo livre.
               </p>
 
               <div className="flex flex-col sm:flex-row justify-center gap-6 animate-in fade-in slide-in-from-bottom-8 duration-1000">
@@ -121,7 +123,7 @@ export default function LandingPage() {
                   href="#precos"
                   className="group px-10 py-6 text-xl font-black text-white bg-indigo-600 rounded-3xl hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 hover:shadow-indigo-200 transform hover:-translate-y-1 flex items-center justify-center gap-2"
                 >
-                  Gerar atividades
+                  Começar Gratuitamente
                   <ArrowRight
                     size={22}
                     className="group-hover:translate-x-1 transition-transform"
@@ -431,7 +433,7 @@ export default function LandingPage() {
                 href="#precos"
                 className="px-12 py-6 bg-white text-indigo-700 font-black rounded-2xl hover:bg-indigo-50 transition-all shadow-2xl hover:scale-105 font-display text-xl"
               >
-                Gerar atividades
+                Começar Gratuitamente
               </Link>
             </div>
 
