@@ -120,14 +120,14 @@ export default function LandingPage() {
                 REVOLUCIONANDO O PLANEJAMENTO ESCOLAR
               </div>
 
-                <h1 className="text-6xl sm:text-8xl md:text-[10rem] font-display font-black mb-10 leading-[1] md:leading-[0.9] tracking-tight text-slate-900 animate-in fade-in slide-in-from-bottom-4 duration-700 px-4">
+                <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-display font-black mb-10 leading-[1.1] md:leading-[1] tracking-tight text-slate-900 animate-in fade-in slide-in-from-bottom-4 duration-700 px-4">
                 Crie Atividades <br className="hidden sm:block" />
                 <span className="bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Pedagógicas <br className="hidden sm:block" />
                 Inéditas</span> em <br className="hidden sm:block" />
                 Segundos
               </h1>
 
-              <p className="text-xl sm:text-3xl md:text-5xl text-slate-600 mb-14 max-w-4xl mx-auto leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-6 duration-1000 px-4">
+              <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-slate-600 mb-14 max-w-4xl mx-auto leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-6 duration-1000 px-4">
                 A IA do EduCreator gera exercícios, textos e avaliações
                 completas alinhadas à BNCC. Baixe em PDF pronto para imprimir e
                 recupere seu tempo livre.
@@ -178,7 +178,7 @@ export default function LandingPage() {
         {/* Demo Section */}
         <section id="demo" className="container mx-auto px-6 mb-32">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-4xl md:text-6xl font-black mb-6 text-slate-900 tracking-tight">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 text-slate-900 tracking-tight">
               Veja a <span className="text-blue-600">Mágica</span> Acontecendo
             </h2>
             <p className="text-lg text-slate-600 font-medium">
@@ -194,7 +194,7 @@ export default function LandingPage() {
         <section id="solucao" className="py-24 bg-white relative">
           <div className="container mx-auto px-6">
             <div className="text-center max-w-3xl mx-auto mb-20">
-              <h2 className="text-5xl md:text-7xl font-display font-black mb-6 text-slate-900 tracking-tight">
+              <h2 className="text-5xl md:text-6xl font-display font-black mb-6 text-slate-900 tracking-tight">
                 Sua aula pronta em{" "}
                 <span className="text-indigo-600">um clique</span>
               </h2>
@@ -252,7 +252,7 @@ export default function LandingPage() {
         >
           <div className="container mx-auto px-6">
             <div className="text-center max-w-3xl mx-auto mb-20">
-              <h2 className="text-5xl md:text-7xl font-display font-black mb-6 text-slate-900">
+              <h2 className="text-5xl md:text-6xl font-display font-black mb-6 text-slate-900">
                 Como Funciona
               </h2>
               <p className="text-xl text-slate-600 font-medium">
@@ -313,7 +313,7 @@ export default function LandingPage() {
               <span className="text-indigo-600 font-black uppercase tracking-[0.2em] text-sm mb-4 block">
                 Planos & Preços
               </span>
-              <h2 className="text-5xl md:text-7xl font-display font-black mb-6 text-slate-900">
+              <h2 className="text-5xl md:text-6xl font-display font-black mb-6 text-slate-900">
                 O maior retorno para o seu{" "}
                 <span className="text-indigo-600">precioso tempo</span>
               </h2>
