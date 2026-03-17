@@ -19,25 +19,39 @@ import InteractiveDemo from "@/components/landing/InteractiveDemo";
 
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
+  const [showNavbar, setShowNavbar] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      const currentScrollY = window.scrollY;
+      
+      // Determine if background should be white/blurred
+      setScrolled(currentScrollY > 20);
+
+      // Determine visibility based on scroll direction
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setShowNavbar(false);
+      } else {
+        setShowNavbar(true);
+      }
+      
+      setLastScrollY(currentScrollY);
     };
     window.addEventListener("scroll", handleScroll);
 
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [lastScrollY]);
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans selection:bg-blue-100 selection:text-blue-900">
       {/* Header */}
       <header
-        className={`fixed w-full z-50 transition-all duration-300 ${
+        className={`fixed w-full z-50 transition-all duration-500 ${
           scrolled
             ? "bg-white/90 backdrop-blur-md shadow-sm py-4"
             : "bg-transparent py-6"
-        }`}
+        } ${showNavbar ? "top-0" : "-top-24"}`}
       >
         <div className="container mx-auto px-6 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 group">
@@ -81,7 +95,7 @@ export default function LandingPage() {
               href="#precos"
               className="px-6 py-3 text-sm font-black bg-slate-900 text-white rounded-2xl hover:bg-indigo-600 transition-all shadow-xl shadow-slate-100 hover:shadow-indigo-100 hover:-translate-y-0.5"
             >
-              Começar Gratuitamente
+              Gerar atividades
             </Link>
           </div>
         </div>
@@ -108,8 +122,9 @@ export default function LandingPage() {
 
                <h1 className="text-5xl md:text-7xl font-display font-black mb-10 leading-[1.05] tracking-tight text-slate-900 animate-in fade-in slide-in-from-bottom-4 duration-700">
                 Crie Atividades <br />
-                <span className="text-indigo-600">Pedagógicas</span> Inéditas
-                em Segundos
+                <span className="text-indigo-600">Pedagógicas</span> <br />
+                <span className="text-indigo-600">Inéditas</span> em <br />
+                Segundos
               </h1>
 
               <p className="text-xl md:text-2xl text-slate-600 mb-14 max-w-2xl mx-auto leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-6 duration-1000">
@@ -123,7 +138,7 @@ export default function LandingPage() {
                   href="#precos"
                   className="group px-10 py-6 text-xl font-black text-white bg-indigo-600 rounded-3xl hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 hover:shadow-indigo-200 transform hover:-translate-y-1 flex items-center justify-center gap-2"
                 >
-                  Começar Gratuitamente
+                  Gerar atividades
                   <ArrowRight
                     size={22}
                     className="group-hover:translate-x-1 transition-transform"
@@ -307,10 +322,10 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="grid lg:grid-cols-3 gap-10 max-w-6xl mx-auto items-stretch">
+            <div className="grid lg:grid-cols-2 gap-10 max-w-4xl mx-auto items-stretch">
 
               {/* Pro - Featured */}
-              <div className="bg-slate-900 p-12 rounded-[2.5rem] shadow-[0_40px_80px_-15px_rgba(79,70,229,0.3)] border-[3px] border-indigo-600 relative transform lg:-translate-y-8 flex flex-col scale-105 z-10 overflow-hidden">
+              <div className="bg-slate-900 p-12 rounded-[2.5rem] shadow-[0_40px_80px_-15px_rgba(79,70,229,0.3)] border-[3px] border-indigo-600 relative transform lg:-translate-y-8 flex flex-col z-10 overflow-hidden">
                 <div className="absolute top-0 right-0 p-12 opacity-5 -rotate-12 translate-x-12 -translate-y-12">
                   <Sparkles size={160} fill="white" />
                 </div>
@@ -433,7 +448,7 @@ export default function LandingPage() {
                 href="#precos"
                 className="px-12 py-6 bg-white text-indigo-700 font-black rounded-2xl hover:bg-indigo-50 transition-all shadow-2xl hover:scale-105 font-display text-xl"
               >
-                Começar Gratuitamente
+                Gerar atividades
               </Link>
             </div>
 
@@ -454,7 +469,7 @@ export default function LandingPage() {
                   E
                 </div>
                 <span className="text-2xl font-display font-black tracking-tight text-slate-900">
-                  EduCreator AI
+                  EduCreator<span className="text-indigo-600">AI</span>
                 </span>
               </Link>
               <p className="text-slate-500 text-sm font-bold leading-relaxed mb-8">

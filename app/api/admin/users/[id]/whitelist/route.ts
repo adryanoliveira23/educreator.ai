@@ -17,7 +17,7 @@ export async function POST(
       );
     }
 
-    const updateData: any = {};
+    const updateData: admin.firestore.DocumentData = {};
     if (action === "whitelist") {
       updateData["metadata.whitelisted_ips"] =
         admin.firestore.FieldValue.arrayUnion(ip);

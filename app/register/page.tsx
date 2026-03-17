@@ -9,7 +9,6 @@ import { auth, db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { maskWhatsApp, cleanPhone } from "@/lib/utils";
 import Link from "next/link";
-import Image from "next/image";
 import {
   Lock,
   Mail,
@@ -58,41 +57,6 @@ export default function RegisterPage() {
       // Get plan from URL
       const searchParams = new URLSearchParams(window.location.search);
       const plan = searchParams.get("plan") || "normal";
-      const isTrial = plan === "trial";
-
-      // Trial Prevention: Check IP and Cookie
-      let hasUsedTrial = document.cookie.includes("educreator_trial_used=true");
-      let ipAddress = "unknown";
-
-      if (isTrial) {
-        try {
-          const ipRes = await fetch("https://api.ipify.org?format=json");
-          const ipData = await ipRes.json();
-          ipAddress = ipData.ip;
-
-          const res = await fetch(`/api/admin/check-trial-ip?ip=${ipAddress}`);
-          const checkData = await res.json();
-
-          if (checkData.alreadyUsed) {
-            hasUsedTrial = true;
-          } else {
-            hasUsedTrial = false;
-          }
-        } catch (ipErr) {
-          console.error("Failed to check IP trial status:", ipErr);
-        }
-      }
-
-      if (isTrial && hasUsedTrial) {
-        setError(
-          "Você já utilizou o período de teste gratuito em outro momento. Por favor, escolha um de nossos planos para continuar.",
-        );
-        setLoading(false);
-        const date = new Date();
-        date.setFullYear(date.getFullYear() + 1);
-        document.cookie = `educreator_trial_used=true; expires=${date.toUTCString()}; path=/`;
-        return;
-      }
 
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -101,8 +65,7 @@ export default function RegisterPage() {
       );
       const user = userCredential.user;
 
-      const finalStatus =
-        isTrial && !hasUsedTrial ? "trial" : "pending_payment";
+      const finalStatus = "pending_payment";
 
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
@@ -114,8 +77,8 @@ export default function RegisterPage() {
         createdAt: serverTimestamp(),
         subscription_status: finalStatus,
         metadata: {
-          trial_cookie_present: hasUsedTrial,
-          ip_address: ipAddress,
+          trial_cookie_present: false,
+          ip_address: "removed",
           user_agent:
             typeof window !== "undefined"
               ? window.navigator.userAgent
@@ -124,32 +87,25 @@ export default function RegisterPage() {
         },
       });
 
-      if (isTrial && !hasUsedTrial) {
-        const date = new Date();
-        date.setFullYear(date.getFullYear() + 1);
-        document.cookie = `educreator_trial_used=true; expires=${date.toUTCString()}; path=/`;
-        router.push("/dashboard");
-      } else {
-        try {
-          const token = await user.getIdToken();
-          const res = await fetch("/api/payments/create", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ plan }),
-          });
-          const data = await res.json();
-          if (data.init_point) {
-            window.location.href = data.init_point;
-            return;
-          }
-        } catch (paymentErr) {
-          console.error("Failed to redirect to Cakto:", paymentErr);
+      try {
+        const token = await user.getIdToken();
+        const res = await fetch("/api/payments/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ plan }),
+        });
+        const data = await res.json();
+        if (data.init_point) {
+          window.location.href = data.init_point;
+          return;
         }
-        router.push(`/dashboard?plan=${plan}`);
+      } catch (paymentErr) {
+        console.error("Failed to redirect to Cakto:", paymentErr);
       }
+      router.push(`/dashboard?plan=${plan}`);
     } catch (err: unknown) {
       const firebaseError = err as { code: string; message: string };
       if (firebaseError.code === "auth/email-already-in-use") {
@@ -159,7 +115,7 @@ export default function RegisterPage() {
           const plan = searchParams.get("plan") || "normal";
           router.push(`/checkout?plan=${plan}`);
           return;
-        } catch (loginErr) {
+        } catch {
           setError("Este email já está em uso. Tente fazer login.");
         }
       } else if (firebaseError.code === "auth/weak-password") {
