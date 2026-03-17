@@ -321,6 +321,53 @@ export default function LandingPage() {
 
             <div className="grid lg:grid-cols-2 gap-10 max-w-4xl mx-auto items-stretch">
 
+              {/* Normal */}
+              <div className="bg-white p-12 rounded-[2.5rem] shadow-2xl shadow-indigo-100/20 border-[3px] border-slate-100 hover:border-indigo-100 transition-all flex flex-col group overflow-hidden hover:scale-[1.02] duration-500">
+                <div className="absolute -top-12 -right-12 w-24 h-24 bg-slate-50 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
+                <div className="mb-8 relative z-10">
+                  <div className="inline-block px-4 py-1.5 mb-6 text-[10px] font-black tracking-widest text-slate-600 uppercase bg-slate-100 rounded-full border border-slate-200/50">
+                    BÁSICO
+                  </div>
+                  <h3 className="text-3xl font-black text-slate-900 mb-2 font-display">
+                    Plano Essencial
+                  </h3>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-5xl font-black text-slate-900 leading-none font-display">
+                      R$9,99
+                    </span>
+                    <span className="text-slate-400 font-bold">/mês</span>
+                  </div>
+                </div>
+
+                <ul className="space-y-4 mb-10 grow relative z-10">
+                  {[
+                    "IA de alta qualidade",
+                    "Até 10 atividades/semana",
+                    "PDFs para impressão",
+                    "Histórico 30 dias",
+                    "Uso individual",
+                  ].map((item, i) => (
+                    <li
+                      key={i}
+                      className="flex items-center gap-3 text-slate-600 font-black text-sm"
+                    >
+                      <div className="w-6 h-6 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center shrink-0 border border-indigo-100">
+                        <Check size={14} strokeWidth={4} />
+                      </div>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+
+                <a
+                  href="https://pay.cakto.com.br/9m78gio_761861"
+                  className="w-full py-6 bg-slate-900 text-white font-black text-center rounded-[1.5rem] hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 font-display"
+                >
+                  Gerar atividades
+                </a>
+              </div>
+
               {/* Pro - Featured */}
               <div className="bg-slate-900 p-12 pt-24 rounded-[2.5rem] shadow-[0_40px_80px_-15px_rgba(79,70,229,0.3)] border-[3px] border-indigo-600 relative flex flex-col z-10 hover:scale-[1.02] transition-transform duration-500">
                 <div className="absolute top-0 right-0 p-12 opacity-5 -rotate-12 translate-x-12 -translate-y-12 overflow-hidden pointer-events-none">
@@ -371,53 +418,6 @@ export default function LandingPage() {
                   className="w-full py-6 bg-indigo-600 text-white font-black text-center rounded-[1.5rem] hover:bg-indigo-500 transition-all shadow-2xl shadow-indigo-600/30 font-display"
                 >
                   Assinar Agora
-                </a>
-              </div>
-
-              {/* Normal */}
-              <div className="bg-white p-12 rounded-[2.5rem] shadow-2xl shadow-indigo-100/20 border-[3px] border-slate-100 hover:border-indigo-100 transition-all flex flex-col group overflow-hidden hover:scale-[1.02] duration-500">
-                <div className="absolute -top-12 -right-12 w-24 h-24 bg-slate-50 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-
-                <div className="mb-8 relative z-10">
-                  <div className="inline-block px-4 py-1.5 mb-6 text-[10px] font-black tracking-widest text-slate-600 uppercase bg-slate-100 rounded-full border border-slate-200/50">
-                    BÁSICO
-                  </div>
-                  <h3 className="text-3xl font-black text-slate-900 mb-2 font-display">
-                    Plano Essencial
-                  </h3>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-5xl font-black text-slate-900 leading-none font-display">
-                      R$9,99
-                    </span>
-                    <span className="text-slate-400 font-bold">/mês</span>
-                  </div>
-                </div>
-
-                <ul className="space-y-4 mb-10 grow relative z-10">
-                  {[
-                    "IA de alta qualidade",
-                    "Até 10 atividades/semana",
-                    "PDFs para impressão",
-                    "Histórico 30 dias",
-                    "Uso individual",
-                  ].map((item, i) => (
-                    <li
-                      key={i}
-                      className="flex items-center gap-3 text-slate-600 font-black text-sm"
-                    >
-                      <div className="w-6 h-6 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center shrink-0 border border-indigo-100">
-                        <Check size={14} strokeWidth={4} />
-                      </div>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-
-                <a
-                  href="https://pay.cakto.com.br/9m78gio_761861"
-                  className="w-full py-6 bg-slate-900 text-white font-black text-center rounded-[1.5rem] hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 font-display"
-                >
-                  Gerar atividades
                 </a>
               </div>
             </div>
