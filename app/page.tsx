@@ -120,14 +120,11 @@ export default function LandingPage() {
                 REVOLUCIONANDO O PLANEJAMENTO ESCOLAR
               </div>
 
-                <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-display font-black mb-10 leading-[1.1] md:leading-[1] tracking-tight text-slate-900 animate-in fade-in slide-in-from-bottom-4 duration-700 px-4">
-                Crie Atividades <br className="hidden sm:block" />
-                <span className="bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Pedagógicas <br className="hidden sm:block" />
-                Inéditas</span> em <br className="hidden sm:block" />
-                Segundos
+                <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-black mb-10 leading-[1.1] md:leading-[1] tracking-tight text-slate-900 animate-in fade-in slide-in-from-bottom-4 duration-700 px-4 text-balance">
+                Crie Atividades <span className="bg-linear-to-r from-blue-500 via-indigo-600 to-violet-700 bg-clip-text text-transparent">Pedagógicas Inéditas</span> em Segundos
               </h1>
 
-              <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-slate-600 mb-14 max-w-4xl mx-auto leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-6 duration-1000 px-4">
+              <p className="text-lg sm:text-xl md:text-2xl text-slate-600 mb-14 max-w-4xl mx-auto leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-6 duration-1000 px-4">
                 A IA do EduCreator gera exercícios, textos e avaliações
                 completas alinhadas à BNCC. Baixe em PDF pronto para imprimir e
                 recupere seu tempo livre.
