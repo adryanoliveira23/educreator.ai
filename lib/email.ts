@@ -13,15 +13,27 @@ export async function sendWelcomeEmail(
   to: string,
   plan: string,
   isTrial: boolean = false,
+  isNewAccount: boolean = false,
 ): Promise<void> {
   const planNames: Record<string, string> = {
-    normal: "Normal (R$ 21,90/mês)",
-    pro: "Pro (R$ 45,90/mês)",
-
+    normal: "Essencial (R$ 9,99/mês)",
+    pro: "Pro (R$ 19,80/mês)",
     trial: "Teste Grátis (7 Dias)",
   };
 
   const planName = planNames[plan] || plan;
+
+  const newAccountInfo = isNewAccount
+    ? `
+    <div style="background-color: #f0f7ff; border-left: 4px solid #2563eb; padding: 15px; margin: 20px 0; color: #1e40af;">
+      <p style="margin: 0; font-weight: bold;">🔑 Sua Conta foi Criada!</p>
+      <p style="margin: 5px 0 0;">
+        Como você adquiriu o plano diretamente, criamos uma conta vinculada ao seu e-mail: <strong>${to}</strong>.<br><br>
+        Para o seu primeiro acesso, utilize a função <strong>"Esqueci minha senha"</strong> na página de login para definir sua senha de acesso.
+      </p>
+    </div>
+    `
+    : "";
 
   const trialWarning = isTrial
     ? `
@@ -68,6 +80,7 @@ export async function sendWelcomeEmail(
               
               <p><strong>Plano atual:</strong> ${planName}</p>
               
+              ${newAccountInfo}
               ${trialWarning}
               
               <p>Agora você pode começar a criar conteúdo educacional de alta qualidade com a ajuda da nossa IA:</p>

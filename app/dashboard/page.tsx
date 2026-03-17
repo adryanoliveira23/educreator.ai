@@ -102,7 +102,6 @@ export default function Dashboard() {
   const [result, setResult] = useState<ActivityContent | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
-  const [error, setError] = useState("");
 
   const [showPlans, setShowPlans] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
@@ -116,32 +115,19 @@ export default function Dashboard() {
   const [includeImages, setIncludeImages] = useState(true);
 
   // Scarcity logic
-  const isTrial = userData?.plan === "trial";
-  const hasUsedTrial = userData?.metadata?.trial_cookie_present || false;
-
-  // Calculate trial days left (placeholder logic, assuming 7 days from registration)
-  const getTrialDaysLeft = () => {
-    if (!userData?.metadata?.registration_date) return 7;
-    const regDate = new Date(userData.metadata.registration_date);
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - regDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return Math.max(0, 7 - diffDays);
-  };
-  const daysLeft = getTrialDaysLeft();
-
   const [selectedWallpaper, setSelectedWallpaper] = useState<string | null>(
     null,
   );
-  const [customWallpaper, setCustomWallpaper] = useState<string | null>(null);
-  const [questionCount, setQuestionCount] = useState(5);
+  const questionCount = 5;
   const [toolSearch, setToolSearch] = useState("");
 
   // Guided Wizard State
   // Modal states
   const [showWizard, setShowWizard] = useState(false);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
-  const [selectedTool, setSelectedTool] = useState<any>(null);
+  const [selectedTool, setSelectedTool] = useState<ActivityTemplate | null>(
+    null,
+  );
   const [wizardStep, setWizardStep] = useState(1);
   const [wizardData, setWizardData] = useState({
     topic: "",
@@ -162,7 +148,6 @@ export default function Dashboard() {
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64 = reader.result as string;
-        setCustomWallpaper(base64);
         setSelectedWallpaper(base64);
       };
       reader.readAsDataURL(file);
@@ -327,7 +312,6 @@ export default function Dashboard() {
 
     const generationId = ++generationRef.current;
     setIsGenerating(true);
-    setError("");
     setResult(null);
     setCurrentPrompt(prompt);
 
@@ -365,7 +349,7 @@ export default function Dashboard() {
       fetchActivities();
     } catch (err) {
       if (generationId === generationRef.current) {
-        setError(err instanceof Error ? err.message : "Erro desconhecido");
+        console.error("Generation error:", err);
       }
     } finally {
       if (generationId === generationRef.current) {
@@ -380,7 +364,6 @@ export default function Dashboard() {
     setPrompt("");
     setCurrentPrompt("");
     setIsGenerating(false);
-    setError("");
     setSelectedTypes(["multiple_choice"]);
   };
 
@@ -499,24 +482,6 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col relative pt-20 md:pt-0 h-full overflow-hidden">
-        {/* Scarcity Banner for Trial Users */}
-        {isTrial && (
-          <div className="bg-linear-to-r from-blue-600 to-indigo-700 text-white px-4 py-2 flex items-center justify-between shadow-md z-30">
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <Zap size={16} className="text-yellow-300 animate-pulse" />
-              <span>
-                Seu teste grátis expira em <strong>{daysLeft} dias</strong>.
-                Faça o upgrade agora e economize até 10 horas semanais!
-              </span>
-            </div>
-            <button
-              onClick={() => setShowPlans(true)}
-              className="bg-white text-blue-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-blue-50 transition shadow-sm"
-            >
-              Fazer Upgrade
-            </button>
-          </div>
-        )}
 
         {showWarning && !showPlans && (
           <div className="fixed inset-0 z-60 bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4">
@@ -575,67 +540,6 @@ export default function Dashboard() {
               </div>
 
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {/* Trial - Only show if not used and NOT currently on trial */}
-                {!hasUsedTrial && !isTrial && (
-                  <div className="bg-white p-8 rounded-4xl shadow-xl border-2 border-green-500/30 relative flex flex-col hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-6 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg whitespace-nowrap">
-                      DEGUSTAÇÃO
-                    </div>
-                    <div className="mb-6">
-                      <h3 className="text-xl font-bold text-slate-900 mb-1">
-                        Teste Gratuito
-                      </h3>
-                      <p className="text-slate-400 text-xs font-medium uppercase tracking-wider">
-                        7 dias de acesso total
-                      </p>
-                    </div>
-                    <div className="flex items-baseline gap-1 mb-2">
-                      <span className="text-4xl font-black text-slate-900">
-                        R$ 0
-                      </span>
-                      <span className="text-slate-400 font-bold">/7 dias</span>
-                    </div>
-                    <p className="text-green-600 font-bold mb-8 text-xs bg-green-50 inline-block px-3 py-1 rounded-full w-fit">
-                      Garantia de cancelamento imediato
-                    </p>
-                    <ul className="space-y-4 mb-8 text-sm grow">
-                      <li className="flex items-center gap-3 text-slate-600 font-medium">
-                        <Check
-                          size={20}
-                          className="text-green-500 shrink-0 bg-green-50 p-1 rounded-full"
-                        />{" "}
-                        Acesso total à inteligência artificial
-                      </li>
-                      <li className="flex items-center gap-3 text-slate-600 font-medium">
-                        <Check
-                          size={20}
-                          className="text-green-500 shrink-0 bg-green-50 p-1 rounded-full"
-                        />{" "}
-                        Crie qualquer tipo de atividade
-                      </li>
-                      <li className="flex items-center gap-3 text-slate-600 font-medium">
-                        <Check
-                          size={20}
-                          className="text-green-500 shrink-0 bg-green-50 p-1 rounded-full"
-                        />{" "}
-                        Cancele quando quiser sem letras miúdas
-                      </li>
-                      <li className="flex items-center gap-3 text-slate-600 font-medium">
-                        <Check
-                          size={20}
-                          className="text-green-500 shrink-0 bg-green-50 p-1 rounded-full"
-                        />{" "}
-                        Experimente antes de investir
-                      </li>
-                    </ul>
-                    <button
-                      onClick={() => handleUpgrade("trial")}
-                      className="block text-center w-full py-5 bg-green-500 text-white font-black rounded-2xl hover:bg-green-600 transition shadow-xl shadow-green-100 active:scale-95 duration-200"
-                    >
-                      Começar Grátis
-                    </button>
-                  </div>
-                )}
 
                 {/* Pro */}
                 <div className="bg-slate-900 p-8 rounded-4xl shadow-2xl border-2 border-blue-600 relative flex flex-col transform md:-translate-y-4 hover:shadow-blue-900/10 transition-all duration-300">
@@ -652,7 +556,7 @@ export default function Dashboard() {
                   </div>
                   <div className="flex items-baseline gap-1 mb-2">
                     <span className="text-4xl font-black text-white">
-                      R$ 45,90
+                      R$ 19,80
                     </span>
                     <span className="text-slate-500 font-bold">/mês</span>
                   </div>
@@ -711,7 +615,7 @@ export default function Dashboard() {
                   </div>
                   <div className="mb-6">
                     <h3 className="text-xl font-bold text-slate-900 mb-1">
-                      Plano Normal
+                      Plano Essencial
                     </h3>
                     <p className="text-slate-400 text-xs font-medium uppercase tracking-wider">
                       Apoio para sua rotina
@@ -719,7 +623,7 @@ export default function Dashboard() {
                   </div>
                   <div className="flex items-baseline gap-1 mb-2">
                     <span className="text-4xl font-black text-slate-900">
-                      R$ 21,90
+                      R$ 9,99
                     </span>
                     <span className="text-slate-400 font-bold">/mês</span>
                   </div>
@@ -760,7 +664,7 @@ export default function Dashboard() {
                     onClick={() => handleUpgrade("normal")}
                     className="block text-center w-full py-5 border-2 border-slate-900 text-slate-900 font-black rounded-2xl hover:bg-slate-900 hover:text-white transition active:scale-95 duration-200"
                   >
-                    Assinar Básico
+                    Gerar atividades
                   </button>
                 </div>
               </div>
@@ -855,7 +759,7 @@ export default function Dashboard() {
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && !e.shiftKey) {
                             e.preventDefault();
-                            handleGenerate(e as any);
+                            handleGenerate(e as unknown as React.FormEvent);
                           }
                         }}
                       />
@@ -1284,7 +1188,6 @@ export default function Dashboard() {
                     setPrompt(finalPrompt);
                     setShowWizard(false);
                     // Use a synthetic event to trigger generation
-                    const form = document.createElement("form");
                     handleGenerate({
                       preventDefault: () => {},
                     } as React.FormEvent);

@@ -70,13 +70,13 @@ function CheckoutContent() {
     }
   > = {
     normal: {
-      name: "Plano Normal",
-      price: "R$ 21,90",
+      name: "Plano Essencial",
+      price: "R$ 9,99",
       features: ["10 PDFs/mês", "Histórico 30 dias", "Suporte básico"],
     },
     pro: {
       name: "Plano Pro",
-      price: "R$ 45,90",
+      price: "R$ 19,80",
       features: [
         "30 PDFs/mês",
         "Geração mais rápida",
@@ -84,19 +84,6 @@ function CheckoutContent() {
         "Acesso a novos modelos",
       ],
       highlight: "Popular",
-    },
-
-    trial: {
-      name: "Teste Grátis 7 Dias",
-      price: "R$ 0,00",
-      originalPrice: "R$ 21,90",
-      features: [
-        "Acesso ilimitado por 7 dias",
-        "Cancele a qualquer momento",
-        "Sem cobrança hoje",
-        "Depois apenas R$ 21,90/mês",
-      ],
-      highlight: "Oferta Limitada",
     },
   };
 

@@ -67,7 +67,7 @@ interface ActivitySidebarProps {
   isSidebarOpen: boolean;
   setIsSidebarOpen: (open: boolean) => void;
   startNewActivity: () => void;
-  userData: UserData;
+  userData?: UserData | null;
   activities: ActivityItem[];
   setResult: (result: ActivityResult) => void;
   setShowPlans: (show: boolean) => void;
@@ -204,24 +204,28 @@ export default function ActivitySidebar({
               </span>
               <span
                 className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase ${
-                  userData.plan === "pro"
+                  userData?.plan === "pro"
                     ? "bg-indigo-100 text-indigo-600"
                     : "bg-slate-100 text-slate-600"
                 }`}
               >
-                {userData.plan === "trial" ? "Grátis" : userData.plan}
+                {userData?.plan === "trial"
+                  ? "Grátis"
+                  : userData?.plan || "Carregando..."}
               </span>
             </div>
             <p className="font-black text-slate-900 text-xs mb-3">
-              {userData.plan === "pro"
+              {userData?.plan === "pro"
                 ? "Creator Pro Unlimit"
-                : "Versão Gratuita"}
+                : userData?.plan === "trial"
+                  ? "Versão Gratuita"
+                  : "Carregando..."}
             </p>
             <button
               onClick={() => setShowPlans(true)}
               className="w-full py-2 bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-black hover:bg-indigo-600 hover:text-white transition-all"
             >
-              {userData.plan === "pro" ? "Ver Detalhes" : "Fazer Upgrade"}
+              {userData?.plan === "pro" ? "Ver Detalhes" : "Fazer Upgrade"}
             </button>
           </div>
 

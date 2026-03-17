@@ -83,6 +83,13 @@ export default function CalendarPage() {
     setCurrentDate(newDate);
   };
 
+  if (loading || !userData)
+    return (
+      <div className="flex items-center justify-center min-h-screen text-indigo-600">
+        <ChevronRight className="animate-spin mr-2" /> Carregando...
+      </div>
+    );
+
   return (
     <div className="flex h-dvh bg-gray-100 font-sans relative overflow-hidden">
       <ActivitySidebar

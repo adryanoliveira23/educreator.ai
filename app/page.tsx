@@ -19,43 +19,12 @@ import InteractiveDemo from "@/components/landing/InteractiveDemo";
 
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
-  const [hasUsedTrial, setHasUsedTrial] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
     window.addEventListener("scroll", handleScroll);
-
-    // Check for trial cookie and IP whitelist
-    const checkTrialStatus = async () => {
-      const usedTrialCookie = document.cookie.includes(
-        "educreator_trial_used=true",
-      );
-
-      try {
-        const ipRes = await fetch("https://api.ipify.org?format=json");
-        const ipData = await ipRes.json();
-        const res = await fetch(`/api/admin/check-trial-ip?ip=${ipData.ip}`);
-        const checkData = await res.json();
-
-        // If IP is NOT alreadyUsed (meaning it's whitelisted or fresh),
-        // we show the trial, even if the cookie is present.
-        // If IP is alreadyUsed, we follow the cookie/IP logic.
-        if (checkData.alreadyUsed) {
-          setHasUsedTrial(true);
-        } else if (usedTrialCookie) {
-          // If IP is fresh/whitelisted but cookie is present,
-          // we might want to still show it if it was whitelisted.
-          // The check-trial-ip API already returns alreadyUsed: false if whitelisted.
-          setHasUsedTrial(false);
-        }
-      } catch (error) {
-        if (usedTrialCookie) setHasUsedTrial(true);
-      }
-    };
-
-    checkTrialStatus();
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -112,7 +81,7 @@ export default function LandingPage() {
               href="#precos"
               className="px-6 py-3 text-sm font-black bg-slate-900 text-white rounded-2xl hover:bg-indigo-600 transition-all shadow-xl shadow-slate-100 hover:shadow-indigo-100 hover:-translate-y-0.5"
             >
-              Começar Grátis
+              Gerar atividades
             </Link>
           </div>
         </div>
@@ -149,12 +118,10 @@ export default function LandingPage() {
 
               <div className="flex flex-col sm:flex-row justify-center gap-6 animate-in fade-in slide-in-from-bottom-8 duration-1000">
                 <Link
-                  href={hasUsedTrial ? "#precos" : "/register?plan=trial"}
+                  href="#precos"
                   className="group px-10 py-6 text-xl font-black text-white bg-indigo-600 rounded-3xl hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 hover:shadow-indigo-200 transform hover:-translate-y-1 flex items-center justify-center gap-2"
                 >
-                  {hasUsedTrial
-                    ? "Ver Planos Disponíveis"
-                    : "Começar Gratuitamente"}
+                  Gerar atividades
                   <ArrowRight
                     size={22}
                     className="group-hover:translate-x-1 transition-transform"
@@ -339,53 +306,6 @@ export default function LandingPage() {
             </div>
 
             <div className="grid lg:grid-cols-3 gap-10 max-w-6xl mx-auto items-stretch">
-              {/* Trial */}
-              {!hasUsedTrial && (
-                <div className="bg-white p-12 rounded-[2.5rem] shadow-xl shadow-slate-100/50 border-2 border-slate-50 transition-all hover:border-indigo-100 flex flex-col group relative overflow-hidden">
-                  <div className="absolute -top-12 -right-12 w-24 h-24 bg-emerald-50 rounded-full blur-2xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
-
-                  <div className="mb-8 relative z-10">
-                    <div className="inline-block px-4 py-1.5 mb-6 text-[10px] font-black tracking-widest text-emerald-600 uppercase bg-emerald-50 rounded-full border border-emerald-100/50">
-                      CORTESIA
-                    </div>
-                    <h3 className="text-3xl font-black text-slate-900 mb-2 font-display">
-                      Degustação
-                    </h3>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-5xl font-black text-slate-900 leading-none font-display">
-                        Grátis
-                      </span>
-                      <span className="text-slate-400 font-bold">/7 dias</span>
-                    </div>
-                  </div>
-
-                  <ul className="space-y-4 mb-10 grow relative z-10">
-                    {[
-                      "Acesso total à ferramenta",
-                      "Crie qualquer atividade",
-                      "Cancele quando quiser",
-                      "Sem cobrança imediata",
-                    ].map((item, i) => (
-                      <li
-                        key={i}
-                        className="flex items-center gap-3 text-slate-600 font-black text-sm"
-                      >
-                        <div className="w-6 h-6 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center shrink-0 border border-emerald-100">
-                          <Check size={14} strokeWidth={4} />
-                        </div>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Link
-                    href="/register?plan=trial"
-                    className="w-full py-6 bg-emerald-600 text-white font-black text-center rounded-[1.5rem] hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-100 hover:shadow-emerald-200"
-                  >
-                    Ativar Agora
-                  </Link>
-                </div>
-              )}
 
               {/* Pro - Featured */}
               <div className="bg-slate-900 p-12 rounded-[2.5rem] shadow-[0_40px_80px_-15px_rgba(79,70,229,0.3)] border-[3px] border-indigo-600 relative transform lg:-translate-y-8 flex flex-col scale-105 z-10 overflow-hidden">
@@ -406,7 +326,7 @@ export default function LandingPage() {
                   </h3>
                   <div className="flex items-baseline gap-1">
                     <span className="text-5xl font-black text-white leading-none font-display">
-                      R$45,90
+                      R$19,80
                     </span>
                     <span className="text-slate-400 font-bold">/mês</span>
                   </div>
@@ -432,12 +352,12 @@ export default function LandingPage() {
                   ))}
                 </ul>
 
-                <Link
-                  href="/register?plan=pro"
+                <a
+                  href="https://pay.cakto.com.br/3ey44xv_761899"
                   className="w-full py-6 bg-indigo-600 text-white font-black text-center rounded-[1.5rem] hover:bg-indigo-500 transition-all shadow-2xl shadow-indigo-600/30 font-display"
                 >
                   Assinar Agora
-                </Link>
+                </a>
               </div>
 
               {/* Normal */}
@@ -453,7 +373,7 @@ export default function LandingPage() {
                   </h3>
                   <div className="flex items-baseline gap-1">
                     <span className="text-5xl font-black text-slate-900 leading-none font-display">
-                      R$21,90
+                      R$9,99
                     </span>
                     <span className="text-slate-400 font-bold">/mês</span>
                   </div>
@@ -479,12 +399,12 @@ export default function LandingPage() {
                   ))}
                 </ul>
 
-                <Link
-                  href="/register?plan=normal"
+                <a
+                  href="https://pay.cakto.com.br/9m78gio_761861"
                   className="w-full py-6 bg-white border-2 border-slate-900 text-slate-900 font-black text-center rounded-[1.5rem] hover:bg-slate-900 hover:text-white transition-all shadow-sm"
                 >
                   Assinar Básico
-                </Link>
+                </a>
               </div>
             </div>
           </div>
@@ -508,10 +428,10 @@ export default function LandingPage() {
 
             <div className="flex flex-col sm:flex-row justify-center gap-6 relative z-10">
               <Link
-                href={hasUsedTrial ? "#precos" : "/register?plan=trial"}
+                href="#precos"
                 className="px-12 py-6 bg-white text-indigo-700 font-black rounded-2xl hover:bg-indigo-50 transition-all shadow-2xl hover:scale-105 font-display text-xl"
               >
-                {hasUsedTrial ? "Assinar Agora" : "Começar Grátis Agora"}
+                Gerar atividades
               </Link>
             </div>
 

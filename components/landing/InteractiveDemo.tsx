@@ -34,7 +34,7 @@ const DEMO_STEPS: DemoStep[] = [
     title: "🦊 Animais da Floresta: Uma Aventura Pedagógica",
     description:
       "EduCreator gerou uma atividade completa com exercícios de escrita, identificação e arte para colorir.",
-    imageUrl: "/demo-fox.svg", // We'll assume this exists or use a placeholder
+    imageUrl: "/demo-fox.png",
     preview:
       "1. Escreva o nome dos animais abaixo seguindo o exemplo:\n\nF _ _ _ (Raposa)\nU _ _ _ (Urso)\nC _ _ _ _ _ (Coelho)\n\n2. Pinte o desenho com capricho!",
   },

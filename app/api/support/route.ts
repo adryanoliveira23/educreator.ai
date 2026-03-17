@@ -25,7 +25,7 @@ export async function POST(req: Request) {
       - Planos: 
         - Trial (7 dias grátis): R$ 0,00 inicial, depois R$ 21,90/mês.
         - Normal: R$ 21,90/mês (Histórico 30 dias).
-        - Pro: R$ 45,90/mês (Geração rápida, suporte prioritário).
+        - Pro: R$ 19,80/mês (Geração rápida, suporte prioritário).
 
       - WhatsApp de suporte humano: +55 66 9976-2785.
       
