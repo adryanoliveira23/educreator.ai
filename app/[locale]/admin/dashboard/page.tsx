@@ -47,7 +47,10 @@ type AnalyticsStats = {
   };
 };
 
-export default function AdminDashboard() {
+import {useTranslations} from 'next-intl';
+
+export default function AdminDashboard({params: {locale}}: {params: {locale: string}}) {
+  const t = useTranslations('Admin');
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [analytics, setAnalytics] = useState<AnalyticsStats | null>(null);
   const [loading, setLoading] = useState(true);

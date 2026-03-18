@@ -93,7 +93,10 @@ interface UserData {
   };
 }
 
-export default function Dashboard() {
+import { useTranslations } from "next-intl";
+
+export default function Dashboard({params: {locale}}: {params: {locale: string}}) {
+  const t = useTranslations("Dashboard");
   const { user, loading } = useAuth();
   const router = useRouter();
   const [prompt, setPrompt] = useState("");
@@ -689,10 +692,10 @@ export default function Dashboard() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                   <div>
                     <h1 className="text-3xl font-black text-slate-800">
-                      Olá, {user?.displayName?.split(" ")[0] || "Professor"}! 👋
+                      {t('hello')}, {user?.displayName?.split(" ")[0] || "Professor"}! 👋
                     </h1>
                     <p className="text-slate-500 font-medium">
-                      O que vamos criar de incrível hoje?
+                      {t('whatToCreate')}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
@@ -703,7 +706,7 @@ export default function Dashboard() {
                       />
                       <input
                         type="text"
-                        placeholder="Buscar ferramentas..."
+                        placeholder={t('searchTools')}
                         className="bg-white border-2 border-slate-100 rounded-2xl py-2.5 pl-10 pr-4 font-bold text-sm outline-none focus:border-indigo-600 transition-all w-full md:w-64"
                         value={toolSearch}
                         onChange={(e) => setToolSearch(e.target.value)}
@@ -723,13 +726,10 @@ export default function Dashboard() {
                       <span>Inteligência Artificial</span>
                     </div>
                     <h2 className="text-2xl md:text-5xl font-black leading-tight tracking-tight">
-                      Crie materiais incríveis <br />
-                      em poucos{" "}
-                      <span className="text-yellow-300">segundos.</span>
+                      {t('heroTitle')}
                     </h2>
                     <p className="text-indigo-100 font-bold max-w-lg text-xs md:text-lg">
-                      Transforme suas ideias em planos de aula, atividades e
-                      avaliações completas com o poder da IA.
+                      {t('heroSubtitle')}
                     </p>
                   </div>
                   <div className="absolute top-0 right-0 w-1/3 h-full bg-linear-to-l from-white/10 to-transparent pointer-events-none"></div>
@@ -754,7 +754,7 @@ export default function Dashboard() {
                       <textarea
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
-                        placeholder="O que vamos criar hoje? Ex: Um plano de aula sobre fotossíntese..."
+                        placeholder={t('placeholder')}
                         className="w-full min-h-[60px] md:min-h-0 h-full py-3 md:py-4 font-bold text-slate-700 outline-none resize-none placeholder:text-slate-400 bg-transparent text-sm md:text-base"
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && !e.shiftKey) {
@@ -774,7 +774,7 @@ export default function Dashboard() {
                       ) : (
                         <Send size={18} />
                       )}
-                      <span>Gerar</span>
+                      <span>{t('generate')}</span>
                     </button>
                   </form>
                 </div>
@@ -793,7 +793,7 @@ export default function Dashboard() {
                     <div className="flex items-center gap-4">
                       <div className="text-2xl">🖍️</div>
                       <span className="font-black text-slate-800">
-                        Criar avaliações
+                        {t('createEvaluations')}
                       </span>
                     </div>
                     <ChevronRight

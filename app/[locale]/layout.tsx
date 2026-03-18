@@ -34,32 +34,61 @@ export const viewport: Viewport = {
   interactiveWidget: "resizes-content",
 };
 
-export const metadata: Metadata = {
-  title: "EduCreator AI | Inteligência Artificial para Professores",
-  description:
-    "Crie atividades pedagógicas em segundos com nossa IA. Otimize seu tempo e melhore a qualidade do ensino.",
-  icons: {
-    icon: "/logo.png",
-    shortcut: "/logo.png",
-    apple: "/logo.png",
-  },
-};
+import {NextIntlClientProvider} from 'next-intl';
+import {getMessages, getTranslations, setRequestLocale} from 'next-intl/server';
+import {routing} from '@/i18n/routing';
+import {notFound} from 'next/navigation';
 
-export default function RootLayout({
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({locale}));
+}
+
+export async function generateMetadata({params}: {params: Promise<{locale: string}>}) {
+  const {locale} = await params;
+  const t = await getTranslations({locale, namespace: 'HomePage'});
+ 
+  return {
+    title: t('title'),
+    description: t('description'),
+    icons: {
+      icon: "/logo.png",
+      shortcut: "/logo.png",
+      apple: "/logo.png",
+    },
+  };
+}
+
+import LanguageRedirect from "@/components/LanguageRedirect";
+
+export default async function RootLayout({
   children,
-}: Readonly<{
+  params
+}: {
   children: React.ReactNode;
-}>) {
+  params: Promise<{locale: string}>;
+}) {
+  const {locale} = await params;
+
+  if (!routing.locales.includes(locale as any)) {
+    notFound();
+  }
+ 
+  setRequestLocale(locale);
+  const messages = await getMessages();
+
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${outfit.variable} ${inter.variable} antialiased`}
         suppressHydrationWarning
       >
-        <AuthProvider>
-          <AnalyticsTracker />
-          {children}
-        </AuthProvider>
+        <NextIntlClientProvider messages={messages} locale={locale}>
+          <AuthProvider>
+            <AnalyticsTracker />
+            <LanguageRedirect />
+            {children}
+          </AuthProvider>
+        </NextIntlClientProvider>
 
         {/* Facebook Meta Pixel */}
         <Script

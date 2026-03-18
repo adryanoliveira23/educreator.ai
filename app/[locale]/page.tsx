@@ -16,8 +16,15 @@ import {
 } from "lucide-react";
 import SupportMenu from "@/components/SupportMenu";
 import InteractiveDemo from "@/components/landing/InteractiveDemo";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
-export default function LandingPage() {
+import {useTranslations} from 'next-intl';
+import {setRequestLocale} from 'next-intl/server';
+
+export default function HomePage({params: {locale}}: {params: {locale: string}}) {
+  // Enable static rendering
+  setRequestLocale(locale);
+  const t = useTranslations('HomePage');
   const [scrolled, setScrolled] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -68,23 +75,24 @@ export default function LandingPage() {
               href="#solucao"
               className="hover:text-indigo-600 transition-colors"
             >
-              Solução
+              {t('nav.solution')}
             </a>
             <a
               href="#como-funciona"
               className="hover:text-indigo-600 transition-colors"
             >
-              Como Funciona
+              {t('nav.howItWorks')}
             </a>
             <a
               href="#precos"
               className="hover:text-indigo-600 transition-colors"
             >
-              Preços
+              {t('nav.pricing')}
             </a>
           </nav>
 
           <div className="flex gap-2 md:gap-4 items-center">
+            <LanguageSwitcher />
             <Link
               href="/login"
               className="px-3 md:px-6 py-3 text-xs md:text-sm font-bold text-slate-700 hover:text-indigo-600 transition-colors"
@@ -121,13 +129,11 @@ export default function LandingPage() {
               </div>
 
                 <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-black mb-10 leading-[1.1] md:leading-[1] tracking-tight text-slate-900 animate-in fade-in slide-in-from-bottom-4 duration-700 px-4 text-balance">
-                Crie Atividades <span className="bg-linear-to-r from-blue-500 via-indigo-600 to-violet-700 bg-clip-text text-transparent">Pedagógicas Inéditas</span> em Segundos
+                {t('title')}
               </h1>
 
               <p className="text-lg sm:text-xl md:text-2xl text-slate-600 mb-14 max-w-4xl mx-auto leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-6 duration-1000 px-4">
-                A IA do EduCreator gera exercícios, textos e avaliações
-                completas alinhadas à BNCC. Baixe em PDF pronto para imprimir e
-                recupere seu tempo livre.
+                {t('description')}
               </p>
 
                <div className="flex flex-col sm:flex-row justify-center gap-6 animate-in fade-in slide-in-from-bottom-8 duration-1000">
@@ -219,7 +225,7 @@ export default function LandingPage() {
                 {
                   icon: <Sparkles className="w-10 h-10 text-amber-500" />,
                   title: "Engajamento que Encanta",
-                  desc: "Atividades lúdicas e visuais que fazem os alunos se interessarem pelo conteúdo de forma natural.",
+                  desc: t('description'),
                   color: "bg-amber-50/50",
                 },
               ].map((benefit, i) => (
@@ -469,9 +475,8 @@ export default function LandingPage() {
                   EduCreator<span className="text-indigo-600">AI</span>
                 </span>
               </Link>
-              <p className="text-slate-500 text-sm font-bold leading-relaxed mb-8">
-                Sua parceira na missão de educar. Inteligência Artificial a
-                serviço da excelência pedagógica brasileira.
+               <p className="text-slate-500 text-sm font-bold leading-relaxed mb-8">
+                {t('description')}
               </p>
               <div className="flex gap-4">
                 {/* Social links could go here */}

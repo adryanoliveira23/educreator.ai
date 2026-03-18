@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 import Image from "next/image";
 import { Lock, Mail, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
+import {useTranslations} from 'next-intl';
+import {useRouter} from '@/i18n/routing';
+import Link from "next/link";
 
-export default function LoginPage() {
+export default function LoginPage({params: {locale}}: {params: {locale: string}}) {
+  const t = useTranslations('Login');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -76,10 +78,10 @@ export default function LoginPage() {
             <h1 className="text-2xl font-bold">EduCreator AI</h1>
           </div>
           <h2 className="text-4xl font-bold max-w-md leading-tight mb-4">
-            Transforme a educação com o poder da IA.
+            {t('heroTitle')}
           </h2>
           <p className="text-green-100 max-w-sm text-lg">
-            Crie planos de aula, atividades e materiais didáticos em segundos.
+            {t('heroSubtitle')}
           </p>
         </div>
 
@@ -98,10 +100,10 @@ export default function LoginPage() {
         <div className="w-full max-w-md space-y-8">
           <div className="text-center lg:text-left">
             <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
-              Bem-vindo de volta
+              {t('title')}
             </h2>
             <p className="mt-2 text-sm text-gray-600">
-              Entre para continuar criando.
+              {t('subtitle')}
             </p>
           </div>
 
@@ -133,7 +135,7 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="relative block w-full rounded-lg border-0 py-3 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6"
-                    placeholder="Seu endereço de email"
+                    placeholder={t('emailPlaceholder')}
                   />
                 </div>
               </div>
@@ -157,7 +159,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="relative block w-full rounded-lg border-0 py-3 pl-10 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6 transition-all"
-                    placeholder="Sua senha"
+                    placeholder={t('passwordPlaceholder')}
                   />
                   <button
                     type="button"
@@ -188,7 +190,7 @@ export default function LoginPage() {
                   htmlFor="remember-me"
                   className="ml-2 block text-sm text-gray-900 cursor-pointer"
                 >
-                  Lembrar de mim
+                  {t('rememberMe')}
                 </label>
               </div>
 
@@ -197,7 +199,7 @@ export default function LoginPage() {
                   href="#"
                   className="font-medium text-green-600 hover:text-green-500"
                 >
-                  Esqueceu a senha?
+                  {t('forgotPassword')}
                 </a>
               </div>
             </div>
@@ -212,7 +214,7 @@ export default function LoginPage() {
                   <Loader2 className="animate-spin h-5 w-5 text-white" />
                 ) : (
                   <span className="flex items-center gap-2">
-                    Entrar <ArrowRight className="h-4 w-4" />
+                    {t('submit')} <ArrowRight className="h-4 w-4" />
                   </span>
                 )}
               </button>
@@ -225,7 +227,7 @@ export default function LoginPage() {
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="bg-white px-2 text-gray-500">
-                Novo por aqui?
+                {t('newHere')}
               </span>
             </div>
           </div>
@@ -235,7 +237,7 @@ export default function LoginPage() {
               href="/register"
               className="font-medium text-green-600 hover:text-green-500"
             >
-              Criar minha conta
+              {t('createAccount')}
             </Link>
           </div>
         </div>

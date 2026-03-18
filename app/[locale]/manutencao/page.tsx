@@ -2,8 +2,10 @@
 
 import React from "react";
 import { Wrench, AlertTriangle, Clock } from "lucide-react";
+import {useTranslations} from 'next-intl';
 
 export default function MaintenancePage() {
+  const t = useTranslations('Maintenance');
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4 font-sans text-white overflow-hidden relative">
       {/* Background Decorative Elements */}
@@ -23,30 +25,28 @@ export default function MaintenancePage() {
           </div>
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight bg-linear-to-b from-white to-gray-400 bg-clip-text text-transparent">
-          ESTAMOS EM <br />
-          <span className="text-yellow-500">MANUTENÇÃO</span>
+        <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight bg-linear-to-b from-white to-gray-400 bg-clip-text text-transparent uppercase">
+          {t('title')}
         </h1>
 
         <p className="text-xl md:text-2xl text-gray-400 mb-10 leading-relaxed max-w-xl mx-auto">
-          Nosso sistema está passando por uma manutenção rápida para garantir a
-          melhor experiência para você. Voltaremos em instantes!
+          {t('subtitle')}
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
           <div className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl transition-all hover:bg-white/10 group">
             <Clock className="w-8 h-8 text-yellow-500 mb-3 mx-auto group-hover:scale-110 transition-transform" />
-            <h3 className="font-bold mb-1 text-white">Rápido</h3>
+            <h3 className="font-bold mb-1 text-white">{t('quick')}</h3>
             <p className="text-sm text-gray-500">Ajustes técnicos</p>
           </div>
           <div className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl transition-all hover:bg-white/10 group">
             <Wrench className="w-8 h-8 text-blue-500 mb-3 mx-auto group-hover:scale-110 transition-transform" />
-            <h3 className="font-bold mb-1 text-white">Estável</h3>
+            <h3 className="font-bold mb-1 text-white">{t('stable')}</h3>
             <p className="text-sm text-gray-500">Melhorias no servidor</p>
           </div>
           <div className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl transition-all hover:bg-white/10 group">
             <AlertTriangle className="w-8 h-8 text-purple-500 mb-3 mx-auto group-hover:scale-110 transition-transform" />
-            <h3 className="font-bold mb-1 text-white">Seguro</h3>
+            <h3 className="font-bold mb-1 text-white">{t('secure')}</h3>
             <p className="text-sm text-gray-500">Sincronização de dados</p>
           </div>
         </div>

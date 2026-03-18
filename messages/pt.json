@@ -1,0 +1,87 @@
+{
+  "HomePage": {
+    "title": "EduCreator AI | Inteligência Artificial para Professores",
+    "description": "Crie atividades pedagógicas em segundos com nossa IA. Otimize seu tempo e melhore a qualidade do ensino.",
+    "nav": {
+      "solution": "Solução",
+      "howItWorks": "Como Funciona",
+      "pricing": "Preços"
+    },
+    "Login": {
+      "title": "Bem-vindo de volta",
+      "subtitle": "Entre para continuar criando.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Seu endereço de email",
+      "passwordLabel": "Senha",
+      "passwordPlaceholder": "Sua senha",
+      "rememberMe": "Lembrar de mim",
+      "forgotPassword": "Esqueceu a senha?",
+      "submit": "Entrar",
+      "newHere": "Novo por aqui?",
+      "createAccount": "Criar minha conta",
+      "heroTitle": "Transforme a educação com o poder da IA.",
+      "heroSubtitle": "Crie planos de aula, atividades e materiais didáticos em segundos."
+    },
+    "Register": {
+      "title": "Quase lá!",
+      "subtitle": "Crie seu acesso para começar a usar a IA.",
+      "step1Title": "Qual será seu tipo de conta?",
+      "step2Title": "Você leciona quais disciplinas?",
+      "emailPlaceholder": "Seu melhor e-mail",
+      "whatsappPlaceholder": "WhatsApp (com DDD)",
+      "passwordPlaceholder": "Crie uma senha",
+      "submit": "Criar minha conta",
+      "back": "Voltar",
+      "next": "Continuar",
+      "exit": "Sair"
+    },
+    "Maintenance": {
+      "title": "ESTAMOS EM MANUTENÇÃO",
+      "subtitle": "Nosso sistema está passando por uma manutenção rápida para garantir a melhor experiência para você. Voltaremos em instantes!",
+      "quick": "Rápido",
+      "stable": "Estável",
+      "secure": "Seguro"
+    },
+    "Checkout": {
+      "title": "Finalizar Assinatura",
+      "subtitle": "Você está a um passo de transformar suas aulas com o poder da IA.",
+      "plan": "Plano Selecionado",
+      "total": "Total",
+      "secure": "Pagamento 100% Seguro",
+      "guarantee": "Garantia de 7 dias ou seu dinheiro de volta",
+      "submit": "Finalizar Pagamento"
+    },
+    "Admin": {
+      "title": "Painel de Controle",
+      "users": "Usuários",
+      "activities": "Atividades",
+      "revenue": "Receita",
+      "settings": "Configurações"
+    },
+    "Dashboard": {
+      "hello": "Olá",
+      "whatToCreate": "O que vamos criar de incrível hoje?",
+      "searchTools": "Buscar ferramentas...",
+      "heroTitle": "Crie materiais incríveis em poucos segundos.",
+      "heroSubtitle": "Transforme suas ideias em planos de aula, atividades e avaliações completas com o poder da IA.",
+      "placeholder": "O que vamos criar hoje? Ex: Um plano de aula sobre fotossíntese...",
+      "generate": "Gerar",
+      "createEvaluations": "Criar avaliações",
+      "settings": {
+        "title": "Configurações",
+        "language": "Idioma Definitivo",
+        "save": "Salvar Alterações",
+        "success": "Configurações salvas!"
+      }
+    },
+    "Calendar": {
+      "title": "Calendário",
+      "week": "Semana",
+      "month": "Mês",
+      "myPlans": "Meus Planejamentos",
+      "plan": "Planejar",
+      "createLesson": "Criar aula",
+      "loading": "Carregando..."
+    }
+  }
+}

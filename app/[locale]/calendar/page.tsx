@@ -7,6 +7,7 @@ import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import Link from "next/link";
 import ActivitySidebar from "@/components/ActivitySidebar";
+import { useTranslations } from "next-intl";
 
 interface Question {
   number: number;
@@ -51,7 +52,8 @@ interface UserData {
   subscription_status?: string;
 }
 
-export default function CalendarPage() {
+export default function CalendarPage({params: {locale}}: {params: {locale: string}}) {
+  const t = useTranslations("Calendar");
   const { user, loading } = useAuth();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [view, setView] = useState<"week" | "month">("week");
@@ -117,7 +119,7 @@ export default function CalendarPage() {
   if (loading || !userData)
     return (
       <div className="flex items-center justify-center min-h-screen text-indigo-600">
-        <ChevronRight className="animate-spin mr-2" /> Carregando...
+        <ChevronRight className="animate-spin mr-2" /> {t('loading')}
       </div>
     );
 
@@ -139,7 +141,7 @@ export default function CalendarPage() {
         <div className="p-6 md:p-10 bg-white border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-6">
             <h1 className="text-3xl font-black text-slate-900 font-display">
-              Calendário
+              {t('title')}
             </h1>
 
             <div className="flex bg-slate-100 p-1 rounded-xl">
@@ -147,13 +149,13 @@ export default function CalendarPage() {
                 onClick={() => setView("week")}
                 className={`px-6 py-2 rounded-lg text-xs font-black transition-all ${view === "week" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
               >
-                Semana
+                {t('week')}
               </button>
               <button
                 onClick={() => setView("month")}
                 className={`px-6 py-2 rounded-lg text-xs font-black transition-all ${view === "month" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
               >
-                Mês
+                {t('month')}
               </button>
             </div>
           </div>
@@ -167,7 +169,7 @@ export default function CalendarPage() {
                 <ChevronLeft size={20} />
               </button>
               <span className="font-black text-sm text-slate-700 min-w-[120px] text-center capitalize">
-                {currentDate.toLocaleDateString("pt-BR", {
+                {currentDate.toLocaleDateString(locale === 'pt' ? 'pt-BR' : 'en-US', {
                   month: "long",
                   year: "numeric",
                 })}
@@ -182,14 +184,14 @@ export default function CalendarPage() {
 
             <div className="flex items-center gap-3">
               <button className="hidden md:flex items-center gap-2 px-6 py-3 bg-white border-2 border-slate-100 text-slate-700 rounded-2xl font-black text-sm hover:border-indigo-600 transition-all shadow-sm">
-                Meus Planejamentos
+                {t('myPlans')}
               </button>
               <Link
                 href="/dashboard"
                 className="flex items-center gap-2 px-8 py-3 bg-indigo-600 text-white rounded-2xl font-black text-sm hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100"
               >
                 <Plus size={20} />
-                Planejar
+                {t('plan')}
               </Link>
             </div>
           </div>
@@ -217,7 +219,7 @@ export default function CalendarPage() {
                     <div className="text-center space-y-1">
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
                         {day
-                          .toLocaleDateString("pt-BR", { weekday: "short" })
+                          .toLocaleDateString(locale === 'pt' ? 'pt-BR' : 'en-US', { weekday: "short" })
                           .replace(".", "")}
                       </p>
                       <div
@@ -243,7 +245,7 @@ export default function CalendarPage() {
                           <Plus size={20} />
                         </div>
                         <span className="font-black text-xs text-center leading-tight">
-                          Criar aula
+                          {t('createLesson')}
                         </span>
                       </button>
                     </div>

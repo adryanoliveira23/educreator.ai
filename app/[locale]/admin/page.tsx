@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import {useTranslations} from 'next-intl';
+import {useRouter} from '@/i18n/routing';
 
-export default function AdminLogin() {
+export default function AdminLogin({params: {locale}}: {params: {locale: string}}) {
+  const t = useTranslations('Admin');
   const [key, setKey] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();

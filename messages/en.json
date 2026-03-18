@@ -1,0 +1,87 @@
+{
+  "HomePage": {
+    "title": "EduCreator AI | Artificial Intelligence for Teachers",
+    "description": "Create pedagogical activities in seconds with our AI. Optimize your time and improve teaching quality.",
+    "nav": {
+      "solution": "Solution",
+      "howItWorks": "How It Works",
+      "pricing": "Pricing"
+    },
+    "Login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to continue creating.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Your email address",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Your password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign In",
+      "newHere": "New here?",
+      "createAccount": "Create my account",
+      "heroTitle": "Transform education with the power of AI.",
+      "heroSubtitle": "Create lesson plans, activities, and teaching materials in seconds."
+    },
+    "Register": {
+      "title": "Almost there!",
+      "subtitle": "Create your access to start using AI.",
+      "step1Title": "What will be your account type?",
+      "step2Title": "Which subjects do you teach?",
+      "emailPlaceholder": "Your best email",
+      "whatsappPlaceholder": "WhatsApp (with area code)",
+      "passwordPlaceholder": "Create a password",
+      "submit": "Create my account",
+      "back": "Back",
+      "next": "Continue",
+      "exit": "Exit"
+    },
+    "Maintenance": {
+      "title": "WE ARE UNDER MAINTENANCE",
+      "subtitle": "Our system is undergoing rapid maintenance to ensure the best experience for you. We'll be back in a moment!",
+      "quick": "Quick",
+      "stable": "Stable",
+      "secure": "Secure"
+    },
+    "Checkout": {
+      "title": "Complete Subscription",
+      "subtitle": "You're one step away from transforming your classes with the power of AI.",
+      "plan": "Selected Plan",
+      "total": "Total",
+      "secure": "100% Secure Payment",
+      "guarantee": "7-day money-back guarantee",
+      "submit": "Complete Payment"
+    },
+    "Admin": {
+      "title": "Control Panel",
+      "users": "Users",
+      "activities": "Activities",
+      "revenue": "Revenue",
+      "settings": "Settings"
+    },
+    "Dashboard": {
+      "hello": "Hello",
+      "whatToCreate": "What incredible thing shall we create today?",
+      "searchTools": "Search tools...",
+      "heroTitle": "Create amazing materials in seconds.",
+      "heroSubtitle": "Transform your ideas into lesson plans, activities, and complete assessments with the power of AI.",
+      "placeholder": "What are we creating today? Ex: A lesson plan about photosynthesis...",
+      "generate": "Generate",
+      "createEvaluations": "Create assessments",
+      "settings": {
+        "title": "Settings",
+        "language": "Definitive Language",
+        "save": "Save Changes",
+        "success": "Settings saved!"
+      }
+    },
+    "Calendar": {
+      "title": "Calendar",
+      "week": "Week",
+      "month": "Month",
+      "myPlans": "My Plans",
+      "plan": "Plan",
+      "createLesson": "Create Lesson",
+      "loading": "Loading..."
+    }
+  }
+}

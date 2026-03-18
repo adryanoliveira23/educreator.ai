@@ -2,12 +2,15 @@
 
 import { useAuth } from "@/components/AuthProvider";
 import { Loader2, Check, Lock, ShieldCheck, ArrowRight } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
+import {useTranslations} from 'next-intl';
+import {useRouter as useLocalizedRouter} from '@/i18n/routing';
 
-function CheckoutContent() {
+function CheckoutContent({locale}: {locale: string}) {
+  const t = useTranslations('Checkout');
   const { user, loading } = useAuth();
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const searchParams = useSearchParams();
   const plan = searchParams.get("plan") || "normal";
   const isTrial = plan === "trial";
@@ -114,7 +117,7 @@ function CheckoutContent() {
           <div className="space-y-8">
             <div>
               <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-4 leading-tight">
-                Finalize sua inscrição.
+                {t('title')}
               </h1>
               <p className="text-lg text-gray-600">
                 Você será redirecionado para a <strong>Cakto</strong>, nossa
@@ -133,12 +136,12 @@ function CheckoutContent() {
                   <Loader2 className="animate-spin" size={24} />
                 ) : (
                   <>
-                    Pagar e Ativar Plano <ArrowRight size={20} />
+                    {t('submit')} <ArrowRight size={20} />
                   </>
                 )}
               </button>
               <p className="text-center text-gray-400 text-xs mt-4">
-                Pagamento via Cartão de Crédito ou PIX pela Cakto.
+                {t('secure')} via Cartão de Crédito ou PIX pela Cakto.
               </p>
             </div>
 
@@ -147,7 +150,7 @@ function CheckoutContent() {
                 <ShieldCheck className="text-blue-600 shrink-0" size={24} />
                 <div>
                   <p className="font-bold text-blue-800 text-lg mb-1">
-                    Garantia de Satisfação
+                    {t('guarantee')}
                   </p>
                   <p className="text-blue-700 leading-relaxed">
                     Acesso imediato após a confirmação do pagamento. Cancele sua
@@ -167,7 +170,7 @@ function CheckoutContent() {
             )}
             <div className="p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-1">
-                Resumo do Pedido
+                {t('total')}
               </h2>
               <div className="bg-gray-50 rounded-xl p-4 mb-6 border border-gray-100">
                 <div className="flex justify-between items-start mb-2">
@@ -223,7 +226,7 @@ function CheckoutContent() {
   );
 }
 
-export default function CheckoutPage() {
+export default function CheckoutPage({params: {locale}}: {params: {locale: string}}) {
   return (
     <Suspense
       fallback={
@@ -232,7 +235,7 @@ export default function CheckoutPage() {
         </div>
       }
     >
-      <CheckoutContent />
+      <CheckoutContent locale={locale} />
     </Suspense>
   );
 }

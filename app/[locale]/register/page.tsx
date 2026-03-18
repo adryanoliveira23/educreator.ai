@@ -6,7 +6,6 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { useRouter } from "next/navigation";
 import { maskWhatsApp, cleanPhone } from "@/lib/utils";
 import Link from "next/link";
 import {
@@ -20,8 +19,11 @@ import {
   Sparkles,
 } from "lucide-react";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import {useTranslations} from 'next-intl';
+import {useRouter} from '@/i18n/routing';
 
-export default function RegisterPage() {
+export default function RegisterPage({params: {locale}}: {params: {locale: string}}) {
+  const t = useTranslations('Register');
   const [step, setStep] = useState(1);
   const [accountType, setAccountType] = useState("");
   const [subjects, setSubjects] = useState<string[]>([]);
@@ -145,7 +147,7 @@ export default function RegisterPage() {
           href="/login"
           className="text-sm font-black text-slate-500 hover:text-indigo-600 transition-colors flex items-center gap-1"
         >
-          Sair <ArrowRight size={14} />
+          {t('exit')} <ArrowRight size={14} />
         </Link>
       </header>
 
@@ -155,7 +157,7 @@ export default function RegisterPage() {
           {step === 1 && (
             <div className="space-y-12 text-center">
               <h2 className="text-4xl md:text-5xl font-display font-black text-slate-900">
-                Qual será seu tipo de conta?
+                {t('step1Title')}
               </h2>
               <div className="grid md:grid-cols-3 gap-6">
                 {[
@@ -188,7 +190,7 @@ export default function RegisterPage() {
             <div className="space-y-12">
               <div className="flex justify-between items-center">
                 <h2 className="text-4xl font-display font-black text-slate-900">
-                  Você leciona quais disciplinas?
+                  {t('step2Title')}
                 </h2>
                 <span className="text-slate-400 font-bold tracking-widest text-sm">
                   2 / 5
@@ -233,13 +235,13 @@ export default function RegisterPage() {
                   onClick={() => setStep(1)}
                   className="text-slate-400 font-black hover:text-slate-600"
                 >
-                  Voltar
+                  {t('back')}
                 </button>
                 <button
                   onClick={() => setStep(3)}
                   className="px-12 py-5 bg-indigo-600 text-white font-black rounded-3xl hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100"
                 >
-                  Continuar
+                  {t('next')}
                 </button>
               </div>
             </div>
@@ -250,10 +252,10 @@ export default function RegisterPage() {
             <div className="max-w-md mx-auto space-y-8">
               <div className="text-center">
                 <h2 className="text-4xl font-display font-black text-slate-900 mb-4">
-                  Quase lá!
+                  {t('title')}
                 </h2>
                 <p className="text-slate-500 font-bold">
-                  Crie seu acesso para começar a usar a IA.
+                  {t('subtitle')}
                 </p>
               </div>
 
@@ -273,7 +275,7 @@ export default function RegisterPage() {
                     <input
                       type="email"
                       required
-                      placeholder="Seu melhor e-mail"
+                       placeholder={t('emailPlaceholder')}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 font-bold text-slate-900 focus:border-indigo-600 outline-none transition-all"
@@ -288,7 +290,7 @@ export default function RegisterPage() {
                     <input
                       type="text"
                       required
-                      placeholder="WhatsApp (com DDD)"
+                       placeholder={t('whatsappPlaceholder')}
                       value={whatsapp}
                       onChange={(e) =>
                         setWhatsapp(maskWhatsApp(e.target.value))
@@ -305,7 +307,7 @@ export default function RegisterPage() {
                     <input
                       type={showPassword ? "text" : "password"}
                       required
-                      placeholder="Crie uma senha"
+                       placeholder={t('passwordPlaceholder')}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-12 font-bold text-slate-900 focus:border-indigo-600 outline-none transition-all"
@@ -329,7 +331,7 @@ export default function RegisterPage() {
                     <Loader2 className="animate-spin" size={20} />
                   ) : (
                     <>
-                      Criar minha conta <ArrowRight size={18} />
+                       {t('submit')} <ArrowRight size={18} />
                     </>
                   )}
                 </button>
