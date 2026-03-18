@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import {
   Check,
   Download,
@@ -18,13 +18,18 @@ import SupportMenu from "@/components/SupportMenu";
 import InteractiveDemo from "@/components/landing/InteractiveDemo";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
-import {useTranslations} from 'next-intl';
-import {setRequestLocale} from 'next-intl/server';
+import { useTranslations } from "next-intl";
 
-export default function HomePage({params: {locale}}: {params: {locale: string}}) {
-  // Enable static rendering
-  setRequestLocale(locale);
-  const t = useTranslations('HomePage');
+export default function HomePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  use(params); // consume params promise (locale used by next-intl middleware)
+
+  const t = useTranslations("HomePage");
+  const l = useTranslations("HomePage.landing");
+
   const [scrolled, setScrolled] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -32,17 +37,15 @@ export default function HomePage({params: {locale}}: {params: {locale: string}})
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
-      // Determine if background should be white/blurred
+
       setScrolled(currentScrollY > 20);
 
-      // Determine visibility based on scroll direction
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
         setShowNavbar(false);
       } else {
         setShowNavbar(true);
       }
-      
+
       setLastScrollY(currentScrollY);
     };
     window.addEventListener("scroll", handleScroll);
@@ -75,19 +78,19 @@ export default function HomePage({params: {locale}}: {params: {locale: string}})
               href="#solucao"
               className="hover:text-indigo-600 transition-colors"
             >
-              {t('nav.solution')}
+              {t("nav.solution")}
             </a>
             <a
               href="#como-funciona"
               className="hover:text-indigo-600 transition-colors"
             >
-              {t('nav.howItWorks')}
+              {t("nav.howItWorks")}
             </a>
             <a
               href="#precos"
               className="hover:text-indigo-600 transition-colors"
             >
-              {t('nav.pricing')}
+              {t("nav.pricing")}
             </a>
           </nav>
 
@@ -97,19 +100,19 @@ export default function HomePage({params: {locale}}: {params: {locale: string}})
               href="/login"
               className="px-3 md:px-6 py-3 text-xs md:text-sm font-bold text-slate-700 hover:text-indigo-600 transition-colors"
             >
-              Entrar
+              {l("signIn")}
             </Link>
             <a
               href="#precos"
               className="px-4 md:px-6 py-2.5 md:py-3 text-xs md:text-sm font-black bg-slate-900 text-white rounded-xl md:rounded-2xl hover:bg-indigo-600 transition-all shadow-xl shadow-slate-100 hover:shadow-indigo-100 hover:-translate-y-0.5 whitespace-nowrap"
             >
-              Gerar atividades
+              {l("generateActivities")}
             </a>
           </div>
         </div>
       </header>
 
-      <main className="flex-grow">
+      <main className="grow">
         {/* Hero Section */}
         <section
           id="hero"
@@ -125,45 +128,45 @@ export default function HomePage({params: {locale}}: {params: {locale: string}})
             <div className="max-w-4xl mx-auto text-center">
               <div className="inline-flex items-center gap-2 px-6 py-2 mb-10 text-[10px] font-black tracking-[0.2em] text-indigo-700 uppercase bg-indigo-50/50 rounded-full border border-indigo-100/50 animate-in fade-in slide-in-from-bottom-2 duration-700">
                 <span className="flex h-2 w-2 rounded-full bg-indigo-600 animate-pulse"></span>
-                REVOLUCIONANDO O PLANEJAMENTO ESCOLAR
+                {l("heroBadge")}
               </div>
 
-                <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-black mb-10 leading-[1.1] md:leading-[1] tracking-tight text-slate-900 animate-in fade-in slide-in-from-bottom-4 duration-700 px-4 text-balance">
-                {t('title')}
+              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-black mb-10 leading-[1.1] md:leading-none tracking-tight text-slate-900 animate-in fade-in slide-in-from-bottom-4 duration-700 px-4 text-balance">
+                {t("title")}
               </h1>
 
               <p className="text-lg sm:text-xl md:text-2xl text-slate-600 mb-14 max-w-4xl mx-auto leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-6 duration-1000 px-4">
-                {t('description')}
+                {t("description")}
               </p>
 
-               <div className="flex flex-col sm:flex-row justify-center gap-6 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-                 <a
-                   href="#precos"
-                   className="group px-10 py-6 text-xl font-black text-white bg-indigo-600 rounded-3xl hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 hover:shadow-indigo-200 transform hover:-translate-y-1 flex items-center justify-center gap-2"
-                 >
-                   Gerar atividades
-                   <ArrowRight
-                     size={22}
-                     className="group-hover:translate-x-1 transition-transform"
-                   />
-                 </a>
-                 <a
-                   href="#demo"
-                   className="px-10 py-6 text-xl font-black text-slate-700 bg-white border-2 border-slate-100 rounded-3xl hover:bg-slate-50 transition-all shadow-sm flex items-center justify-center gap-2"
-                 >
-                   <MousePointer2 size={22} className="text-indigo-600" />
-                   Ver Demonstração
-                 </a>
+              <div className="flex flex-col sm:flex-row justify-center gap-6 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+                <a
+                  href="#precos"
+                  className="group px-10 py-6 text-xl font-black text-white bg-indigo-600 rounded-3xl hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 hover:shadow-indigo-200 transform hover:-translate-y-1 flex items-center justify-center gap-2"
+                >
+                  {l("generateActivities")}
+                  <ArrowRight
+                    size={22}
+                    className="group-hover:translate-x-1 transition-transform"
+                  />
+                </a>
+                <a
+                  href="#demo"
+                  className="px-10 py-6 text-xl font-black text-slate-700 bg-white border-2 border-slate-100 rounded-3xl hover:bg-slate-50 transition-all shadow-sm flex items-center justify-center gap-2"
+                >
+                  <MousePointer2 size={22} className="text-indigo-600" />
+                  {l("watchDemo")}
+                </a>
               </div>
 
               <div className="mt-20 flex flex-wrap justify-center items-center gap-10 opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
                 <div className="flex items-center gap-2.5 font-black text-slate-500 text-sm tracking-tight">
                   <ShieldCheck size={22} className="text-indigo-600" />
-                  <span>Seguro & Confiável</span>
+                  <span>{l("trustSecure")}</span>
                 </div>
                 <div className="flex items-center gap-2.5 font-black text-slate-500 text-sm tracking-tight">
                   <Check size={22} className="text-emerald-600" />
-                  <span>Alinhado à BNCC</span>
+                  <span>{l("trustBncc")}</span>
                 </div>
                 <div className="flex items-center gap-2.5 font-black text-slate-500 text-sm tracking-tight">
                   <Star
@@ -171,7 +174,7 @@ export default function HomePage({params: {locale}}: {params: {locale: string}})
                     className="text-amber-500"
                     fill="currentColor"
                   />
-                  <span>Favorito dos Professores</span>
+                  <span>{l("trustTeachers")}</span>
                 </div>
               </div>
             </div>
@@ -182,11 +185,12 @@ export default function HomePage({params: {locale}}: {params: {locale: string}})
         <section id="demo" className="container mx-auto px-6 mb-32">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 text-slate-900 tracking-tight">
-              Veja a <span className="text-blue-600">Mágica</span> Acontecendo
+              {l("demoTitle").split("{highlight}")[0]}
+              <span className="text-blue-600">{l("demoTitleHighlight")}</span>
+              {l("demoTitle").split("{highlight}")[1]}
             </h2>
             <p className="text-lg text-slate-600 font-medium">
-              Deixe nossa IA cuidar do trabalho pesado. Em menos de 2 minutos,
-              você tem uma atividade pronta para aplicar.
+              {l("demoSubtitle")}
             </p>
           </div>
 
@@ -198,13 +202,13 @@ export default function HomePage({params: {locale}}: {params: {locale: string}})
           <div className="container mx-auto px-6">
             <div className="text-center max-w-3xl mx-auto mb-20">
               <h2 className="text-5xl md:text-6xl font-display font-black mb-6 text-slate-900 tracking-tight">
-                Sua aula pronta em{" "}
-                <span className="text-indigo-600">um clique</span>
+                {l("solutionTitle").split("{highlight}")[0]}
+                <span className="text-indigo-600">
+                  {l("solutionTitleHighlight")}
+                </span>
               </h2>
               <p className="text-xl text-slate-600 leading-relaxed font-medium">
-                Desenvolvemos ferramentas específicas para cada etapa do seu
-                dia. Da BNCC à correção, o EduCreator é seu assistente
-                pedagógico completo.
+                {l("solutionSubtitle")}
               </p>
             </div>
 
@@ -212,20 +216,20 @@ export default function HomePage({params: {locale}}: {params: {locale: string}})
               {[
                 {
                   icon: <Clock className="w-10 h-10 text-indigo-600" />,
-                  title: "Recupere seu tempo livre",
-                  desc: "Pare de levar trabalho para casa. Gere materiais completos que levariam horas em poucos segundos.",
+                  title: l("benefit1Title"),
+                  desc: l("benefit1Desc"),
                   color: "bg-indigo-50/50",
                 },
                 {
                   icon: <BookOpen className="w-10 h-10 text-blue-600" />,
-                  title: "Conteúdo 100% Inédito",
-                  desc: "Nossa IA gera questões e textos originais, evitando o plágio e garantindo materiais exclusivos para sua turma.",
+                  title: l("benefit2Title"),
+                  desc: l("benefit2Desc"),
                   color: "bg-blue-50/50",
                 },
                 {
                   icon: <Sparkles className="w-10 h-10 text-amber-500" />,
-                  title: "Engajamento que Encanta",
-                  desc: t('description'),
+                  title: l("benefit3Title"),
+                  desc: l("benefit3Desc"),
                   color: "bg-amber-50/50",
                 },
               ].map((benefit, i) => (
@@ -256,10 +260,10 @@ export default function HomePage({params: {locale}}: {params: {locale: string}})
           <div className="container mx-auto px-6">
             <div className="text-center max-w-3xl mx-auto mb-20">
               <h2 className="text-5xl md:text-6xl font-display font-black mb-6 text-slate-900">
-                Como Funciona
+                {l("howItWorksTitle")}
               </h2>
               <p className="text-xl text-slate-600 font-medium">
-                Simples, rápido e intuitivo. Do jeito que o professor precisa.
+                {l("howItWorksSubtitle")}
               </p>
             </div>
 
@@ -270,20 +274,20 @@ export default function HomePage({params: {locale}}: {params: {locale: string}})
               {[
                 {
                   step: "01",
-                  title: "Defina o Objetivo",
-                  desc: "Escolha o tema, a série e os objetivos da BNCC que deseja trabalhar.",
+                  title: l("step1Title"),
+                  desc: l("step1Desc"),
                   icon: <MousePointer2 className="w-10 h-10 text-indigo-600" />,
                 },
                 {
                   step: "02",
-                  title: "IA Geradora",
-                  desc: "Em segundos, nossa IA cria o material completo: textos, questões e imagens.",
+                  title: l("step2Title"),
+                  desc: l("step2Desc"),
                   icon: <Zap className="w-10 h-10 text-blue-600" />,
                 },
                 {
                   step: "03",
-                  title: "Pronto para Imprimir",
-                  desc: "Baixe o PDF formatado e profissional, pronto para aplicar em sala.",
+                  title: l("step3Title"),
+                  desc: l("step3Desc"),
                   icon: <Download className="w-10 h-10 text-emerald-600" />,
                 },
               ].map((item, i) => (
@@ -314,14 +318,16 @@ export default function HomePage({params: {locale}}: {params: {locale: string}})
           <div className="container mx-auto px-6">
             <div className="text-center max-w-3xl mx-auto mb-48">
               <span className="text-indigo-600 font-black uppercase tracking-[0.2em] text-sm mb-4 block">
-                Planos & Preços
+                {l("pricingBadge")}
               </span>
               <h2 className="text-5xl md:text-6xl font-display font-black mb-6 text-slate-900">
-                O maior retorno para o seu{" "}
-                <span className="text-indigo-600">precioso tempo</span>
+                {l("pricingTitle").split("{highlight}")[0]}
+                <span className="text-indigo-600">
+                  {l("pricingTitleHighlight")}
+                </span>
               </h2>
               <p className="text-xl text-slate-600 font-medium">
-                Escolha o plano que melhor se adapta à sua rotina escolar.
+                {l("pricingSubtitle")}
               </p>
             </div>
 
@@ -333,26 +339,28 @@ export default function HomePage({params: {locale}}: {params: {locale: string}})
 
                 <div className="mb-8 relative z-10">
                   <div className="inline-block px-4 py-1.5 mb-6 text-[10px] font-black tracking-widest text-slate-600 uppercase bg-slate-100 rounded-full border border-slate-200/50">
-                    BÁSICO
+                    {l("essentialBadge")}
                   </div>
                   <h3 className="text-3xl font-black text-slate-900 mb-2 font-display">
-                    Plano Essencial
+                    {l("essentialName")}
                   </h3>
                   <div className="flex items-baseline gap-1">
                     <span className="text-5xl font-black text-slate-900 leading-none font-display">
-                      R$9,99
+                      {l("essentialPrice")}
                     </span>
-                    <span className="text-slate-400 font-bold">/mês</span>
+                    <span className="text-slate-400 font-bold">
+                      {l("essentialPer")}
+                    </span>
                   </div>
                 </div>
 
                 <ul className="space-y-4 mb-10 grow relative z-10">
                   {[
-                    "IA de alta qualidade",
-                    "Até 10 atividades/semana",
-                    "PDFs para impressão",
-                    "Histórico 30 dias",
-                    "Uso individual",
+                    l("essentialF1"),
+                    l("essentialF2"),
+                    l("essentialF3"),
+                    l("essentialF4"),
+                    l("essentialF5"),
                   ].map((item, i) => (
                     <li
                       key={i}
@@ -370,7 +378,7 @@ export default function HomePage({params: {locale}}: {params: {locale: string}})
                   href="https://pay.cakto.com.br/9m78gio_761861"
                   className="w-full py-6 bg-slate-900 text-white font-black text-center rounded-[1.5rem] hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 font-display"
                 >
-                  Gerar atividades
+                  {l("essentialCta")}
                 </a>
               </div>
 
@@ -381,31 +389,33 @@ export default function HomePage({params: {locale}}: {params: {locale: string}})
                 </div>
 
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-600 text-white px-8 py-2.5 rounded-full text-[10px] font-black tracking-[0.2em] shadow-xl whitespace-nowrap uppercase z-20">
-                  RECOMENDADO
+                  {l("proRecommended")}
                 </div>
 
                 <div className="mb-8 relative z-10">
                   <div className="inline-block px-4 py-1.5 mb-6 text-[10px] font-black tracking-widest text-indigo-400 uppercase bg-indigo-500/10 rounded-full border border-indigo-500/20">
-                    PROFISSIONAL
+                    {l("proBadge")}
                   </div>
                   <h3 className="text-3xl font-black text-white mb-2 font-display">
-                    Plano Pro
+                    {l("proName")}
                   </h3>
                   <div className="flex items-baseline gap-1">
                     <span className="text-5xl font-black text-white leading-none font-display">
-                      R$19,80
+                      {l("proPrice")}
                     </span>
-                    <span className="text-slate-400 font-bold">/mês</span>
+                    <span className="text-slate-400 font-bold">
+                      {l("proPer")}
+                    </span>
                   </div>
                 </div>
 
                 <ul className="space-y-4 mb-10 grow relative z-10">
                   {[
-                    "Geração ultra-rápida",
-                    "Suporte VIP via WhatsApp",
-                    "Templates exclusivos",
-                    "PDFs Ilimitados",
-                    "Uso em múltiplas turmas",
+                    l("proF1"),
+                    l("proF2"),
+                    l("proF3"),
+                    l("proF4"),
+                    l("proF5"),
                   ].map((item, i) => (
                     <li
                       key={i}
@@ -423,7 +433,7 @@ export default function HomePage({params: {locale}}: {params: {locale: string}})
                   href="https://pay.cakto.com.br/3ey44xv_761899"
                   className="w-full py-6 bg-indigo-600 text-white font-black text-center rounded-[1.5rem] hover:bg-indigo-500 transition-all shadow-2xl shadow-indigo-600/30 font-display"
                 >
-                  Assinar Agora
+                  {l("proCta")}
                 </a>
               </div>
             </div>
@@ -438,12 +448,10 @@ export default function HomePage({params: {locale}}: {params: {locale: string}})
             </div>
 
             <h2 className="text-4xl md:text-6xl font-display font-black mb-10 relative z-10 leading-[1.1]">
-              Economize horas de <br className="hidden md:block" />
-              planejamento hoje mesmo.
+              {l("ctaTitle")}
             </h2>
             <p className="text-xl md:text-2xl text-indigo-100 mb-12 max-w-2xl mx-auto relative z-10 font-bold">
-              Junte-se aos milhares de professores que já usam IA para criar
-              atividades incríveis em segundos.
+              {l("ctaSubtitle")}
             </p>
 
             <div className="flex flex-col sm:flex-row justify-center gap-6 relative z-10">
@@ -451,12 +459,12 @@ export default function HomePage({params: {locale}}: {params: {locale: string}})
                 href="#precos"
                 className="px-12 py-6 bg-white text-indigo-700 font-black rounded-2xl hover:bg-indigo-50 transition-all shadow-2xl hover:scale-105 font-display text-xl"
               >
-                Gerar atividades
+                {l("ctaButton")}
               </a>
             </div>
 
             <p className="mt-10 text-indigo-200 text-xs font-black tracking-widest uppercase relative z-10">
-              🚀 +15.000 atividades geradas este mês
+              {l("ctaStats")}
             </p>
           </div>
         </section>
@@ -475,8 +483,8 @@ export default function HomePage({params: {locale}}: {params: {locale: string}})
                   EduCreator<span className="text-indigo-600">AI</span>
                 </span>
               </Link>
-               <p className="text-slate-500 text-sm font-bold leading-relaxed mb-8">
-                {t('description')}
+              <p className="text-slate-500 text-sm font-bold leading-relaxed mb-8">
+                {t("description")}
               </p>
               <div className="flex gap-4">
                 {/* Social links could go here */}
@@ -486,70 +494,70 @@ export default function HomePage({params: {locale}}: {params: {locale: string}})
             <div className="grid grid-cols-2 md:grid-cols-3 gap-16 text-sm">
               <div className="flex flex-col gap-5">
                 <span className="font-black text-slate-900 uppercase tracking-widest text-[10px]">
-                  Produto
+                  {l("footerProduct")}
                 </span>
                 <a
                   href="#solucao"
                   className="text-slate-500 hover:text-indigo-600 font-bold transition-colors"
                 >
-                  Funcionalidades
+                  {l("footerFeatures")}
                 </a>
                 <a
                   href="#demo"
                   className="text-slate-500 hover:text-indigo-600 font-bold transition-colors"
                 >
-                  Demonstração
+                  {l("footerDemo")}
                 </a>
                 <a
                   href="#precos"
                   className="text-slate-500 hover:text-indigo-600 font-bold transition-colors"
                 >
-                  Planos
+                  {l("footerPlans")}
                 </a>
               </div>
               <div className="flex flex-col gap-5">
                 <span className="font-black text-slate-900 uppercase tracking-widest text-[10px]">
-                  Suporte
+                  {l("footerSupport")}
                 </span>
                 <Link
                   href="/login"
                   className="text-slate-500 hover:text-indigo-600 font-bold transition-colors"
                 >
-                  Área do Professor
+                  {l("footerTeacherArea")}
                 </Link>
                 <a
                   href="#"
                   className="text-slate-500 hover:text-indigo-600 font-bold transition-colors"
                 >
-                  WhatsApp
+                  {l("footerWhatsApp")}
                 </a>
               </div>
               <div className="flex flex-col gap-5">
                 <span className="font-black text-slate-900 uppercase tracking-widest text-[10px]">
-                  Legal
+                  {l("footerLegal")}
                 </span>
                 <a
                   href="#"
                   className="text-slate-500 hover:text-indigo-600 font-bold transition-colors"
                 >
-                  Termos
+                  {l("footerTerms")}
                 </a>
                 <a
                   href="#"
                   className="text-slate-500 hover:text-indigo-600 font-bold transition-colors"
                 >
-                  Privacidade
+                  {l("footerPrivacy")}
                 </a>
               </div>
             </div>
           </div>
 
           <div className="mt-24 pt-10 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] font-black tracking-widest text-slate-400 uppercase">
-            <span>© 2026 EduCreator AI. Feito com amor por educadores.</span>
+            <span>{l("footerCopyright")}</span>
             <div className="flex gap-8">
               <span className="flex items-center gap-1">
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>{" "}
-                Servidores Online
+                {l("footerServersOnline")}
               </span>
             </div>
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, use } from "react";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -22,7 +22,8 @@ import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import {useTranslations} from 'next-intl';
 import {useRouter} from '@/i18n/routing';
 
-export default function RegisterPage({params: {locale}}: {params: {locale: string}}) {
+export default function RegisterPage({params}: {params: Promise<{locale: string}>}) {
+  const {locale} = use(params);
   const t = useTranslations('Register');
   const [step, setStep] = useState(1);
   const [accountType, setAccountType] = useState("");
@@ -151,7 +152,7 @@ export default function RegisterPage({params: {locale}}: {params: {locale: strin
         </Link>
       </header>
 
-      <div className="flex-grow flex items-center justify-center p-6 bg-slate-50/30">
+      <div className="grow flex items-center justify-center p-6 bg-slate-50/30">
         <div className="w-full max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-700">
           {/* Step 1: Account Type */}
           {step === 1 && (

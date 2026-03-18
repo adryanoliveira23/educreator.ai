@@ -1,6 +1,6 @@
-import type { Metadata, Viewport } from "next";
+import type { Viewport } from "next";
 import { Geist, Geist_Mono, Outfit, Inter } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
 import Script from "next/script";
@@ -69,7 +69,7 @@ export default async function RootLayout({
 }) {
   const {locale} = await params;
 
-  if (!routing.locales.includes(locale as any)) {
+  if (!routing.locales.includes(locale as typeof routing.locales[number])) {
     notFound();
   }
  
