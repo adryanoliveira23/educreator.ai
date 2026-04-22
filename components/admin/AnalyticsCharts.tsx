@@ -229,7 +229,7 @@ export function AttentionMap({ segments }: { segments: number[] }) {
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="flex-grow h-3 bg-gray-800/80 rounded-full overflow-hidden border border-gray-700/50">
+                <div className="grow h-3 bg-gray-800/80 rounded-full overflow-hidden border border-gray-700/50">
                   <div
                     className={`h-full transition-all duration-1000 rounded-full ${
                       relativeStrength > 0.7

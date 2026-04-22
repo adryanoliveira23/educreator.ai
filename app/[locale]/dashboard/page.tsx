@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { db } from "@/lib/firebase";
 import {
   doc,
@@ -94,8 +95,7 @@ interface UserData {
 }
 
 import { useTranslations } from "next-intl";
-
-export default function Dashboard({params: {locale}}: {params: {locale: string}}) {
+export default function Dashboard() {
   const t = useTranslations("Dashboard");
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -141,21 +141,7 @@ export default function Dashboard({params: {locale}}: {params: {locale: string}}
     context: "",
   });
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (!["image/jpeg", "image/jpg", "image/png"].includes(file.type)) {
-        alert("Apenas JPG, JPEG ou PNG são permitidos.");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result as string;
-        setSelectedWallpaper(base64);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+
 
   const applyTemplate = useCallback((template: ActivityTemplate) => {
     setPrompt(template.prompt);
@@ -444,13 +430,7 @@ export default function Dashboard({params: {locale}}: {params: {locale: string}}
       </div>
     );
 
-  const limits: Record<string, number> = {
-    normal: 10,
-    pro: 30,
-    premium: 999999,
-    trial: 999999,
-  };
-  const limit = limits[userData.plan || "normal"] || 10;
+
 
   return (
     <div className="flex h-dvh bg-gray-100 font-sans relative overflow-hidden">
@@ -485,7 +465,6 @@ export default function Dashboard({params: {locale}}: {params: {locale: string}}
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col relative pt-20 md:pt-0 h-full overflow-hidden">
-
         {showWarning && !showPlans && (
           <div className="fixed inset-0 z-60 bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-10 text-center animate-in fade-in zoom-in duration-500 border border-white/20">
@@ -543,7 +522,6 @@ export default function Dashboard({params: {locale}}: {params: {locale: string}}
               </div>
 
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-
                 {/* Pro */}
                 <div className="bg-slate-900 p-8 rounded-4xl shadow-2xl border-2 border-blue-600 relative flex flex-col transform md:-translate-y-4 hover:shadow-blue-900/10 transition-all duration-300">
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white px-6 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg whitespace-nowrap">
@@ -595,7 +573,7 @@ export default function Dashboard({params: {locale}}: {params: {locale: string}}
                       />{" "}
                       Acesso antecipado a novos modelos e layouts
                     </li>
-                    <li className="flex items-center gap-3 text-slate-300 font-medium font-bold text-blue-400">
+                    <li className="flex items-center gap-3 font-bold text-blue-400">
                       <Check
                         size={20}
                         className="text-blue-400 shrink-0 bg-blue-400/10 p-1 rounded-full"
@@ -692,10 +670,11 @@ export default function Dashboard({params: {locale}}: {params: {locale: string}}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                   <div>
                     <h1 className="text-3xl font-black text-slate-800">
-                      {t('hello')}, {user?.displayName?.split(" ")[0] || "Professor"}! 👋
+                      {t("hello")},{" "}
+                      {user?.displayName?.split(" ")[0] || "Professor"}! 👋
                     </h1>
                     <p className="text-slate-500 font-medium">
-                      {t('whatToCreate')}
+                      {t("whatToCreate")}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
@@ -706,7 +685,7 @@ export default function Dashboard({params: {locale}}: {params: {locale: string}}
                       />
                       <input
                         type="text"
-                        placeholder={t('searchTools')}
+                        placeholder={t("searchTools")}
                         className="bg-white border-2 border-slate-100 rounded-2xl py-2.5 pl-10 pr-4 font-bold text-sm outline-none focus:border-indigo-600 transition-all w-full md:w-64"
                         value={toolSearch}
                         onChange={(e) => setToolSearch(e.target.value)}
@@ -716,7 +695,7 @@ export default function Dashboard({params: {locale}}: {params: {locale: string}}
                 </div>
 
                 {/* Original Style Banner */}
-                <div className="bg-indigo-600 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-12 text-white relative overflow-hidden mb-8 md:mb-10 shadow-2xl shadow-indigo-200">
+                <div className="bg-indigo-600 rounded-4xl md:rounded-[2.5rem] p-6 md:p-12 text-white relative overflow-hidden mb-8 md:mb-10 shadow-2xl shadow-indigo-200">
                   <div className="relative z-10 space-y-3 md:space-y-4">
                     <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest border border-white/20">
                       <Sparkles
@@ -726,10 +705,10 @@ export default function Dashboard({params: {locale}}: {params: {locale: string}}
                       <span>Inteligência Artificial</span>
                     </div>
                     <h2 className="text-2xl md:text-5xl font-black leading-tight tracking-tight">
-                      {t('heroTitle')}
+                      {t("heroTitle")}
                     </h2>
                     <p className="text-indigo-100 font-bold max-w-lg text-xs md:text-lg">
-                      {t('heroSubtitle')}
+                      {t("heroSubtitle")}
                     </p>
                   </div>
                   <div className="absolute top-0 right-0 w-1/3 h-full bg-linear-to-l from-white/10 to-transparent pointer-events-none"></div>
@@ -741,7 +720,7 @@ export default function Dashboard({params: {locale}}: {params: {locale: string}}
 
                 {/* Original Prompt Bar Style */}
                 <div className="mb-10 md:mb-12 relative group max-w-4xl mx-auto">
-                  <div className="absolute -inset-1 bg-linear-to-r from-indigo-600 to-blue-600 rounded-[2rem] blur-xl opacity-20 group-focus-within:opacity-40 transition-opacity duration-500"></div>
+                  <div className="absolute -inset-1 bg-linear-to-r from-indigo-600 to-blue-600 rounded-4xl blur-xl opacity-20 group-focus-within:opacity-40 transition-opacity duration-500"></div>
                   <form
                     onSubmit={handleGenerate}
                     className="relative bg-white border-2 border-slate-100 rounded-3xl p-2 shadow-xl shadow-slate-200/50 flex flex-col md:flex-row gap-2 transition-all group-focus-within:border-indigo-600"
@@ -754,7 +733,7 @@ export default function Dashboard({params: {locale}}: {params: {locale: string}}
                       <textarea
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
-                        placeholder={t('placeholder')}
+                        placeholder={t("placeholder")}
                         className="w-full min-h-[60px] md:min-h-0 h-full py-3 md:py-4 font-bold text-slate-700 outline-none resize-none placeholder:text-slate-400 bg-transparent text-sm md:text-base"
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && !e.shiftKey) {
@@ -774,7 +753,7 @@ export default function Dashboard({params: {locale}}: {params: {locale: string}}
                       ) : (
                         <Send size={18} />
                       )}
-                      <span>{t('generate')}</span>
+                      <span>{t("generate")}</span>
                     </button>
                   </form>
                 </div>
@@ -793,7 +772,7 @@ export default function Dashboard({params: {locale}}: {params: {locale: string}}
                     <div className="flex items-center gap-4">
                       <div className="text-2xl">🖍️</div>
                       <span className="font-black text-slate-800">
-                        {t('createEvaluations')}
+                        {t("createEvaluations")}
                       </span>
                     </div>
                     <ChevronRight
@@ -867,7 +846,7 @@ export default function Dashboard({params: {locale}}: {params: {locale: string}}
 
             {currentPrompt && (result || isGenerating) && (
               <div className="flex justify-end animate-in slide-in-from-right-4 duration-300">
-                <div className="bg-indigo-600 text-white p-4 rounded-2xl rounded-tr-none shadow-sm max-w-[80%] shadow-lg shadow-indigo-100">
+                <div className="bg-indigo-600 text-white p-4 rounded-2xl rounded-tr-none max-w-[80%] shadow-lg shadow-indigo-100">
                   <p className="text-sm font-bold">{currentPrompt}</p>
                 </div>
               </div>
@@ -972,9 +951,11 @@ export default function Dashboard({params: {locale}}: {params: {locale: string}}
 
                         {question.imageUrl && (
                           <div className="ml-18 max-w-xl">
-                            <img
+                            <Image
                               src={question.imageUrl}
-                              className="rounded-3xl border-4 border-slate-50 w-full shadow-lg"
+                              width={800}
+                              height={600}
+                              className="rounded-3xl border-4 border-slate-50 w-full shadow-lg h-auto"
                               alt="Ilustração"
                             />
                           </div>

@@ -182,7 +182,7 @@ export default function HomePage({
         </section>
 
         {/* Demo Section */}
-        <section id="demo" className="container mx-auto px-6 mb-32">
+        <section id="demo" className="container mx-auto px-6 mb-32 overflow-hidden">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 text-slate-900 tracking-tight">
               {l("demoTitle").split("##highlight##")[0]}
@@ -383,7 +383,7 @@ export default function HomePage({
               </div>
 
               {/* Pro - Featured */}
-              <div className="bg-slate-900 p-12 pt-24 rounded-[2.5rem] shadow-[0_40px_80px_-15px_rgba(79,70,229,0.3)] border-[3px] border-indigo-600 relative flex flex-col z-10 hover:scale-[1.02] transition-transform duration-500">
+              <div className="bg-slate-900 p-12 pt-24 rounded-[2.5rem] shadow-[0_40px_80px_-15px_rgba(79,70,229,0.3)] border-[3px] border-indigo-600 relative flex flex-col z-10 hover:scale-[1.02] transition-transform duration-500 overflow-hidden">
                 <div className="absolute top-0 right-0 p-12 opacity-5 -rotate-12 translate-x-12 -translate-y-12 overflow-hidden pointer-events-none">
                   <Sparkles size={160} fill="white" />
                 </div>
