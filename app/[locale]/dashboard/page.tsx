@@ -433,7 +433,7 @@ export default function Dashboard() {
 
 
   return (
-    <div className="flex h-dvh bg-gray-100 font-sans relative overflow-hidden">
+    <div className="flex h-dvh bg-gray-100 font-sans relative overflow-x-hidden">
       {/* Mobile Header */}
       <div className="md:hidden flex items-center justify-between p-4 bg-white/80 backdrop-blur-md border-b border-slate-100 fixed top-0 left-0 right-0 z-40">
         <Link href="/dashboard" className="flex items-center gap-2 group">
@@ -464,7 +464,7 @@ export default function Dashboard() {
       />
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col relative pt-20 md:pt-0 h-full overflow-hidden">
+      <main className="flex-1 flex flex-col relative pt-20 md:pt-0 h-dvh md:h-full overflow-hidden">
         {showWarning && !showPlans && (
           <div className="fixed inset-0 z-60 bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-10 text-center animate-in fade-in zoom-in duration-500 border border-white/20">
@@ -660,7 +660,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto p-4 md:p-12 bg-gray-50/50 pb-32 md:pb-32">
+        <div className="flex-1 overflow-y-auto p-4 md:p-12 bg-gray-50/50 pb-32 md:pb-32 touch-pan-y">
           <div
             className={`${result ? "max-w-3xl" : "max-w-6xl"} mx-auto space-y-6 pb-20 md:pb-0`}
           >

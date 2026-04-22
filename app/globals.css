@@ -1,8 +1,10 @@
 @import "tailwindcss";
  
  html {
-   scroll-behavior: smooth;
- }
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+}
 
 :root {
   --background: #ffffff;
@@ -39,6 +41,9 @@ body {
   color: var(--foreground);
   font-family: var(--font-inter), sans-serif;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+  width: 100%;
 }
 
 h1,

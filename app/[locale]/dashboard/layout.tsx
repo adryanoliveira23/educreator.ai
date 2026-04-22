@@ -29,8 +29,8 @@ export default function DashboardLayout({
   if (!user) return null;
 
   return (
-    <div className="bg-gray-50 min-h-screen flex font-sans">
-      <div className="flex-1 relative min-h-screen">{children}</div>
+    <div className="bg-gray-50 flex font-sans">
+      <div className="flex-1 relative">{children}</div>
     </div>
   );
 }
