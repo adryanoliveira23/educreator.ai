@@ -1,6 +1,6 @@
 {
   "HomePage": {
-    "title": "EduCreator AI | Inteligência Artificial para Professores",
+    "title": "Crie atividades em minutos com IA",
     "description": "Crie atividades pedagógicas em segundos com nossa IA. Otimize seu tempo e melhore a qualidade do ensino.",
     "nav": {
       "solution": "Solução",
@@ -15,10 +15,10 @@
       "trustSecure": "Seguro & Confiável",
       "trustBncc": "Alinhado à BNCC",
       "trustTeachers": "Favorito dos Professores",
-      "demoTitle": "Veja a {highlight} Acontecendo",
+      "demoTitle": "Veja a ##highlight## Acontecendo",
       "demoTitleHighlight": "Mágica",
       "demoSubtitle": "Deixe nossa IA cuidar do trabalho pesado. Em menos de 2 minutos, você tem uma atividade pronta para aplicar.",
-      "solutionTitle": "Sua aula pronta em {highlight}",
+      "solutionTitle": "Sua aula pronta em ##highlight##",
       "solutionTitleHighlight": "um clique",
       "solutionSubtitle": "Desenvolvemos ferramentas específicas para cada etapa do seu dia. Da BNCC à correção, o EduCreator é seu assistente pedagógico completo.",
       "benefit1Title": "Recupere seu tempo livre",
@@ -36,7 +36,7 @@
       "step3Title": "Pronto para Imprimir",
       "step3Desc": "Baixe o PDF formatado e profissional, pronto para aplicar em sala.",
       "pricingBadge": "Planos & Preços",
-      "pricingTitle": "O maior retorno para o seu {highlight}",
+      "pricingTitle": "O maior retorno para o seu ##highlight##",
       "pricingTitleHighlight": "precioso tempo",
       "pricingSubtitle": "Escolha o plano que melhor se adapta à sua rotina escolar.",
       "essentialBadge": "BÁSICO",

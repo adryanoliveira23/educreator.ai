@@ -131,18 +131,18 @@ export default function HomePage({
                 {l("heroBadge")}
               </div>
 
-              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-black mb-10 leading-[1.1] md:leading-none tracking-tight text-slate-900 animate-in fade-in slide-in-from-bottom-4 duration-700 px-4 text-balance">
+              <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-black mb-8 leading-[1.2] md:leading-[1.1] tracking-tight text-slate-900 animate-in fade-in slide-in-from-bottom-4 duration-700 px-4 text-balance">
                 {t("title")}
               </h1>
 
-              <p className="text-lg sm:text-xl md:text-2xl text-slate-600 mb-14 max-w-4xl mx-auto leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-6 duration-1000 px-4">
+              <p className="text-base sm:text-lg md:text-xl text-slate-600 mb-10 max-w-3xl mx-auto leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-6 duration-1000 px-4">
                 {t("description")}
               </p>
 
               <div className="flex flex-col sm:flex-row justify-center gap-6 animate-in fade-in slide-in-from-bottom-8 duration-1000">
                 <a
                   href="#precos"
-                  className="group px-10 py-6 text-xl font-black text-white bg-indigo-600 rounded-3xl hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 hover:shadow-indigo-200 transform hover:-translate-y-1 flex items-center justify-center gap-2"
+                  className="group px-8 py-4 sm:px-10 sm:py-6 text-lg sm:text-xl font-black text-white bg-indigo-600 rounded-2xl sm:rounded-3xl hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 hover:shadow-indigo-200 transform hover:-translate-y-1 flex items-center justify-center gap-2"
                 >
                   {l("generateActivities")}
                   <ArrowRight
@@ -152,7 +152,7 @@ export default function HomePage({
                 </a>
                 <a
                   href="#demo"
-                  className="px-10 py-6 text-xl font-black text-slate-700 bg-white border-2 border-slate-100 rounded-3xl hover:bg-slate-50 transition-all shadow-sm flex items-center justify-center gap-2"
+                  className="px-8 py-4 sm:px-10 sm:py-6 text-lg sm:text-xl font-black text-slate-700 bg-white border-2 border-slate-100 rounded-2xl sm:rounded-3xl hover:bg-slate-50 transition-all shadow-sm flex items-center justify-center gap-2"
                 >
                   <MousePointer2 size={22} className="text-indigo-600" />
                   {l("watchDemo")}
@@ -185,9 +185,9 @@ export default function HomePage({
         <section id="demo" className="container mx-auto px-6 mb-32">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 text-slate-900 tracking-tight">
-              {l("demoTitle").split("{highlight}")[0]}
+              {l("demoTitle").split("##highlight##")[0]}
               <span className="text-blue-600">{l("demoTitleHighlight")}</span>
-              {l("demoTitle").split("{highlight}")[1]}
+              {l("demoTitle").split("##highlight##")[1]}
             </h2>
             <p className="text-lg text-slate-600 font-medium">
               {l("demoSubtitle")}
@@ -202,7 +202,7 @@ export default function HomePage({
           <div className="container mx-auto px-6">
             <div className="text-center max-w-3xl mx-auto mb-20">
               <h2 className="text-5xl md:text-6xl font-display font-black mb-6 text-slate-900 tracking-tight">
-                {l("solutionTitle").split("{highlight}")[0]}
+                {l("solutionTitle").split("##highlight##")[0]}
                 <span className="text-indigo-600">
                   {l("solutionTitleHighlight")}
                 </span>
@@ -316,12 +316,12 @@ export default function HomePage({
         {/* Pricing */}
         <section id="precos" className="py-32 bg-white">
           <div className="container mx-auto px-6">
-            <div className="text-center max-w-3xl mx-auto mb-48">
+            <div className="text-center max-w-3xl mx-auto mb-20 md:mb-48">
               <span className="text-indigo-600 font-black uppercase tracking-[0.2em] text-sm mb-4 block">
                 {l("pricingBadge")}
               </span>
               <h2 className="text-5xl md:text-6xl font-display font-black mb-6 text-slate-900">
-                {l("pricingTitle").split("{highlight}")[0]}
+                {l("pricingTitle").split("##highlight##")[0]}
                 <span className="text-indigo-600">
                   {l("pricingTitleHighlight")}
                 </span>
@@ -447,7 +447,7 @@ export default function HomePage({
               <Sparkles size={250} fill="white" />
             </div>
 
-            <h2 className="text-4xl md:text-6xl font-display font-black mb-10 relative z-10 leading-[1.1]">
+            <h2 className="text-3xl md:text-6xl font-display font-black mb-10 relative z-10 leading-[1.1]">
               {l("ctaTitle")}
             </h2>
             <p className="text-xl md:text-2xl text-indigo-100 mb-12 max-w-2xl mx-auto relative z-10 font-bold">
@@ -457,7 +457,7 @@ export default function HomePage({
             <div className="flex flex-col sm:flex-row justify-center gap-6 relative z-10">
               <a
                 href="#precos"
-                className="px-12 py-6 bg-white text-indigo-700 font-black rounded-2xl hover:bg-indigo-50 transition-all shadow-2xl hover:scale-105 font-display text-xl"
+                className="px-8 py-4 sm:px-12 sm:py-6 bg-white text-indigo-700 font-black rounded-2xl hover:bg-indigo-50 transition-all shadow-2xl hover:scale-105 font-display text-lg sm:text-xl"
               >
                 {l("ctaButton")}
               </a>

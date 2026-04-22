@@ -1,6 +1,6 @@
 {
   "HomePage": {
-    "title": "EduCreator AI | Artificial Intelligence for Teachers",
+    "title": "Create activities in minutes with AI",
     "description": "Create pedagogical activities in seconds with our AI. Optimize your time and improve teaching quality.",
     "nav": {
       "solution": "Solution",
@@ -15,10 +15,10 @@
       "trustSecure": "Secure & Reliable",
       "trustBncc": "Standards-Aligned",
       "trustTeachers": "Teachers' Favorite",
-      "demoTitle": "Watch the {highlight} Happen",
+      "demoTitle": "Watch the ##highlight## Happen",
       "demoTitleHighlight": "Magic",
       "demoSubtitle": "Let our AI handle the heavy lifting. In less than 2 minutes, you have an activity ready to apply.",
-      "solutionTitle": "Your lesson ready in {highlight}",
+      "solutionTitle": "Your lesson ready in ##highlight##",
       "solutionTitleHighlight": "one click",
       "solutionSubtitle": "We developed specific tools for every stage of your day. From standards to grading, EduCreator is your complete pedagogical assistant.",
       "benefit1Title": "Reclaim Your Free Time",
@@ -36,7 +36,7 @@
       "step3Title": "Ready to Print",
       "step3Desc": "Download the formatted and professional PDF, ready to apply in class.",
       "pricingBadge": "Plans & Pricing",
-      "pricingTitle": "The greatest return on your {highlight}",
+      "pricingTitle": "The greatest return on your ##highlight##",
       "pricingTitleHighlight": "precious time",
       "pricingSubtitle": "Choose the plan that best fits your school routine.",
       "essentialBadge": "BASIC",
